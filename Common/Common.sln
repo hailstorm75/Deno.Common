@@ -7,6 +7,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommonMath", "CommonMath\Co
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTestCommonMath", "UnitTestCommonMath\UnitTestCommonMath.csproj", "{061AA142-199D-4AB4-ACD0-6482AF7C3FF9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommonAsync", "CommonAsync\CommonAsync.csproj", "{7A20ABEB-ACF6-4138-A980-CF6A7CC01FC0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTestCommonAsync", "UnitTestCommonAsync\UnitTestCommonAsync.csproj", "{D362ECBA-446C-4350-8C7A-E314CF99CF17}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +25,14 @@ Global
 		{061AA142-199D-4AB4-ACD0-6482AF7C3FF9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{061AA142-199D-4AB4-ACD0-6482AF7C3FF9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{061AA142-199D-4AB4-ACD0-6482AF7C3FF9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7A20ABEB-ACF6-4138-A980-CF6A7CC01FC0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7A20ABEB-ACF6-4138-A980-CF6A7CC01FC0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7A20ABEB-ACF6-4138-A980-CF6A7CC01FC0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7A20ABEB-ACF6-4138-A980-CF6A7CC01FC0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D362ECBA-446C-4350-8C7A-E314CF99CF17}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D362ECBA-446C-4350-8C7A-E314CF99CF17}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D362ECBA-446C-4350-8C7A-E314CF99CF17}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D362ECBA-446C-4350-8C7A-E314CF99CF17}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
