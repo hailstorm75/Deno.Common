@@ -40,7 +40,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Class1.cs" />
     <Compile Include="INumeric.cs" />
+    <Compile Include="LongestLong.cs" />
     <Compile Include="NumberInRange.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
