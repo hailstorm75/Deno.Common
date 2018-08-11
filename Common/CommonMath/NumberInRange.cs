@@ -3,12 +3,23 @@
 namespace Common.Math
 {
   // TODO Generalize for all numeric types
-  public class NumberInRange<T> where T : struct, INumeric<T>
+  public class NumberInRange
   {
     #region Properties
 
+    /// <summary>
+    /// Value in range
+    /// </summary>
     public int Value { get; protected set; }
+
+    /// <summary>
+    /// Range maximum
+    /// </summary>
     public int Max { get; protected set; }
+
+    /// <summary>
+    /// Range minimum
+    /// </summary>
     public int Min { get; protected set; }
 
     #endregion
@@ -26,6 +37,10 @@ namespace Common.Math
       SetValue(value);
     }
 
+    /// <summary>
+    /// Sets the <see cref="Value"/> property
+    /// </summary>
+    /// <param name="value">Value to set</param>
     public void SetValue(int value)
     {
       Value = value > Max ? (value - Max) :
@@ -41,7 +56,7 @@ namespace Common.Math
     /// <param name="a"></param>
     /// <param name="b"></param>
     /// <returns></returns>
-    public static int operator +(int a, NumberInRange<T> b) => (a + b.Value);
+    public static int operator +(int a, NumberInRange b) => (a + b.Value);
 
     /// <summary>
     ///
@@ -49,7 +64,7 @@ namespace Common.Math
     /// <param name="a"></param>
     /// <param name="b"></param>
     /// <returns></returns>
-    public static int operator -(int a, NumberInRange<T> b) => (a - b.Value);
+    public static int operator -(int a, NumberInRange b) => (a - b.Value);
 
     /// <summary>
     ///
@@ -57,7 +72,7 @@ namespace Common.Math
     /// <param name="a"></param>
     /// <param name="b"></param>
     /// <returns></returns>
-    public static int operator +(NumberInRange<T> a, int b) => (b + a.Value) % a.Max - a.Min;
+    public static int operator +(NumberInRange a, int b) => (b + a.Value) % a.Max - a.Min;
 
     /// <summary>
     ///
@@ -65,7 +80,7 @@ namespace Common.Math
     /// <param name="a"></param>
     /// <param name="b"></param>
     /// <returns></returns>
-    public static int operator -(NumberInRange<T> a, int b) => (b - a.Value) % a.Max - a.Min;
+    public static int operator -(NumberInRange a, int b) => (b - a.Value) % a.Max - a.Min;
 
     /// <summary>
     ///
@@ -73,7 +88,7 @@ namespace Common.Math
     /// <param name="a"></param>
     /// <param name="b"></param>
     /// <returns></returns>
-    public static int operator +(NumberInRange<T> a, NumberInRange<T> b) => (b.Value + a.Value) % a.Max - a.Min;
+    public static int operator +(NumberInRange a, NumberInRange b) => (b.Value + a.Value) % a.Max - a.Min;
 
     /// <summary>
     ///
@@ -81,7 +96,7 @@ namespace Common.Math
     /// <param name="a"></param>
     /// <param name="b"></param>
     /// <returns></returns>
-    public static int operator -(NumberInRange<T> a, NumberInRange<T> b) => (b.Value - a.Value) % a.Max - a.Min;
+    public static int operator -(NumberInRange a, NumberInRange b) => (b.Value - a.Value) % a.Max - a.Min;
 
     #endregion
   }
