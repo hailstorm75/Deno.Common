@@ -140,7 +140,7 @@ namespace Common.Math.Tests
     {
       var numberInRange = new NumberInRange(6, 0, 4);
       var result = 6 / numberInRange;
-      Assert.AreEqual(2, result);
+      Assert.AreEqual(3, result);
     }
 
     [TestMethod]
