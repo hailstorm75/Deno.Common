@@ -48,8 +48,9 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="UTLongestLong.cs" />
-    <Compile Include="UTNumberInRange.cs" />
+    <Compile Include="UtLongestLong.cs" />
+    <Compile Include="UtMatrix.cs" />
+    <Compile Include="UtNumberInRange.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

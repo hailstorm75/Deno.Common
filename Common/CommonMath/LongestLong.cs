@@ -44,7 +44,7 @@ namespace Common.Math
     public static LongestLong operator +(LongestLong a, long b)
     {
       var result = new List<long>();
-      a.Add(a.Values, new List<long>() { b }, ref result, a.Values.Count, false);
+      Add(a.Values, new List<long>() { b }, ref result, a.Values.Count, false);
       return new LongestLong(result);
     }
 
@@ -52,9 +52,9 @@ namespace Common.Math
     {
       var result = new List<long>();
       if (a.Values.Count > b.Values.Count)
-        a.Add(a.Values, b.Values, ref result, 0, false);
+        Add(a.Values, b.Values, ref result, 0, false);
       else
-        a.Add(b.Values, a.Values, ref result, 0, false);
+        Add(b.Values, a.Values, ref result, 0, false);
 
       return new LongestLong(result);
     }
@@ -137,7 +137,7 @@ namespace Common.Math
     /// <param name="result">Operation result</param>
     /// <param name="index">Recursion iteration index</param>
     /// <param name="carryover">Calculation carryover</param>
-    private void Add(List<long> x, List<long> y, ref List<long> result, int index, bool carryover) {
+    private static void Add(IReadOnlyList<long> x, IReadOnlyList<long> y, ref List<long> result, int index, bool carryover) {
       // We should actually be working base max value of long.
       // For sake of example, let us say that y is the shorter number
       // We should consider each pair of longs individually

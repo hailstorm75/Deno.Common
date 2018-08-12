@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 
 namespace Common.Math
 {
@@ -10,8 +11,8 @@ namespace Common.Math
     /// <summary>
     /// Value in range
     /// </summary>
-    public int Value { get => m_value; protected set => m_value = AdjustValue(value); }
-    private int m_value;
+    public int Value { get => _mValue; protected set => _mValue = AdjustValue(value); }
+    private int _mValue;
 
     /// <summary>
     /// Range maximum
@@ -79,7 +80,7 @@ namespace Common.Math
     /// Converts the <see cref="Value"/> of this instance to its equivalent string representation.
     /// </summary>
     /// <returns></returns>
-    public override string ToString() => m_value.ToString();
+    public override string ToString() => _mValue.ToString();
 
     #endregion
 
@@ -176,18 +177,19 @@ namespace Common.Math
 
     #region IComparable implementation
 
-    public int CompareTo(int other) => m_value.CompareTo(other);
+    public int CompareTo(int other) => _mValue.CompareTo(other);
 
-    public int CompareTo(INumberInRange other) => m_value.CompareTo(other.Value);
+    public int CompareTo(INumberInRange other) => _mValue.CompareTo(other.Value);
 
     #endregion
 
     #region IEquatable implementation
 
-    public bool Equals(int other) => m_value.Equals(other);
+    public bool Equals(int other) => _mValue.Equals(other);
 
     public bool Equals(INumberInRange other)
     {
+      Debug.Assert(other != null, nameof(other) + " != null");
       return Min.Equals(other.Min)
           && Max.Equals(other.Max)
           && Value.Equals(other.Value);
@@ -197,39 +199,39 @@ namespace Common.Math
 
     #region IConvertible implementation
 
-    public TypeCode GetTypeCode() => m_value.GetTypeCode();
+    public TypeCode GetTypeCode() => _mValue.GetTypeCode();
 
-    public bool ToBoolean(IFormatProvider provider) => ((IConvertible)m_value).ToBoolean(provider);
+    public bool ToBoolean(IFormatProvider provider) => ((IConvertible)_mValue).ToBoolean(provider);
 
-    public char ToChar(IFormatProvider provider) => ((IConvertible)m_value).ToChar(provider);
+    public char ToChar(IFormatProvider provider) => ((IConvertible)_mValue).ToChar(provider);
 
-    public sbyte ToSByte(IFormatProvider provider) => ((IConvertible)m_value).ToSByte(provider);
+    public sbyte ToSByte(IFormatProvider provider) => ((IConvertible)_mValue).ToSByte(provider);
 
-    public byte ToByte(IFormatProvider provider) => ((IConvertible)m_value).ToByte(provider);
+    public byte ToByte(IFormatProvider provider) => ((IConvertible)_mValue).ToByte(provider);
 
-    public short ToInt16(IFormatProvider provider) => ((IConvertible)m_value).ToInt16(provider);
+    public short ToInt16(IFormatProvider provider) => ((IConvertible)_mValue).ToInt16(provider);
 
-    public ushort ToUInt16(IFormatProvider provider) => ((IConvertible)m_value).ToUInt16(provider);
+    public ushort ToUInt16(IFormatProvider provider) => ((IConvertible)_mValue).ToUInt16(provider);
 
-    public int ToInt32(IFormatProvider provider) => ((IConvertible)m_value).ToInt32(provider);
+    public int ToInt32(IFormatProvider provider) => ((IConvertible)_mValue).ToInt32(provider);
 
-    public uint ToUInt32(IFormatProvider provider) => ((IConvertible)m_value).ToUInt32(provider);
+    public uint ToUInt32(IFormatProvider provider) => ((IConvertible)_mValue).ToUInt32(provider);
 
-    public long ToInt64(IFormatProvider provider) => ((IConvertible)m_value).ToInt64(provider);
+    public long ToInt64(IFormatProvider provider) => ((IConvertible)_mValue).ToInt64(provider);
 
-    public ulong ToUInt64(IFormatProvider provider) => ((IConvertible)m_value).ToUInt64(provider);
+    public ulong ToUInt64(IFormatProvider provider) => ((IConvertible)_mValue).ToUInt64(provider);
 
-    public float ToSingle(IFormatProvider provider) => ((IConvertible)m_value).ToSingle(provider);
+    public float ToSingle(IFormatProvider provider) => ((IConvertible)_mValue).ToSingle(provider);
 
-    public double ToDouble(IFormatProvider provider) => ((IConvertible)m_value).ToDouble(provider);
+    public double ToDouble(IFormatProvider provider) => ((IConvertible)_mValue).ToDouble(provider);
 
-    public decimal ToDecimal(IFormatProvider provider) => ((IConvertible)m_value).ToDecimal(provider);
+    public decimal ToDecimal(IFormatProvider provider) => ((IConvertible)_mValue).ToDecimal(provider);
 
-    public DateTime ToDateTime(IFormatProvider provider) => ((IConvertible)m_value).ToDateTime(provider);
+    public DateTime ToDateTime(IFormatProvider provider) => ((IConvertible)_mValue).ToDateTime(provider);
 
-    public string ToString(IFormatProvider provider) => m_value.ToString(provider);
+    public string ToString(IFormatProvider provider) => _mValue.ToString(provider);
 
-    public object ToType(Type conversionType, IFormatProvider provider) => ((IConvertible)m_value).ToType(conversionType, provider);
+    public object ToType(Type conversionType, IFormatProvider provider) => ((IConvertible)_mValue).ToType(conversionType, provider);
 
     #endregion
 

@@ -33,7 +33,7 @@ namespace Common.Serialization
     /// </summary>
     /// <param name="input">Object to serialize</param>
     /// <returns>JSON string</returns>
-    public static string SerializeJSON(this object input)
+    public static string SerializeJson(this object input)
     {
       var serializer = new JavaScriptSerializer();
       return serializer.Serialize(input);
@@ -45,7 +45,7 @@ namespace Common.Serialization
     /// <typeparam name="T">Expected type of deserialized object</typeparam>
     /// <param name="input">JSON string</param>
     /// <returns>Deserialized object</returns>
-    public static T DeserializeJSON<T>(string input)
+    public static T DeserializeJson<T>(string input)
     {
       var serializer = new JavaScriptSerializer();
       return serializer.Deserialize<T>(input);
@@ -56,7 +56,7 @@ namespace Common.Serialization
     /// </summary>
     /// <param name="input">Object to serialize</param>
     /// <returns>JSON string</returns>
-    public static string SerializeJSON2(this object input)
+    public static string SerializeJson2(this object input)
     {
       var settings = new JsonSerializerSettings()
       {
@@ -75,7 +75,7 @@ namespace Common.Serialization
     /// <typeparam name="T">Expected type of deserialized object</typeparam>
     /// <param name="input">JSON string</param>
     /// <returns>Deserialized object</returns>
-    public static T DeserializeJSON2<T>(string input)
+    public static T DeserializeJson2<T>(string input)
     {
       var settings = new JsonSerializerSettings() { ContractResolver = new CustomContractResolver() };
       return JsonConvert.DeserializeObject<T>(input, settings);
@@ -88,7 +88,7 @@ namespace Common.Serialization
     /// <param name="input">Object to serialize</param>
     /// <param name="file">File to serialize to</param>
     /// <returns>True if successful</returns>
-    public static bool SerializeJSON2(this object input, StreamWriter file)
+    public static bool SerializeJson2(this object input, StreamWriter file)
     {
       var serializer = new JsonSerializer
       {
@@ -120,7 +120,7 @@ namespace Common.Serialization
     /// <typeparam name="T">Expected type of deserialized object</typeparam>
     /// <param name="file">File to deserialize from</param>
     /// <returns>Deserialized object</returns>
-    public static T DeserializeJSON2<T>(StreamReader file)
+    public static T DeserializeJson2<T>(StreamReader file)
     {
       var serializer = new JsonSerializer();
 

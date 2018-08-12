@@ -13,7 +13,7 @@ namespace Common.Serialization
     /// <param name="input">Object to serialize</param>
     /// <param name="file">File to serialize to</param>
     /// <returns>True if successful</returns>
-    public static bool SerializeXML(this object input, StreamWriter file)
+    public static bool SerializeXml(this object input, StreamWriter file)
     {
       var serializer = new XmlSerializer(input.GetType());
       try
@@ -38,7 +38,7 @@ namespace Common.Serialization
     /// <typeparam name="T">Expected type of deserialized object</typeparam>
     /// <param name="file">File to deserialize from</param>
     /// <returns>Deserialized object</returns>
-    public static T DeserializeXML<T>(StreamReader file)
+    public static T DeserializeXml<T>(StreamReader file)
     {
       var serializer = new XmlSerializer(typeof(T));
       try
