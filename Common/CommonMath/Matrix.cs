@@ -10,10 +10,10 @@ namespace Common.Math
     {
         public int Rows { get; set; }
         public int Columns { get; set; }
-        public int[,] MatrixValues { get; set; }
+        public double[,] MatrixValues { get; set; }
 
 
-        public Matrix(int rows, int columns, int[,] values)
+        public Matrix(int rows, int columns, double[,] values)
         {
             Rows = rows;
             Columns = columns;
@@ -23,7 +23,7 @@ namespace Common.Math
         public static Matrix operator +(Matrix m, Matrix n)
         {
             //first check that we can add the two matrices
-            int[,] outputvalues = new int[m.Rows, m.Columns];
+            double[,] outputvalues = new double[m.Rows, m.Columns];
             Matrix outputmatrix = new Matrix(m.Rows, m.Columns, outputvalues);
             if (m.Rows == n.Rows && m.Columns == m.Rows)
             {
@@ -47,7 +47,7 @@ namespace Common.Math
         public static Matrix operator -(Matrix m, Matrix n)
         {
             //first check that we can add the two matrices
-            int[,] outputvalues = new int[m.Columns, m.Rows];
+            double[,] outputvalues = new double[m.Columns, m.Rows];
             Matrix outputmatrix = new Matrix(m.Rows, m.Columns, outputvalues);
             if (m.Rows == n.Rows && m.Columns == n.Columns)
             {
