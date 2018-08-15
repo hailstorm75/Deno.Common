@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{0947D327-7152-4F35-B4BF-33ED73905BF3}</ProjectGuid>
+    <ProjectGuid>{7A20ABEB-ACF6-4138-A980-CF6A7CC01FC0}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Common.Math</RootNamespace>
-    <AssemblyName>CommonMath</AssemblyName>
+    <RootNamespace>Common.Async</RootNamespace>
+    <AssemblyName>CommonAsync</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -29,9 +29,6 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup>
-    <StartupObject />
-  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -43,13 +40,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="IMatrix.cs" />
-    <Compile Include="INumberInRange.cs" />
-    <Compile Include="INumeric.cs" />
-    <Compile Include="LongestLong.cs" />
-    <Compile Include="Matrix.cs" />
-    <Compile Include="NumberInRange.cs" />
+    <Compile Include="ReaderWriterLockSlimExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SafeInvokeExtensions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
