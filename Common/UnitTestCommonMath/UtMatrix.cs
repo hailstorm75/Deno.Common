@@ -26,7 +26,7 @@ namespace Common.Math.Tests
     {
       try
       {
-        var unused = new Matrix(new[,] { { 1, 2, 5 }, { 3, 5, 8 } });
+        var unused = new Matrix(new double[,] { { 1, 2, 5 }, { 3, 5, 8 } });
       }
       catch (Exception)
       {
@@ -65,9 +65,28 @@ namespace Common.Math.Tests
     [TestMethod]
     public void InitializeIdentity()
     {
-      var matrix = new Matrix(new[,] { { 1, 0, 0 }, { 0, 1, 0 }, { 0, 0, 1 } });
+      var matrix = new Matrix(new double[,] { { 1, 0, 0 }, { 0, 1, 0 }, { 0, 0, 1 } });
       Assert.AreEqual(Matrix.Type.Invertable | Matrix.Type.Identity, matrix.MatrixType);
     }
+
+    #endregion
+
+    #region Propeerties
+
+    [TestMethod]
+    public void Invert3X3()
+    {
+      var matrix = new Matrix(new double[,]
+      {
+        { 1, 2, 3 },
+        { 0, 1, 4 },
+        { 5, 6, 0 },
+      });
+      var result = matrix.Inverse;
+      CollectionAssert.AreEqual(new double[,] { { -24, 18, 5 }, { 20, -15, -4 }, { -5, 4, 1 } }, result.MatrixValues);
+    }
+
+    // TODO
 
     #endregion
 

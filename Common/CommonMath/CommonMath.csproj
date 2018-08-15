@@ -43,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IMatrix.cs" />
     <Compile Include="INumberInRange.cs" />
     <Compile Include="INumeric.cs" />
     <Compile Include="LongestLong.cs" />

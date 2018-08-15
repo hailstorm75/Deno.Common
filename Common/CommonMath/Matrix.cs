@@ -1,8 +1,9 @@
 ﻿using System;
+using System.Text;
 
 namespace Common.Math
 {
-  public class Matrix
+  public class Matrix : IMatrix
   {
     /// <summary>
     /// Matrix properties
@@ -34,33 +35,36 @@ namespace Common.Math
     /// <summary>
     /// Matrix length
     /// </summary>
-    public int Length => MatrixValues.GetLength(1);
+    public int Columns => MatrixValues.GetLength(1);
 
     /// <summary>
     /// Matrix height
     /// </summary>
-    public int Height => MatrixValues.GetLength(0);
+    public int Rows => MatrixValues.GetLength(0);
 
     /// <summary>
     /// Matrix data
     /// </summary>
-    public int[,] MatrixValues
+    public double[,] MatrixValues
     {
       get => matrixValues;
       set
       {
         matrixValues = value;
-        determinant = (MatrixType & Type.Invertable) != 0 ? new Lazy<int?>(() => FindDeterminant(matrixValues)) : new Lazy<int?>(() => null);
+        UpdateProperties();
       }
     }
-    private int[,] matrixValues;
+    private double[,] matrixValues;
 
     /// <summary>
     /// Determinant of the matrix.
     /// <para>WARNING: Returns null if <see cref="MatrixType"/> is <see cref="Type.NonInvertable"/></para>
     /// </summary>
-    public int? Determinant { get { return determinant.Value; } }
-    private Lazy<int?> determinant;
+    public double? Determinant => determinant.Value;
+    private Lazy<double?> determinant;
+
+    public Matrix Inverse => inverse.Value;
+    private Lazy<Matrix> inverse;
 
     #endregion
 
@@ -71,13 +75,13 @@ namespace Common.Math
     /// </summary>
     /// <param name="values">2D Array of values</param>
     /// <exception cref="ArgumentException"></exception>
-    public Matrix(int[,] values)
+    public Matrix(double[,] values)
     {
       if (values == null) throw new ArgumentException($"Argument {nameof(values)} cannot be null.");
       if (values.GetLength(0) == 0 || values.GetLength(1) == 0) throw new ArgumentException($"Argument {nameof(values)} cannot have a dimension of size 0.");
 
-      MatrixValues = values;
       MatrixType = GetMatrixType(values);
+      MatrixValues = values;
     }
 
     /// <summary>
@@ -93,9 +97,9 @@ namespace Common.Math
       if (height < 0) throw new ArgumentException($"Argument {nameof(height)} cannot be negative.");
       if (length == 0 || height == 0) throw new ArgumentException($"Arguments {nameof(length)} and {nameof(height)} cannot be equal to 0.");
 
-      MatrixValues = new int[length, height];
+      MatrixValues = new double[length, height];
 
-      if (Length == Height) MatrixType = Type.Invertable;
+      if (Columns == Rows) MatrixType = Type.Invertable;
     }
 
     #endregion
@@ -104,87 +108,89 @@ namespace Common.Math
 
     public static Matrix operator +(Matrix m, Matrix n)
     {
-      if (m.Height != n.Height || m.Length != m.Height)
+      if (m.Rows != n.Rows || m.Columns != m.Rows)
         throw new MatrixDimensionException("Matricies of different dimensions cannot be summed.");
 
-      var outputvalues = new int[m.Length, m.Height];
-      var outputmatrix = new Matrix(outputvalues);
+      var outputvalues = new double[m.Columns, m.Rows];
 
-      for (var i = 0; i < m.Length; i++)
-        for (var j = 0; j < m.Height; j++)
+      for (var i = 0; i < m.Columns; i++)
+        for (var j = 0; j < m.Rows; j++)
           outputvalues[i, j] = m.MatrixValues[i, j] + n.MatrixValues[i, j];
 
-      return outputmatrix;
+      return new Matrix(outputvalues);
     }
 
     public static Matrix operator -(Matrix m, Matrix n)
     {
-      if (m.Height != n.Height || m.Length != m.Height)
+      if (m.Rows != n.Rows || m.Columns != m.Rows)
         throw new MatrixDimensionException("Matricies of different dimensions cannot be subtracted.");
 
-      var outputValues = new int[m.Length, m.Height];
-      var outputMatrix = new Matrix(outputValues);
+      var outputValues = new double[m.Columns, m.Rows];
 
-      for (var i = 0; i < m.Length; i++)
-        for (var j = 0; j < m.Height; j++)
+      for (var i = 0; i < m.Columns; i++)
+        for (var j = 0; j < m.Rows; j++)
           outputValues[i, j] = m.MatrixValues[i, j] - n.MatrixValues[i, j];
 
-      return outputMatrix;
+      return new Matrix(outputValues);
     }
 
     public static Matrix operator *(Matrix m, Matrix n)
     {
-      if (m.Height != n.Length)
+      if (m.Rows != n.Columns)
         throw new MatrixDimensionException("");
 
-      var outputValues = new int[m.Height, n.Length];
-      var outputMatrix = new Matrix(outputValues);
+      var outputValues = new double[m.Rows, n.Columns];
 
-      for (var i = 0; i < n.Length; i++)
-        for (var j = 0; j < m.Height; j++)
-          for (var k = 0; k < m.Height; k++)
+      for (var i = 0; i < n.Columns; i++)
+        for (var j = 0; j < m.Rows; j++)
+          for (var k = 0; k < m.Rows; k++)
             outputValues[i, j] += m.MatrixValues[i, k] * n.MatrixValues[k, j];
 
-      return outputMatrix;
+      return new Matrix(outputValues);
+    }
+
+    public static Matrix operator *(double n, Matrix m)
+    {
+      var outputvalues = new double[m.Rows, m.Columns];
+      for (var i = 0; i < m.Rows; i++)
+        for (var j = 0; j < m.Columns; j++)
+          outputvalues[i, j] = m.MatrixValues[i, j] * n;
+
+      return new Matrix(outputvalues);
+    }
+
+    public static Matrix operator /(double n, Matrix m)
+    {
+      var outputvalues = new double[m.Rows, m.Columns];
+      for (var i = 0; i < m.Rows; i++)
+        for (var j = 0; j < m.Columns; j++)
+          outputvalues[i, j] = m.MatrixValues[i, j] / n;
+
+      return new Matrix(outputvalues);
     }
 
     #endregion
 
     #region Methods
 
+    protected virtual void UpdateProperties()
+    {
+      determinant = (MatrixType & Type.Invertable) != 0 ? new Lazy<double?>(() => FindDeterminant(matrixValues)) : new Lazy<double?>(() => null);
+      inverse = (MatrixType & Type.Invertable) != 0 ? new Lazy<Matrix>(FindInverse) : new Lazy<Matrix>(() => null);
+    }
+
     public override string ToString()
     {
       var result = new StringBuilder();
-      for (var row = 0; row < Height; row++)
+      for (var row = 0; row < Rows; row++)
       {
-        for (var column = 0; column < Length - 1; column++)
+        for (var column = 0; column < Columns - 1; column++)
           result.Append($"{MatrixValues[row, column]} ");
-        result.Append($"{MatrixValues[row, Length - 1]}");
-        if (row != Height - 1) result.Append('\n');
+        result.Append($"{MatrixValues[row, Columns - 1]}");
+        if (row != Rows - 1) result.Append('\n');
       }
 
       return result.ToString();
-    }
-
-    /// <summary>
-    /// Validates whether given <paramref name="matrix"/> is an identity matrix
-    /// </summary>
-    /// <param name="matrix">Matrix to validate</param>
-    /// <returns>True if <paramref name="matrix"/> is an identity matrix</returns>
-    private static bool IsIdentity(int[,] matrix)
-    {
-      if (matrix.GetLength(0) != matrix.GetLength(1)) return false;
-
-      var index = 0;
-      for (var i = 0; i < matrix.GetLength(0); i++)
-      {
-        for (var j = 0; j < matrix.GetLength(1); j++)
-          if (matrix[i, j] != (index == j ? 1 : 0))
-            return false;
-        ++index;
-      }
-
-      return true;
     }
 
     /// <summary>
@@ -192,7 +198,7 @@ namespace Common.Math
     /// </summary>
     /// <param name="matrix"></param>
     /// <returns></returns>
-    private static Type GetMatrixType(int[,] matrix)
+    private static Type GetMatrixType(double[,] matrix)
     {
       Type result;
       if (matrix.GetLength(0) == matrix.GetLength(1))
@@ -207,32 +213,107 @@ namespace Common.Math
     }
 
     /// <summary>
-    ///
+    /// Validates whether given <paramref name="matrix"/> is an identity matrix
     /// </summary>
-    /// <returns></returns>
-    public Matrix Reduce()
+    /// <param name="matrix">Matrix to validate</param>
+    /// <returns>True if <paramref name="matrix"/> is an identity matrix</returns>
+    private static bool IsIdentity(double[,] matrix)
     {
-      // Traversing matrix diagonally
-      for (var i = 0; i < Height; i++)
+      if (matrix.GetLength(0) != matrix.GetLength(1)) return false;
+
+      var index = 0;
+      for (var i = 0; i < matrix.GetLength(0); i++)
       {
-        if (MatrixValues[i, i] != 1)
+        for (var j = 0; j < matrix.GetLength(1); j++)
+          if ((int)matrix[i, j] != (index == j ? 1 : 0))
+            return false;
+        ++index;
+      }
+
+      return true;
+    }
+
+    /// <summary>
+    /// Transposes matrix
+    /// </summary>
+    /// <returns>Transposed matrix</returns>
+    public IMatrix Transpose()
+    {
+      var transposedValues = new double[Rows, Columns];
+      for (var i = 0; i < Columns; i++)
+        for (var j = 0; j < Columns; j++)
+          transposedValues[i, j] = MatrixValues[j, i];
+
+      return new Matrix(transposedValues);
+    }
+
+    public IMatrix MatrixOfCofactors()
+    {
+      var sign = 1;
+      var cofactorvalues = new double[Rows, Columns];
+      for (var i = 0; i < Columns; i++)
+      {
+        for (var j = 0; j < Columns; j++)
         {
-          // TODO Introduce leading 1
+          cofactorvalues[i, j] = sign * MatrixValues[i, j];
+          sign = -sign;
         }
 
-        // Reducing column
-        for (var row = i + 1; row < Height; row++)
-        {
-          // TODO Doesn't work, fit it
-          if (MatrixValues[row, i] == 0) continue;
+        if (Rows % 2 == 0) sign = -sign;
+      }
 
-          var factor = MatrixValues[row, i];
-          for (var column = 0; column < Length; column++)
-            MatrixValues[row, column] -= factor * MatrixValues[row - 1, column];
+      return new Matrix(cofactorvalues);
+    }
+
+    /// <summary>
+    /// Find the inverse of the matrix
+    /// </summary>
+    /// <returns>Inverted matrix</returns>
+    private IMatrix FindInverse()
+    {
+      if (Rows == 2)
+      {
+        var inverseArray = new double[2, 2];
+        inverseArray[0, 0] = (double)(MatrixValues[1, 1] * Determinant);
+        inverseArray[0, 1] = (double)(-1 * MatrixValues[0, 1] * Determinant);
+        inverseArray[1, 0] = (double)(-1 * MatrixValues[1, 0] * Determinant);
+        inverseArray[1, 1] = (double)(MatrixValues[0, 0] * Determinant);
+
+        return new Matrix(inverseArray);
+      }
+
+      var matrixofminors = new double[Columns, Rows];
+      for (var i = 0; i < Columns; i++)
+      {
+        for (var j = 0; j < Columns; j++)
+        {
+          var coords = new[] { 0, 0 };
+          var submatrix = new double[Columns - 1, Rows - 1];
+          for (var k = 0; k < Columns; k++)
+          {
+            for (var l = 0; l < Columns; l++)
+            {
+              if (k == i || l == j) continue;
+              submatrix[coords[0], coords[1]++] = MatrixValues[k, l];
+            }
+
+            if (coords[1] == Columns - 1) coords[0]++;
+
+            coords[1] = 0;
+          }
+
+          matrixofminors[i, j] = FindDeterminant(submatrix);
         }
       }
 
-      return this;
+      var minorMatrix = new Matrix(matrixofminors);
+      var cofactorMatrix = minorMatrix.MatrixOfCofactors().Transpose();
+
+      for (var i = 0; i < Columns; i++)
+        for (var j = 0; j < Columns; j++)
+          cofactorMatrix.MatrixValues[i, j] = (double)(cofactorMatrix.MatrixValues[i, j] * (1 / Determinant));
+
+      return cofactorMatrix;
     }
 
     /// <summary>
@@ -240,7 +321,7 @@ namespace Common.Math
     /// </summary>
     /// <exception cref="InvertableMatrixOperationException"></exception>
     /// <returns>Determinant value</returns>
-    private static int FindDeterminant(int[,] matrix)
+    private static double FindDeterminant(double[,] matrix)
     {
       if (matrix.GetLength(0) != matrix.GetLength(1))
         throw new InvertableMatrixOperationException("Determinant can be calculated only for NxN matricies.");
@@ -251,34 +332,30 @@ namespace Common.Math
           return matrix[0, 0] * matrix[1, 1] - matrix[0, 1] * matrix[1, 0];
         case 3:
           var left = matrix[0, 0] * matrix[1, 1] * matrix[2, 2]
-                   + matrix[0, 1] * matrix[1, 2] * matrix[2, 0]
-                   + matrix[0, 2] * matrix[1, 0] * matrix[2, 1];
+                     + matrix[0, 1] * matrix[1, 2] * matrix[2, 0]
+                     + matrix[0, 2] * matrix[1, 0] * matrix[2, 1];
           var right = matrix[0, 2] * matrix[1, 1] * matrix[2, 0]
-                    + matrix[0, 0] * matrix[1, 2] * matrix[2, 1]
-                    + matrix[0, 1] * matrix[1, 0] * matrix[2, 2];
+                      + matrix[0, 0] * matrix[1, 2] * matrix[2, 1]
+                      + matrix[0, 1] * matrix[1, 0] * matrix[2, 2];
           return left - right;
         default:
-          var determinant = 0;
+          var determinant = 0d;
           var sign = 1;
           for (var i = 0; i < matrix.GetLength(0); i++)
           {
             var coords = new[] { 0, 0 };
-            var data = new int[matrix.GetLength(0) - 1, matrix.GetLength(0) - 1];
+            var data = new double[matrix.GetLength(0) - 1, matrix.GetLength(0) - 1];
 
-            for (int row = 1; row < matrix.GetLength(0); row++)
+            for (var row = 1; row < matrix.GetLength(0); row++)
             {
-              for (int col = 0; col < matrix.GetLength(0); col++)
+              for (var col = 0; col < matrix.GetLength(0); col++)
               {
-                if (row != 0 && col != i)
-                {
-                  data[coords[0], coords[1]++] = matrix[row, col];
+                if (row == 0 || col == i) continue;
+                data[coords[0], coords[1]++] = matrix[row, col];
 
-                  if (coords[1] == matrix.GetLength(0) - 1)
-                  {
-                    coords[0]++;
-                    coords[1] = 0;
-                  }
-                }
+                if (coords[1] != matrix.GetLength(0) - 1) continue;
+                coords[0]++;
+                coords[1] = 0;
               }
             }
 
@@ -288,19 +365,6 @@ namespace Common.Math
 
           return determinant;
       }
-    }
-
-    /// <summary>
-    ///
-    /// </summary>
-    /// <exception cref="InvertableMatrixOperationException"></exception>
-    /// <returns></returns>
-    public Matrix FindInverse()
-    {
-      if (!MatrixType.HasFlag(Type.Invertable))
-        throw new InvertableMatrixOperationException("Inverse can be calculated only for NxN matricies.");
-
-      throw new NotImplementedException();
     }
 
     #endregion
