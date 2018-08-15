@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27703.2047
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommonMath", "CommonMath\CommonMath.csproj", "{0947D327-7152-4F35-B4BF-33ED73905BF3}"
 EndProject
@@ -14,6 +14,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommonSerialization", "CommonSerialization\CommonSerialization.csproj", "{B59E12DA-4A12-45A0-8570-5419ABF14668}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTestCommonSerialization", "UnitTestCommonSerialization\UnitTestCommonSerialization.csproj", "{A1214E77-8551-4F69-A26F-BE84880A3DB7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Exceptions", "..\..\..\..\Documents\Visual Studio 2015\Projects\Exceptions\Exceptions\Exceptions.csproj", "{3CB2099A-40D4-473D-9A6E-B5FD3B48A74F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +47,10 @@ Global
 		{A1214E77-8551-4F69-A26F-BE84880A3DB7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A1214E77-8551-4F69-A26F-BE84880A3DB7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A1214E77-8551-4F69-A26F-BE84880A3DB7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3CB2099A-40D4-473D-9A6E-B5FD3B48A74F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3CB2099A-40D4-473D-9A6E-B5FD3B48A74F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3CB2099A-40D4-473D-9A6E-B5FD3B48A74F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3CB2099A-40D4-473D-9A6E-B5FD3B48A74F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
