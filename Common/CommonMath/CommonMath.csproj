@@ -43,9 +43,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IMatrix.cs" />
     <Compile Include="INumberInRange.cs" />
     <Compile Include="INumeric.cs" />
     <Compile Include="LongestLong.cs" />
+    <Compile Include="Matrix.cs" />
     <Compile Include="NumberInRange.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
