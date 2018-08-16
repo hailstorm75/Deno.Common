@@ -2,7 +2,7 @@
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 
-namespace Common.Serialization
+namespace Common.Data
 {
   public static partial class SerializationExtensions
   {

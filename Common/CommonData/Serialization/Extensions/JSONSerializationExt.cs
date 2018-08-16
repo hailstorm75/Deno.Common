@@ -7,7 +7,7 @@ using System.Reflection;
 using System.Collections.Generic;
 using System.Web.Script.Serialization;
 
-namespace Common.Serialization
+namespace Common.Data
 {
   public static partial class SerializationExtensions
   {

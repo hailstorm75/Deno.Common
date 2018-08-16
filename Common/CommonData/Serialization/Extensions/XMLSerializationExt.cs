@@ -2,7 +2,7 @@
 using System.IO;
 using System.Xml.Serialization;
 
-namespace Common.Serialization
+namespace Common.Data
 {
   public static partial class SerializationExtensions
   {

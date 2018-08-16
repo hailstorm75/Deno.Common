@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Common.Serialization.Tests
+namespace Common.Data.Tests
 {
   [TestClass]
   public class UtExtensions
