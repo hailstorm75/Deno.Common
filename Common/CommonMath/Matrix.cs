@@ -3,6 +3,7 @@ using System.Text;
 
 namespace Common.Math
 {
+  [Serializable]
   public class Matrix : IMatrix
   {
     /// <summary>
