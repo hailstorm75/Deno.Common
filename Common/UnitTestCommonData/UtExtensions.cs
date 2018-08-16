@@ -19,7 +19,7 @@ namespace Common.Data.Tests
     public void BinarySerialize()
     {
       var stream = TestData.SerializeBinary();
-      var result = SerializationExtensions.DeserializeBinary<List<Tuple<string, int, bool>>>(stream);
+      var result = Serialization.DeserializeBinary<List<Tuple<string, int, bool>>>(stream);
       Assert.IsTrue(TestData.SequenceEqual(result));
     }
 
@@ -27,7 +27,7 @@ namespace Common.Data.Tests
     public void JsonSerialize()
     {
       var json = TestData.SerializeJson();
-      var result = SerializationExtensions.DeserializeJson<List<Tuple<string, int, bool>>>(json);
+      var result = Serialization.DeserializeJson<List<Tuple<string, int, bool>>>(json);
       Assert.IsTrue(TestData.SequenceEqual(result));
     }
 
@@ -35,7 +35,7 @@ namespace Common.Data.Tests
     public void JsonSerialize2()
     {
       var json = TestData.SerializeJson2();
-      var result = SerializationExtensions.DeserializeJson2<List<Tuple<string, int, bool>>>(json);
+      var result = Serialization.DeserializeJson2<List<Tuple<string, int, bool>>>(json);
       Assert.IsTrue(TestData.SequenceEqual(result));
     }
 
