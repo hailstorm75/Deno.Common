@@ -63,8 +63,11 @@ namespace Common.Math
     public double? Determinant => determinant.Value;
     private Lazy<double?> determinant;
 
-    public Matrix Inverse => inverse.Value;
-    private Lazy<Matrix> inverse;
+    /// <summary>
+    /// Inverse of the matrix
+    /// </summary>
+    public IMatrix Inverse => inverse.Value;
+    private Lazy<IMatrix> inverse;
 
     #endregion
 
@@ -82,6 +85,25 @@ namespace Common.Math
 
       MatrixType = GetMatrixType(values);
       MatrixValues = values;
+    }
+
+    /// <summary>
+    /// Constructor for square matrix
+    /// </summary>
+    /// <param name="size">Value for both the <see cref="Rows"/> and <see cref="Columns"/> properties</param>
+    /// <param name="identity">Set to True to create an identity matrix</param>
+    /// <exception cref="ArgumentException"></exception>
+    public Matrix(int size, bool identity)
+    {
+      if (size < 0) throw new ArgumentException($"Argument {nameof(size)} cannot be negative.");
+      if (size == 0) throw new ArgumentException($"Argument {nameof(size)} cannot be equal to 0.");
+
+      var matrix = new double[size, size];
+      for (var i = 0; i < size; i++)
+        matrix[i, i] = 1;
+
+      MatrixType = Type.Identity | Type.Invertable;
+      MatrixValues = matrix;
     }
 
     /// <summary>
@@ -176,7 +198,7 @@ namespace Common.Math
     protected virtual void UpdateProperties()
     {
       determinant = (MatrixType & Type.Invertable) != 0 ? new Lazy<double?>(() => FindDeterminant(matrixValues)) : new Lazy<double?>(() => null);
-      inverse = (MatrixType & Type.Invertable) != 0 ? new Lazy<Matrix>(FindInverse) : new Lazy<Matrix>(() => null);
+      inverse = (MatrixType & Type.Invertable) != 0 ? new Lazy<IMatrix>(FindInverse) : new Lazy<IMatrix>(() => null);
     }
 
     public override string ToString()

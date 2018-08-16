@@ -8,7 +8,7 @@ namespace Common.Math.Tests
   {
     #region Initialization tests
 
-    [TestMethod]
+    [TestMethod, TestCategory("Constructor")]
     public void Initialize()
     {
       try
@@ -21,21 +21,21 @@ namespace Common.Math.Tests
       }
     }
 
-    [TestMethod]
+    [TestMethod, TestCategory("Constructor")]
     [ExpectedException(typeof(ArgumentException))]
     public void InitializeEqualMinMax()
     {
       var unused = new NumberInRange(0, 0, 0);
     }
 
-    [TestMethod]
+    [TestMethod, TestCategory("Constructor")]
     [ExpectedException(typeof(ArgumentException))]
     public void InitializeGreaterMin()
     {
       var unused = new NumberInRange(0, 1, 0);
     }
 
-    [TestMethod]
+    [TestMethod, TestCategory("Constructor")]
     public void InitializeAdjustToRange()
     {
       var numberInRange = new NumberInRange(5, 0, 4);
@@ -48,7 +48,7 @@ namespace Common.Math.Tests
 
     #region Additionthrow
 
-    [TestMethod]
+    [TestMethod, TestCategory("Operator")]
     public void AdditionIntClass()
     {
       var numberInRange = new NumberInRange(5, 0, 4);
@@ -56,7 +56,7 @@ namespace Common.Math.Tests
       Assert.AreEqual(7, result);
     }
 
-    [TestMethod]
+    [TestMethod, TestCategory("Operator")]
     public void AdditionClassInt()
     {
       var numberInRange = new NumberInRange(5, 0, 4);
@@ -64,7 +64,7 @@ namespace Common.Math.Tests
       Assert.AreEqual(1, result);
     }
 
-    [TestMethod]
+    [TestMethod, TestCategory("Operator")]
     public void AdditionClassClass()
     {
       var numberInRangeA = new NumberInRange(5, 0, 4);
@@ -77,7 +77,7 @@ namespace Common.Math.Tests
 
     #region Subtraction
 
-    [TestMethod]
+    [TestMethod, TestCategory("Operator")]
     public void SubtractionIntClass()
     {
       var numberInRange = new NumberInRange(5, 0, 4);
@@ -85,7 +85,7 @@ namespace Common.Math.Tests
       Assert.AreEqual(5, result);
     }
 
-    [TestMethod]
+    [TestMethod, TestCategory("Operator")]
     public void SubtractionClassInt()
     {
       var numberInRange = new NumberInRange(5, 0, 4);
@@ -93,7 +93,7 @@ namespace Common.Math.Tests
       Assert.AreEqual(4, result);
     }
 
-    [TestMethod]
+    [TestMethod, TestCategory("Operator")]
     public void SubtractionClassClass()
     {
       var numberInRangeA = new NumberInRange(5, 0, 4);
@@ -106,7 +106,7 @@ namespace Common.Math.Tests
 
     #region Multiplication
 
-    [TestMethod]
+    [TestMethod, TestCategory("Operator")]
     public void MultiplicationIntClass()
     {
       var numberInRange = new NumberInRange(6, 0, 4);
@@ -114,7 +114,7 @@ namespace Common.Math.Tests
       Assert.AreEqual(6, result);
     }
 
-    [TestMethod]
+    [TestMethod, TestCategory("Operator")]
     public void MultiplicationClassInt()
     {
       var numberInRange = new NumberInRange(9, 0, 4);
@@ -122,7 +122,7 @@ namespace Common.Math.Tests
       Assert.AreEqual(3, result);
     }
 
-    [TestMethod]
+    [TestMethod, TestCategory("Operator")]
     public void MultiplicationClassClass()
     {
       var numberInRangeA = new NumberInRange(9, 0, 4);
@@ -135,7 +135,7 @@ namespace Common.Math.Tests
 
     #region Division
 
-    [TestMethod]
+    [TestMethod, TestCategory("Operator")]
     public void DivisonIntClass()
     {
       var numberInRange = new NumberInRange(7, 0, 4);
@@ -143,7 +143,7 @@ namespace Common.Math.Tests
       Assert.AreEqual(3, result);
     }
 
-    [TestMethod]
+    [TestMethod, TestCategory("Operator")]
     public void DivisionClassInt()
     {
       var numberInRange = new NumberInRange(9, 0, 4);
@@ -151,7 +151,7 @@ namespace Common.Math.Tests
       Assert.AreEqual(2, result);
     }
 
-    [TestMethod]
+    [TestMethod, TestCategory("Operator")]
     public void DivisionClassClass()
     {
       var numberInRangeA = new NumberInRange(9, 0, 4);
@@ -166,7 +166,7 @@ namespace Common.Math.Tests
 
     #region Calculation stress tests
 
-    [TestMethod]
+    [TestMethod, TestCategory("Operator")]
     public void AdditionClassIntNegativeRange()
     {
       var numberInRange = new NumberInRange(1, 0, 4);
