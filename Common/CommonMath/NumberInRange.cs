@@ -24,10 +24,14 @@ namespace Common.Math
     /// </summary>
     public int Min { get; }
 
+    #endregion
+
+    #region Fields
+
     /// <summary>
     /// Distance between <see cref="Min"/> and <see cref="Max"/>
     /// </summary>
-    private int RangeLen { get; set; }
+    private readonly int rangeLen;
 
     #endregion
 
@@ -41,11 +45,13 @@ namespace Common.Math
     /// <param name="max">Range maximum</param>
     public NumberInRange(int value, int min = int.MinValue + 1, int max = int.MaxValue)
     {
+      if (min == int.MinValue) throw new ArgumentException($"Argumnet {nameof(min)} cannot be equal to {int.MinValue}");
       if (min == max) throw new ArgumentException($"Argument {nameof(min)} cannot be equal to argument {nameof(max)}.");
       if (min > max) throw new ArgumentException($"Argument {nameof(min)} cannot be greater than argument {nameof(max)}.");
+
       Max = max;
       Min = min;
-      RangeLen = System.Math.Abs(System.Math.Abs(Min) - System.Math.Abs(Max)) + 1;
+      rangeLen = System.Math.Abs(System.Math.Abs(Min) - System.Math.Abs(Max)) + 1;
       Value = value;
     }
 
@@ -64,16 +70,16 @@ namespace Common.Math
 
       if (val > Min)
       {
-        if (Min < 0) return System.Math.Abs(val - Min) % RangeLen + Min;
+        if (Min < 0) return System.Math.Abs(val - Min) % rangeLen + Min;
 
-        var remainder = val % RangeLen;
+        var remainder = val % rangeLen;
         return remainder == 0 ? Min : remainder + Min;
       }
 
       if (val < Min)
       {
-        var remainder = System.Math.Abs(val - Min) % RangeLen;
-        return remainder == 0 ? Min : RangeLen - remainder + Min;
+        var remainder = System.Math.Abs(val - Min) % rangeLen;
+        return remainder == 0 ? Min : rangeLen - remainder + Min;
       }
 
       return Min - Max;
