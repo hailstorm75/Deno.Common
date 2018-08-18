@@ -39,13 +39,13 @@ namespace Common.Math
     /// <param name="value">Value to hold</param>
     /// <param name="min">Range minimum</param>
     /// <param name="max">Range maximum</param>
-    public NumberInRange(int value, int min = int.MinValue, int max = int.MaxValue)
+    public NumberInRange(int value, int min = int.MinValue + 1, int max = int.MaxValue)
     {
       if (min == max) throw new ArgumentException($"Argument {nameof(min)} cannot be equal to argument {nameof(max)}.");
       if (min > max) throw new ArgumentException($"Argument {nameof(min)} cannot be greater than argument {nameof(max)}.");
       Max = max;
       Min = min;
-      RangeLen = System.Math.Abs(Min - Max);
+      RangeLen = System.Math.Abs(System.Math.Abs(Min) - System.Math.Abs(Max)) + 1;
       Value = value;
     }
 
@@ -60,20 +60,23 @@ namespace Common.Math
     /// <returns>Value in range</returns>
     private int AdjustValue(int val)
     {
-      if (val > Max)
+      if (val >= Min && val <= Max) return val;
+
+      if (val > Min)
       {
-        var fits = System.Math.Abs(val / RangeLen);
-        val -= fits * RangeLen;
-        if (Max < 0) val += Min;
-      }
-      else if (val < Min)
-      {
-        var fits = System.Math.Abs(val / RangeLen);
-        val += fits * RangeLen;
-        if (Min < 0) val += Max;
+        if (Min < 0) return System.Math.Abs(val - Min) % RangeLen + Min;
+
+        var remainder = val % RangeLen;
+        return remainder == 0 ? Min : remainder + Min;
       }
 
-      return val;
+      if (val < Min)
+      {
+        var remainder = System.Math.Abs(val - Min) % RangeLen;
+        return remainder == 0 ? Min : RangeLen - remainder + Min;
+      }
+
+      return Min - Max;
     }
 
     /// <summary>

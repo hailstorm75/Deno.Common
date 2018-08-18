@@ -15,9 +15,9 @@ namespace Common.Math.Tests
       {
         var numberInRange = new NumberInRange(0);
       }
-      catch (Exception)
+      catch (Exception e)
       {
-        Assert.Fail();
+        Assert.Fail($"Exception caught: {e}");
       }
     }
 
@@ -39,7 +39,7 @@ namespace Common.Math.Tests
     public void InitializeAdjustToRange()
     {
       var numberInRange = new NumberInRange(5, 0, 4);
-      Assert.AreEqual(1, numberInRange.Value);
+      Assert.AreEqual(0, numberInRange.Value);
     }
 
     #endregion
@@ -51,7 +51,7 @@ namespace Common.Math.Tests
     [TestMethod, TestCategory("Operator")]
     public void AdditionIntClass()
     {
-      var numberInRange = new NumberInRange(5, 0, 4);
+      var numberInRange = new NumberInRange(6, 0, 4);
       var result = 6 + numberInRange;
       Assert.AreEqual(7, result);
     }
@@ -80,7 +80,7 @@ namespace Common.Math.Tests
     [TestMethod, TestCategory("Operator")]
     public void SubtractionIntClass()
     {
-      var numberInRange = new NumberInRange(5, 0, 4);
+      var numberInRange = new NumberInRange(6, 0, 4);
       var result = 6 - numberInRange;
       Assert.AreEqual(5, result);
     }
@@ -164,14 +164,34 @@ namespace Common.Math.Tests
 
     #endregion
 
-    #region Calculation stress tests
+    #region Stress tests
 
-    [TestMethod, TestCategory("Operator")]
-    public void AdditionClassIntNegativeRange()
+    [TestMethod, TestCategory("Property")]
+    public void SettingValueNegativeRange1()
     {
-      var numberInRange = new NumberInRange(1, 0, 4);
-      var result = numberInRange + 16;
-      Assert.AreEqual(2, result);
+      var numberInRange = new NumberInRange(-23, -8, -4);
+      Assert.AreEqual(-8, numberInRange.Value);
+    }
+
+    [TestMethod, TestCategory("Property")]
+    public void SettingValueNegativeRange2()
+    {
+      var numberInRange = new NumberInRange(-24, -8, -4);
+      Assert.AreEqual(-4, numberInRange.Value);
+    }
+
+    [TestMethod, TestCategory("Property")]
+    public void SettingValueNegativeRange3()
+    {
+      var numberInRange = new NumberInRange(-9, -7, -3);
+      Assert.AreEqual(-4, numberInRange.Value);
+    }
+
+    [TestMethod, TestCategory("Property")]
+    public void SettingValueNegativeRange4()
+    {
+      var numberInRange = new NumberInRange(9, -7, -3);
+      Assert.AreEqual(-6, numberInRange.Value);
     }
 
     #endregion
