@@ -4,7 +4,7 @@ using System.Text;
 namespace Common.Math
 {
   [Serializable]
-  public class Matrix : IMatrix
+  public class Matrix<T> : IMatrix<T> where T: struct, IComparable, IFormattable, IConvertible, IComparable<T>, IEquatable<T>
   {
     /// <summary>
     /// Matrix properties
@@ -46,7 +46,7 @@ namespace Common.Math
     /// <summary>
     /// Matrix data
     /// </summary>
-    public double[,] MatrixValues
+    public T[,] MatrixValues
     {
       get => matrixValues;
       set
@@ -55,7 +55,7 @@ namespace Common.Math
         UpdateProperties();
       }
     }
-    private double[,] matrixValues;
+    private T[,] matrixValues;
 
     /// <summary>
     /// Determinant of the matrix.
@@ -67,8 +67,8 @@ namespace Common.Math
     /// <summary>
     /// Inverse of the matrix
     /// </summary>
-    public IMatrix Inverse => inverse.Value;
-    private Lazy<IMatrix> inverse;
+    public IMatrix<T> Inverse => inverse.Value;
+    private Lazy<IMatrix<T>> inverse;
 
     #endregion
 
@@ -79,7 +79,7 @@ namespace Common.Math
     /// </summary>
     /// <param name="values">2D Array of values</param>
     /// <exception cref="ArgumentException"></exception>
-    public Matrix(double[,] values)
+    public Matrix(T[,] values)
     {
       if (values == null) throw new ArgumentException($"Argument {nameof(values)} cannot be null.");
       if (values.GetLength(0) == 0 || values.GetLength(1) == 0) throw new ArgumentException($"Argument {nameof(values)} cannot have a dimension of size 0.");
@@ -99,9 +99,10 @@ namespace Common.Math
       if (size < 0) throw new ArgumentException($"Argument {nameof(size)} cannot be negative.");
       if (size == 0) throw new ArgumentException($"Argument {nameof(size)} cannot be equal to 0.");
 
-      var matrix = new double[size, size];
-      for (var i = 0; i < size; i++)
-        matrix[i, i] = 1;
+      var matrix = new T[size, size];
+      if (identity)
+        for (var i = 0; i < size; i++)
+          matrix[i, i] = (dynamic)1;
 
       MatrixType = Type.Identity | Type.Invertable;
       MatrixValues = matrix;
@@ -120,7 +121,7 @@ namespace Common.Math
       if (height < 0) throw new ArgumentException($"Argument {nameof(height)} cannot be negative.");
       if (length == 0 || height == 0) throw new ArgumentException($"Arguments {nameof(length)} and {nameof(height)} cannot be equal to 0.");
 
-      MatrixValues = new double[length, height];
+      MatrixValues = new T[length, height];
 
       if (Columns == Rows) MatrixType = Type.Invertable;
     }
@@ -129,67 +130,67 @@ namespace Common.Math
 
     #region Operators
 
-    public static Matrix operator +(Matrix m, Matrix n)
+    public static Matrix<T> operator +(Matrix<T> m, Matrix<T> n)
     {
       if (m.Rows != n.Rows || m.Columns != m.Rows)
         throw new MatrixDimensionException("Matricies of different dimensions cannot be summed.");
 
-      var outputvalues = new double[m.Columns, m.Rows];
+      var outputvalues = new T[m.Columns, m.Rows];
 
       for (var i = 0; i < m.Columns; i++)
         for (var j = 0; j < m.Rows; j++)
-          outputvalues[i, j] = m.MatrixValues[i, j] + n.MatrixValues[i, j];
+          outputvalues[i, j] = UniversalNumericOperation.Add<T, T>(m.MatrixValues[i, j], n.MatrixValues[i, j]);
 
-      return new Matrix(outputvalues);
+      return new Matrix<T>(outputvalues);
     }
 
-    public static Matrix operator -(Matrix m, Matrix n)
+    public static Matrix<T> operator -(Matrix<T> m, Matrix<T> n)
     {
       if (m.Rows != n.Rows || m.Columns != m.Rows)
         throw new MatrixDimensionException("Matricies of different dimensions cannot be subtracted.");
 
-      var outputValues = new double[m.Columns, m.Rows];
+      var outputValues = new T[m.Columns, m.Rows];
 
       for (var i = 0; i < m.Columns; i++)
         for (var j = 0; j < m.Rows; j++)
-          outputValues[i, j] = m.MatrixValues[i, j] - n.MatrixValues[i, j];
+          outputValues[i, j] = UniversalNumericOperation.Subtract<T, T>(m.MatrixValues[i, j], n.MatrixValues[i, j]);
 
-      return new Matrix(outputValues);
+      return new Matrix<T>(outputValues);
     }
 
-    public static Matrix operator *(Matrix m, Matrix n)
+    public static Matrix<T> operator *(Matrix<T> m, Matrix<T> n)
     {
       if (m.Rows != n.Columns)
         throw new MatrixDimensionException("");
 
-      var outputValues = new double[m.Rows, n.Columns];
+      var outputValues = new T[m.Rows, n.Columns];
 
       for (var i = 0; i < n.Columns; i++)
         for (var j = 0; j < m.Rows; j++)
           for (var k = 0; k < m.Rows; k++)
-            outputValues[i, j] += m.MatrixValues[i, k] * n.MatrixValues[k, j];
+            outputValues[i, j] = UniversalNumericOperation.Multiply<T, T>(outputValues[i, j], m.MatrixValues[i, k], n.MatrixValues[k, j]);
 
-      return new Matrix(outputValues);
+      return new Matrix<T>(outputValues);
     }
 
-    public static Matrix operator *(double n, Matrix m)
+    public static Matrix<T> operator *(double m, Matrix<T> n)
     {
-      var outputvalues = new double[m.Rows, m.Columns];
-      for (var i = 0; i < m.Rows; i++)
-        for (var j = 0; j < m.Columns; j++)
-          outputvalues[i, j] = m.MatrixValues[i, j] * n;
+      var outputvalues = new T[n.Rows, n.Columns];
+      for (var i = 0; i < n.Rows; i++)
+        for (var j = 0; j < n.Columns; j++)
+          outputvalues[i, j] = UniversalNumericOperation.Multiply<T, double, T>(n.MatrixValues[i, j], m);
 
-      return new Matrix(outputvalues);
+      return new Matrix<T>(outputvalues);
     }
 
-    public static Matrix operator /(double n, Matrix m)
+    public static Matrix<T> operator /(double m, Matrix<T> n)
     {
-      var outputvalues = new double[m.Rows, m.Columns];
-      for (var i = 0; i < m.Rows; i++)
-        for (var j = 0; j < m.Columns; j++)
-          outputvalues[i, j] = m.MatrixValues[i, j] / n;
+      var outputvalues = new T[n.Rows, n.Columns];
+      for (var i = 0; i < n.Rows; i++)
+        for (var j = 0; j < n.Columns; j++)
+          outputvalues[i, j] = UniversalNumericOperation.Divide<T, double, T>(n.MatrixValues[i, j], m);
 
-      return new Matrix(outputvalues);
+      return new Matrix<T>(outputvalues);
     }
 
     #endregion
@@ -199,7 +200,7 @@ namespace Common.Math
     protected virtual void UpdateProperties()
     {
       determinant = (MatrixType & Type.Invertable) != 0 ? new Lazy<double?>(() => FindDeterminant(matrixValues)) : new Lazy<double?>(() => null);
-      inverse = (MatrixType & Type.Invertable) != 0 ? new Lazy<IMatrix>(FindInverse) : new Lazy<IMatrix>(() => null);
+      inverse = (MatrixType & Type.Invertable) != 0 ? new Lazy<IMatrix<T>>(FindInverse) : new Lazy<IMatrix<T>>(() => null);
     }
 
     public override string ToString()
@@ -221,7 +222,7 @@ namespace Common.Math
     /// </summary>
     /// <param name="matrix"></param>
     /// <returns></returns>
-    private static Type GetMatrixType(double[,] matrix)
+    private static Type GetMatrixType(T[,] matrix)
     {
       Type result;
       if (matrix.GetLength(0) == matrix.GetLength(1))
@@ -240,7 +241,7 @@ namespace Common.Math
     /// </summary>
     /// <param name="matrix">Matrix to validate</param>
     /// <returns>True if <paramref name="matrix"/> is an identity matrix</returns>
-    private static bool IsIdentity(double[,] matrix)
+    private static bool IsIdentity(T[,] matrix)
     {
       if (matrix.GetLength(0) != matrix.GetLength(1)) return false;
 
@@ -248,7 +249,7 @@ namespace Common.Math
       for (var i = 0; i < matrix.GetLength(0); i++)
       {
         for (var j = 0; j < matrix.GetLength(1); j++)
-          if ((int)matrix[i, j] != (index == j ? 1 : 0))
+          if (matrix[i, j] != (dynamic)(index == j ? 1 : 0))
             return false;
         ++index;
       }
@@ -260,58 +261,58 @@ namespace Common.Math
     /// Transposes matrix
     /// </summary>
     /// <returns>Transposed matrix</returns>
-    public IMatrix Transpose()
+    public IMatrix<T> Transpose()
     {
-      var transposedValues = new double[Rows, Columns];
+      var transposedValues = new T[Rows, Columns];
       for (var i = 0; i < Columns; i++)
         for (var j = 0; j < Columns; j++)
           transposedValues[i, j] = MatrixValues[j, i];
 
-      return new Matrix(transposedValues);
+      return new Matrix<T>(transposedValues);
     }
 
-    public IMatrix MatrixOfCofactors()
+    public IMatrix<T> MatrixOfCofactors()
     {
       var sign = 1;
-      var cofactorvalues = new double[Rows, Columns];
+      var cofactorvalues = new T[Rows, Columns];
       for (var i = 0; i < Columns; i++)
       {
         for (var j = 0; j < Columns; j++)
         {
-          cofactorvalues[i, j] = sign * MatrixValues[i, j];
+          cofactorvalues[i, j] = UniversalNumericOperation.Multiply<T, int, T>(MatrixValues[i, j], sign);
           sign = -sign;
         }
 
         if (Rows % 2 == 0) sign = -sign;
       }
 
-      return new Matrix(cofactorvalues);
+      return new Matrix<T>(cofactorvalues);
     }
 
     /// <summary>
     /// Find the inverse of the matrix
     /// </summary>
     /// <returns>Inverted matrix</returns>
-    private IMatrix FindInverse()
+    private IMatrix<T> FindInverse()
     {
       if (Rows == 2)
       {
-        var inverseArray = new double[2, 2];
-        inverseArray[0, 0] = (double)(MatrixValues[1, 1] * Determinant);
-        inverseArray[0, 1] = (double)(-1 * MatrixValues[0, 1] * Determinant);
-        inverseArray[1, 0] = (double)(-1 * MatrixValues[1, 0] * Determinant);
-        inverseArray[1, 1] = (double)(MatrixValues[0, 0] * Determinant);
+        var inverseArray = new T[2, 2];
+        inverseArray[0, 0] = UniversalNumericOperation.Multiply<T, double?, T>(MatrixValues[1, 1], Determinant);
+        inverseArray[0, 1] = UniversalNumericOperation.Multiply<T, double?, T>(MatrixValues[0, 1], -Determinant);
+        inverseArray[1, 0] = UniversalNumericOperation.Multiply<T, double?, T>(MatrixValues[1, 0], -Determinant);
+        inverseArray[1, 1] = UniversalNumericOperation.Multiply<T, double?, T>(MatrixValues[0, 0], Determinant);
 
-        return new Matrix(inverseArray);
+        return new Matrix<T>(inverseArray);
       }
 
-      var matrixofminors = new double[Columns, Rows];
+      var matrixofminors = new T[Columns, Rows];
       for (var i = 0; i < Columns; i++)
       {
         for (var j = 0; j < Columns; j++)
         {
           var coords = new[] { 0, 0 };
-          var submatrix = new double[Columns - 1, Rows - 1];
+          var submatrix = new T[Columns - 1, Rows - 1];
           for (var k = 0; k < Columns; k++)
           {
             for (var l = 0; l < Columns; l++)
@@ -325,16 +326,16 @@ namespace Common.Math
             coords[1] = 0;
           }
 
-          matrixofminors[i, j] = FindDeterminant(submatrix);
+          matrixofminors[i, j] = (dynamic)FindDeterminant(submatrix);
         }
       }
 
-      var minorMatrix = new Matrix(matrixofminors);
+      var minorMatrix = new Matrix<T>(matrixofminors);
       var cofactorMatrix = minorMatrix.MatrixOfCofactors().Transpose();
 
       for (var i = 0; i < Columns; i++)
         for (var j = 0; j < Columns; j++)
-          cofactorMatrix.MatrixValues[i, j] = (double)(cofactorMatrix.MatrixValues[i, j] * (1 / Determinant));
+          cofactorMatrix.MatrixValues[i, j] = UniversalNumericOperation.Multiply<T, double?, T>(cofactorMatrix.MatrixValues[i, j], (1 / Determinant));
 
       return cofactorMatrix;
     }
@@ -344,7 +345,7 @@ namespace Common.Math
     /// </summary>
     /// <exception cref="InvertableMatrixOperationException"></exception>
     /// <returns>Determinant value</returns>
-    private static double FindDeterminant(double[,] matrix)
+    private static double FindDeterminant(T[,] matrix)
     {
       if (matrix.GetLength(0) != matrix.GetLength(1))
         throw new InvertableMatrixOperationException("Determinant can be calculated only for NxN matricies.");
@@ -352,22 +353,26 @@ namespace Common.Math
       switch (matrix.GetLength(0))
       {
         case 2:
-          return matrix[0, 0] * matrix[1, 1] - matrix[0, 1] * matrix[1, 0];
+          return UniversalNumericOperation.Subtract<T, double>(
+                  UniversalNumericOperation.Multiply<T, T>(matrix[0, 0], matrix[1, 1]),
+                  UniversalNumericOperation.Multiply<T, T>(matrix[0, 1], matrix[1, 0]));
         case 3:
-          var left = matrix[0, 0] * matrix[1, 1] * matrix[2, 2]
-                     + matrix[0, 1] * matrix[1, 2] * matrix[2, 0]
-                     + matrix[0, 2] * matrix[1, 0] * matrix[2, 1];
-          var right = matrix[0, 2] * matrix[1, 1] * matrix[2, 0]
-                      + matrix[0, 0] * matrix[1, 2] * matrix[2, 1]
-                      + matrix[0, 1] * matrix[1, 0] * matrix[2, 2];
-          return left - right;
+          var left = UniversalNumericOperation.Add<T, T>(
+                      UniversalNumericOperation.Multiply<T, T>(matrix[0, 0], matrix[1, 1], matrix[2, 2]),
+                      UniversalNumericOperation.Multiply<T, T>(matrix[0, 1], matrix[1, 2], matrix[2, 0]),
+                      UniversalNumericOperation.Multiply<T, T>(matrix[0, 2], matrix[1, 0], matrix[2, 1]));
+          var right = UniversalNumericOperation.Add<T, T>(
+                       UniversalNumericOperation.Multiply<T, T>(matrix[0, 2], matrix[1, 1], matrix[2, 0]),
+                       UniversalNumericOperation.Multiply<T, T>(matrix[0, 0], matrix[1, 2], matrix[2, 1]),
+                       UniversalNumericOperation.Multiply<T, T>(matrix[0, 1], matrix[1, 0], matrix[2, 2]));
+          return UniversalNumericOperation.Subtract<T, double>(left, right);
         default:
           var determinant = 0d;
           var sign = 1;
           for (var i = 0; i < matrix.GetLength(0); i++)
           {
             var coords = new[] { 0, 0 };
-            var data = new double[matrix.GetLength(0) - 1, matrix.GetLength(0) - 1];
+            var data = new T[matrix.GetLength(0) - 1, matrix.GetLength(0) - 1];
 
             for (var row = 1; row < matrix.GetLength(0); row++)
             {
@@ -382,7 +387,11 @@ namespace Common.Math
               }
             }
 
-            determinant += matrix[0, i] * FindDeterminant(data) * sign;
+            determinant = UniversalNumericOperation.Add<T, double, double>(
+              UniversalNumericOperation.Multiply<T, int, T>(
+                UniversalNumericOperation.Multiply<T, double, T>(matrix[0, i], FindDeterminant(data)),
+                sign),
+              determinant);
             sign = -sign;
           }
 

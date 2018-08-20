@@ -45,11 +45,11 @@
   <ItemGroup>
     <Compile Include="IMatrix.cs" />
     <Compile Include="INumberInRange.cs" />
-    <Compile Include="INumeric.cs" />
     <Compile Include="LongestLong.cs" />
     <Compile Include="Matrix.cs" />
     <Compile Include="NumberInRange.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UniversalNumericOperation.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

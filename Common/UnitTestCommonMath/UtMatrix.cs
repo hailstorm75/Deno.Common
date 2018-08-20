@@ -13,7 +13,7 @@ namespace Common.Math.Tests
     {
       try
       {
-        var unused = new Matrix(5, 3);
+        var unused = new Matrix<double>(5, 3);
       }
       catch (Exception)
       {
@@ -26,7 +26,7 @@ namespace Common.Math.Tests
     {
       try
       {
-        var unused = new Matrix(new double[,]
+        var unused = new Matrix<double>(new double[,]
         {
           { 1, 2, 5 },
           { 3, 5, 8 }
@@ -42,46 +42,46 @@ namespace Common.Math.Tests
     [ExpectedException(typeof(ArgumentException))]
     public void InitializeNegativeLength()
     {
-      var unused = new Matrix(-5, 5);
+      var unused = new Matrix<double>(-5, 5);
     }
 
     [TestMethod, TestCategory("Constructor")]
     [ExpectedException(typeof(ArgumentException))]
     public void InitializeNegativeHeight()
     {
-      var unused = new Matrix(5, -5);
+      var unused = new Matrix<double>(5, -5);
     }
 
     [TestMethod, TestCategory("Constructor")]
     [ExpectedException(typeof(ArgumentException))]
     public void InitializeZeroSize()
     {
-      var unused = new Matrix(0, 0);
+      var unused = new Matrix<double>(0, 0);
     }
 
     [TestMethod, TestCategory("Constructor")]
     public void InitializeInvertable()
     {
-      var matrix = new Matrix(4, 4);
-      Assert.AreEqual(Matrix.Type.Invertable, matrix.MatrixType);
+      var matrix = new Matrix<double>(4, 4);
+      Assert.AreEqual(Matrix<double>.Type.Invertable, matrix.MatrixType);
     }
 
     [TestMethod, TestCategory("Constructor")]
     public void InitializeIdentity()
     {
-      var matrix = new Matrix(new double[,]
+      var matrix = new Matrix<double>(new double[,]
       {
         { 1, 0, 0 },
         { 0, 1, 0 },
         { 0, 0, 1 }
       });
-      Assert.AreEqual(Matrix.Type.Invertable | Matrix.Type.Identity, matrix.MatrixType);
+      Assert.AreEqual(Matrix<double>.Type.Invertable | Matrix<double>.Type.Identity, matrix.MatrixType);
     }
 
     [TestMethod, TestCategory("Constructor")]
     public void InitializeIdentity2()
     {
-      var matrix = new Matrix(3, true);
+      var matrix = new Matrix<double>(3, true);
       CollectionAssert.AreEqual(new double[,]
       {
         { 1, 0, 0 },
@@ -97,7 +97,7 @@ namespace Common.Math.Tests
     [TestMethod, TestCategory("Property")]
     public void Invert3X3()
     {
-      var matrix = new Matrix(new double[,]
+      var matrix = new Matrix<double>(new double[,]
       {
         { 1, 2, 3 },
         { 0, 1, 4 },

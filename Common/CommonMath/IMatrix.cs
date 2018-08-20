@@ -1,14 +1,16 @@
-﻿namespace Common.Math
+﻿using System;
+
+namespace Common.Math
 {
-  public interface IMatrix
+  public interface IMatrix<T> where T : struct, IComparable, IFormattable, IConvertible, IComparable<T>, IEquatable<T>
   {
     int Rows { get; }
     int Columns { get; }
-    double[,] MatrixValues { get; set; }
+    T[,] MatrixValues { get; set; }
     double? Determinant { get; }
 
-    IMatrix Transpose();
-    IMatrix MatrixOfCofactors();
+    IMatrix<T> Transpose();
+    IMatrix<T> MatrixOfCofactors();
     string ToString();
   }
 }
