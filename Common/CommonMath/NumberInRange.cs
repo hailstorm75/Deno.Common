@@ -1,28 +1,29 @@
 ﻿using System;
-using System.Diagnostics;
+using System.Globalization;
+using static Common.Math.UniversalNumericOperation;
 
 namespace Common.Math
 {
   [Serializable]
-  public class NumberInRange : INumberInRange
+  public class NumberInRange<T> : INumberInRange<T> where T : struct, IComparable, IFormattable, IConvertible, IComparable<T>, IEquatable<T>
   {
     #region Properties
 
     /// <summary>
     /// Value in range
     /// </summary>
-    public int Value { get => value; protected set => this.value = AdjustValue(value); }
-    private int value;
+    public T Value { get => value; protected set => this.value = AdjustValue(value); }
+    private T value;
 
     /// <summary>
     /// Range maximum
     /// </summary>
-    public int Max { get; }
+    public T Max { get; }
 
     /// <summary>
     /// Range minimum
     /// </summary>
-    public int Min { get; }
+    public T Min { get; }
 
     #endregion
 
@@ -31,7 +32,7 @@ namespace Common.Math
     /// <summary>
     /// Distance between <see cref="Min"/> and <see cref="Max"/>
     /// </summary>
-    private readonly int rangeLen;
+    private readonly T rangeLen;
 
     #endregion
 
@@ -43,15 +44,16 @@ namespace Common.Math
     /// <param name="value">Value to hold</param>
     /// <param name="min">Range minimum</param>
     /// <param name="max">Range maximum</param>
-    public NumberInRange(int value, int min = int.MinValue + 1, int max = int.MaxValue)
+    public NumberInRange(T value, T min, T max)
     {
-      if (min == int.MinValue) throw new ArgumentException($"Argumnet {nameof(min)} cannot be equal to {int.MinValue}");
-      if (min == max) throw new ArgumentException($"Argument {nameof(min)} cannot be equal to argument {nameof(max)}.");
-      if (min > max) throw new ArgumentException($"Argument {nameof(min)} cannot be greater than argument {nameof(max)}.");
+      if (!default(T).IsSignedInteger()) throw new NotSupportedException($"T cannot be of type {typeof(T).Name}");
+      if (IsEqual(min, GetMinValue(value))) throw new ArgumentException($"Argumnet {nameof(min)} cannot be equal to {GetMinValue(value)}");
+      if (IsEqual(min, max)) throw new ArgumentException($"Argument {nameof(min)} cannot be equal to argument {nameof(max)}.");
+      if (IsGreater(min, max)) throw new ArgumentException($"Argument {nameof(min)} cannot be greater than argument {nameof(max)}.");
 
       Max = max;
       Min = min;
-      rangeLen = System.Math.Abs(System.Math.Abs(Min) - System.Math.Abs(Max)) + 1;
+      rangeLen = Add<T, int, T>(Abs(Abs(Min).Subtract(Abs(Max))), 1);
       Value = value;
     }
 
@@ -64,32 +66,32 @@ namespace Common.Math
     /// </summary>
     /// <param name="val">Value to adjust</param>
     /// <returns>Value in range</returns>
-    private int AdjustValue(int val)
+    private T AdjustValue(T val)
     {
-      if (val >= Min && val <= Max) return val;
+      if (IsGreaterEqual(val, Min) && IsLessEqual(val, Max)) return val;
 
-      if (val > Min)
+      if (IsGreater(val, Min))
       {
-        if (Min < 0) return System.Math.Abs(val - Min) % rangeLen + Min;
+        if (IsLess(Min, 0)) return Abs(val.Subtract(Min)).Modulo(rangeLen).Add(Min);
 
-        var remainder = val % rangeLen;
-        return remainder == 0 ? Min : remainder + Min;
+        var remainder = val.Modulo(rangeLen);
+        return IsEqual(remainder, 0) ? Min : remainder.Add(Min);
       }
 
-      if (val < Min)
+      if (IsLess(val, Min))
       {
-        var remainder = System.Math.Abs(val - Min) % rangeLen;
-        return remainder == 0 ? Min : rangeLen - remainder + Min;
+        var remainder = Abs(val.Subtract(Min)).Modulo(rangeLen);
+        return IsEqual(remainder, 0) ? Min : rangeLen.Subtract(remainder).Add(Min);
       }
 
-      return Min - Max;
+      return Min.Subtract(Max);
     }
 
     /// <summary>
     /// Converts the <see cref="Value"/> of this instance to its equivalent string representation.
     /// </summary>
     /// <returns></returns>
-    public override string ToString() => value.ToString();
+    public override string ToString() => value.ToString(CultureInfo.InvariantCulture);
 
     #endregion
 
@@ -100,17 +102,17 @@ namespace Common.Math
     /// <param name="a">Left hand side value</param>
     /// <param name="b">Right hand side value</param>
     /// <returns>Result</returns>
-    public static int operator +(int a, NumberInRange b) => (a + b.Value);
+    public static T operator +(T a, NumberInRange<T> b) => a.Add(b.Value);
 
     /// <param name="a">Left hand side value</param>
     /// <param name="b">Right hand side value</param>
     /// <returns>Result</returns>
-    public static int operator +(NumberInRange a, int b) => (a + new NumberInRange(b, a.Min, a.Max));
+    public static T operator +(NumberInRange<T> a, T b) => a + new NumberInRange<T>(b, a.Min, a.Max);
 
     /// <param name="a">Left hand side value</param>
     /// <param name="b">Right hand side value</param>
     /// <returns>Result</returns>
-    public static int operator +(NumberInRange a, NumberInRange b) => a.AdjustValue(a.Value + a.AdjustValue(b.Value));
+    public static T operator +(NumberInRange<T> a, NumberInRange<T> b) => a.AdjustValue(a.Value.Add(a.AdjustValue(b.Value)));
 
     #endregion
 
@@ -119,17 +121,17 @@ namespace Common.Math
     /// <param name="a">Left hand side value</param>
     /// <param name="b">Right hand side value</param>
     /// <returns>Result</returns>
-    public static int operator -(int a, NumberInRange b) => (a - b.Value);
+    public static T operator -(T a, NumberInRange<T> b) => a.Subtract(b.Value);
 
     /// <param name="a">Left hand side value</param>
     /// <param name="b">Right hand side value</param>
     /// <returns></returns>
-    public static int operator -(NumberInRange a, int b) => (a - new NumberInRange(b, a.Min, a.Max));
+    public static T operator -(NumberInRange<T> a, T b) => a - new NumberInRange<T>(b, a.Min, a.Max);
 
     /// <param name="a">Left hand side value</param>
     /// <param name="b">Right hand side value</param>
     /// <returns>Result</returns>
-    public static int operator -(NumberInRange a, NumberInRange b) => a.AdjustValue(a.Value - a.AdjustValue(b.Value));
+    public static T operator -(NumberInRange<T> a, NumberInRange<T> b) => a.AdjustValue(a.Value.Subtract(a.AdjustValue(b.Value)));
 
     #endregion
 
@@ -138,17 +140,17 @@ namespace Common.Math
     /// <param name="a">Left hand side value</param>
     /// <param name="b">Right hand side value</param>
     /// <returns>Result</returns>
-    public static int operator *(int a, NumberInRange b) => (a * b.Value);
+    public static T operator *(T a, NumberInRange<T> b) => a.Multiply(b.Value);
 
     /// <param name="a">Left hand side value</param>
     /// <param name="b">Right hand side value</param>
     /// <returns>Result</returns>
-    public static int operator *(NumberInRange a, int b) => (a * new NumberInRange(b, a.Min, a.Max));
+    public static T operator *(NumberInRange<T> a, T b) => a * new NumberInRange<T>(b, a.Min, a.Max);
 
     /// <param name="a">Left hand side value</param>
     /// <param name="b">Right hand side value</param>
     /// <returns>Result</returns>
-    public static int operator *(NumberInRange a, NumberInRange b) => a.AdjustValue(a.Value * a.AdjustValue(b.Value));
+    public static T operator *(NumberInRange<T> a, NumberInRange<T> b) => a.AdjustValue(a.Value.Multiply(a.AdjustValue(b.Value)));
 
     #endregion
 
@@ -157,17 +159,17 @@ namespace Common.Math
     /// <param name="a">Left hand side value</param>
     /// <param name="b">Right hand side value</param>
     /// <returns>Result</returns>
-    public static int operator /(int a, NumberInRange b) => (a / b.Value);
+    public static T operator /(T a, NumberInRange<T> b) => a.Divide(b.Value);
 
     /// <param name="a">Left hand side value</param>
     /// <param name="b">Right hand side value</param>
     /// <returns>Result</returns>
-    public static int operator /(NumberInRange a, int b) => (a / new NumberInRange(b, a.Min, a.Max));
+    public static T operator /(NumberInRange<T> a, T b) => a / new NumberInRange<T>(b, a.Min, a.Max);
 
     /// <param name="a">Left hand side value</param>
     /// <param name="b">Right hand side value</param>
     /// <returns>Result</returns>
-    public static int operator /(NumberInRange a, NumberInRange b) => a.AdjustValue(a.Value / a.AdjustValue(b.Value));
+    public static T operator /(NumberInRange<T> a, NumberInRange<T> b) => a.AdjustValue(a.Value.Divide(a.AdjustValue(b.Value)));
 
     #endregion
 
@@ -180,28 +182,6 @@ namespace Common.Math
     public string ToString(string format, IFormatProvider formatProvider)
     {
       return Value.ToString(format, formatProvider);
-    }
-
-    #endregion
-
-    #region IComparable implementation
-
-    public int CompareTo(int other) => value.CompareTo(other);
-
-    public int CompareTo(INumberInRange other) => value.CompareTo(other.Value);
-
-    #endregion
-
-    #region IEquatable implementation
-
-    public bool Equals(int other) => value.Equals(other);
-
-    public bool Equals(INumberInRange other)
-    {
-      Debug.Assert(other != null, nameof(other) + " != null");
-      return Min.Equals(other.Min)
-          && Max.Equals(other.Max)
-          && Value.Equals(other.Value);
     }
 
     #endregion
@@ -246,7 +226,7 @@ namespace Common.Math
 
     #region IClonable implementation
 
-    public object Clone() => new NumberInRange(Value, Min, Max);
+    public object Clone() => new NumberInRange<T>(Value, Min, Max);
 
     #endregion
 
