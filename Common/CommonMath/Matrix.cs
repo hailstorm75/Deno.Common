@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text;
+using static Common.Math.UniversalNumericOperation;
 
 namespace Common.Math
 {
@@ -81,6 +82,7 @@ namespace Common.Math
     /// <exception cref="ArgumentException"></exception>
     public Matrix(T[,] values)
     {
+      if (!default(T).IsNumber()) throw new NotSupportedException($"T cannot be of type {typeof(T).Name}");
       if (values == null) throw new ArgumentException($"Argument {nameof(values)} cannot be null.");
       if (values.GetLength(0) == 0 || values.GetLength(1) == 0) throw new ArgumentException($"Argument {nameof(values)} cannot have a dimension of size 0.");
 
@@ -96,6 +98,7 @@ namespace Common.Math
     /// <exception cref="ArgumentException"></exception>
     public Matrix(int size, bool identity)
     {
+      if (!default(T).IsNumber()) throw new NotSupportedException($"T cannot be of type {typeof(T).Name}");
       if (size < 0) throw new ArgumentException($"Argument {nameof(size)} cannot be negative.");
       if (size == 0) throw new ArgumentException($"Argument {nameof(size)} cannot be equal to 0.");
 
@@ -117,6 +120,7 @@ namespace Common.Math
     /// <exception cref="ArgumentException"></exception>
     public Matrix(int length, int height)
     {
+      if (!default(T).IsNumber()) throw new NotSupportedException($"T cannot be of type {typeof(T).Name}");
       if (length < 0) throw new ArgumentException($"Argument {nameof(length)} cannot be negative.");
       if (height < 0) throw new ArgumentException($"Argument {nameof(height)} cannot be negative.");
       if (length == 0 || height == 0) throw new ArgumentException($"Arguments {nameof(length)} and {nameof(height)} cannot be equal to 0.");
@@ -139,7 +143,7 @@ namespace Common.Math
 
       for (var i = 0; i < m.Columns; i++)
         for (var j = 0; j < m.Rows; j++)
-          outputvalues[i, j] = UniversalNumericOperation.Add<T, T>(m.MatrixValues[i, j], n.MatrixValues[i, j]);
+          outputvalues[i, j] = Add<T, T>(m.MatrixValues[i, j], n.MatrixValues[i, j]);
 
       return new Matrix<T>(outputvalues);
     }
@@ -153,7 +157,7 @@ namespace Common.Math
 
       for (var i = 0; i < m.Columns; i++)
         for (var j = 0; j < m.Rows; j++)
-          outputValues[i, j] = UniversalNumericOperation.Subtract<T, T>(m.MatrixValues[i, j], n.MatrixValues[i, j]);
+          outputValues[i, j] = Subtract<T, T>(m.MatrixValues[i, j], n.MatrixValues[i, j]);
 
       return new Matrix<T>(outputValues);
     }
@@ -168,7 +172,7 @@ namespace Common.Math
       for (var i = 0; i < n.Columns; i++)
         for (var j = 0; j < m.Rows; j++)
           for (var k = 0; k < m.Rows; k++)
-            outputValues[i, j] = UniversalNumericOperation.Multiply<T, T>(outputValues[i, j], m.MatrixValues[i, k], n.MatrixValues[k, j]);
+            outputValues[i, j] = Multiply<T, T>(outputValues[i, j], m.MatrixValues[i, k], n.MatrixValues[k, j]);
 
       return new Matrix<T>(outputValues);
     }
@@ -178,7 +182,7 @@ namespace Common.Math
       var outputvalues = new T[n.Rows, n.Columns];
       for (var i = 0; i < n.Rows; i++)
         for (var j = 0; j < n.Columns; j++)
-          outputvalues[i, j] = UniversalNumericOperation.Multiply<T, double, T>(n.MatrixValues[i, j], m);
+          outputvalues[i, j] = Multiply<T, double, T>(n.MatrixValues[i, j], m);
 
       return new Matrix<T>(outputvalues);
     }
@@ -188,7 +192,7 @@ namespace Common.Math
       var outputvalues = new T[n.Rows, n.Columns];
       for (var i = 0; i < n.Rows; i++)
         for (var j = 0; j < n.Columns; j++)
-          outputvalues[i, j] = UniversalNumericOperation.Divide<T, double, T>(n.MatrixValues[i, j], m);
+          outputvalues[i, j] = Divide<T, double, T>(n.MatrixValues[i, j], m);
 
       return new Matrix<T>(outputvalues);
     }
@@ -279,7 +283,7 @@ namespace Common.Math
       {
         for (var j = 0; j < Columns; j++)
         {
-          cofactorvalues[i, j] = UniversalNumericOperation.Multiply<T, int, T>(MatrixValues[i, j], sign);
+          cofactorvalues[i, j] = Multiply<T, int, T>(MatrixValues[i, j], sign);
           sign = -sign;
         }
 
@@ -298,10 +302,10 @@ namespace Common.Math
       if (Rows == 2)
       {
         var inverseArray = new T[2, 2];
-        inverseArray[0, 0] = UniversalNumericOperation.Multiply<T, double?, T>(MatrixValues[1, 1], Determinant);
-        inverseArray[0, 1] = UniversalNumericOperation.Multiply<T, double?, T>(MatrixValues[0, 1], -Determinant);
-        inverseArray[1, 0] = UniversalNumericOperation.Multiply<T, double?, T>(MatrixValues[1, 0], -Determinant);
-        inverseArray[1, 1] = UniversalNumericOperation.Multiply<T, double?, T>(MatrixValues[0, 0], Determinant);
+        inverseArray[0, 0] = Multiply<T, double?, T>(MatrixValues[1, 1], Determinant);
+        inverseArray[0, 1] = Multiply<T, double?, T>(MatrixValues[0, 1], -Determinant);
+        inverseArray[1, 0] = Multiply<T, double?, T>(MatrixValues[1, 0], -Determinant);
+        inverseArray[1, 1] = Multiply<T, double?, T>(MatrixValues[0, 0], Determinant);
 
         return new Matrix<T>(inverseArray);
       }
@@ -335,7 +339,7 @@ namespace Common.Math
 
       for (var i = 0; i < Columns; i++)
         for (var j = 0; j < Columns; j++)
-          cofactorMatrix.MatrixValues[i, j] = UniversalNumericOperation.Multiply<T, double?, T>(cofactorMatrix.MatrixValues[i, j], (1 / Determinant));
+          cofactorMatrix.MatrixValues[i, j] = Multiply<T, double?, T>(cofactorMatrix.MatrixValues[i, j], (1 / Determinant));
 
       return cofactorMatrix;
     }
@@ -353,19 +357,19 @@ namespace Common.Math
       switch (matrix.GetLength(0))
       {
         case 2:
-          return UniversalNumericOperation.Subtract<T, double>(
-                  UniversalNumericOperation.Multiply<T, T>(matrix[0, 0], matrix[1, 1]),
-                  UniversalNumericOperation.Multiply<T, T>(matrix[0, 1], matrix[1, 0]));
+          return Subtract<T, double>(
+                  Multiply<T, T>(matrix[0, 0], matrix[1, 1]),
+                  Multiply<T, T>(matrix[0, 1], matrix[1, 0]));
         case 3:
-          var left = UniversalNumericOperation.Add<T, T>(
-                      UniversalNumericOperation.Multiply<T, T>(matrix[0, 0], matrix[1, 1], matrix[2, 2]),
-                      UniversalNumericOperation.Multiply<T, T>(matrix[0, 1], matrix[1, 2], matrix[2, 0]),
-                      UniversalNumericOperation.Multiply<T, T>(matrix[0, 2], matrix[1, 0], matrix[2, 1]));
-          var right = UniversalNumericOperation.Add<T, T>(
-                       UniversalNumericOperation.Multiply<T, T>(matrix[0, 2], matrix[1, 1], matrix[2, 0]),
-                       UniversalNumericOperation.Multiply<T, T>(matrix[0, 0], matrix[1, 2], matrix[2, 1]),
-                       UniversalNumericOperation.Multiply<T, T>(matrix[0, 1], matrix[1, 0], matrix[2, 2]));
-          return UniversalNumericOperation.Subtract<T, double>(left, right);
+          var left = Add<T, T>(
+                      Multiply<T, T>(matrix[0, 0], matrix[1, 1], matrix[2, 2]),
+                      Multiply<T, T>(matrix[0, 1], matrix[1, 2], matrix[2, 0]),
+                      Multiply<T, T>(matrix[0, 2], matrix[1, 0], matrix[2, 1]));
+          var right = Add<T, T>(
+                       Multiply<T, T>(matrix[0, 2], matrix[1, 1], matrix[2, 0]),
+                       Multiply<T, T>(matrix[0, 0], matrix[1, 2], matrix[2, 1]),
+                       Multiply<T, T>(matrix[0, 1], matrix[1, 0], matrix[2, 2]));
+          return Subtract<T, double>(left, right);
         default:
           var determinant = 0d;
           var sign = 1;
@@ -387,9 +391,9 @@ namespace Common.Math
               }
             }
 
-            determinant = UniversalNumericOperation.Add<T, double, double>(
-              UniversalNumericOperation.Multiply<T, int, T>(
-                UniversalNumericOperation.Multiply<T, double, T>(matrix[0, i], FindDeterminant(data)),
+            determinant = Add<T, double, double>(
+              Multiply<T, int, T>(
+                Multiply<T, double, T>(matrix[0, i], FindDeterminant(data)),
                 sign),
               determinant);
             sign = -sign;

@@ -2,7 +2,7 @@
 
 namespace Common.Math
 {
-  public interface IMatrix<T> where T : struct, IComparable, IFormattable, IConvertible, IComparable<T>, IEquatable<T>
+  public interface IMatrix<T>
   {
     int Rows { get; }
     int Columns { get; }

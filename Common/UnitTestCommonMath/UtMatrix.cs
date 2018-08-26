@@ -9,7 +9,7 @@ namespace Common.Math.Tests
     #region Initialization
 
     [TestMethod, TestCategory("Constructor")]
-    public void InitializeLengthHeigt()
+    public void InitializeLengthHeight()
     {
       try
       {
