@@ -63,7 +63,16 @@ namespace Common.Math.Tests
 
     #region To String tests
 
-    // TODO
+    [TestMethod, TestCategory("Method")]
+    [DataRow("10223372036854775807", new[] { 1, long.MaxValue })]
+    [DataRow("1", new[] { long.MaxValue, long.MaxValue })]
+    [DataRow("-10223372036854775807", new[] { -1, long.MaxValue })]
+    public void ToStringTest(string expected, long[] values)
+    {
+      var longestLong = new LongestLong(values);
+      var str = longestLong.ToString();
+      Assert.AreEqual(expected, str);
+    }
 
     #endregion
   }

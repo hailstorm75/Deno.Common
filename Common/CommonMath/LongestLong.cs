@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using System.Linq;
 using System.Collections.Generic;
 
@@ -12,7 +13,15 @@ namespace Common.Math
     /// <summary>
     /// Number container
     /// </summary>
-    public List<long> Values { get; private set; }
+    public LinkedList<long> Values { get; }
+
+    public bool Positive { get; }
+
+    #endregion
+
+    #region Fields
+
+    private static readonly long MAX = long.Parse(1 + new string('0', (long.MaxValue / 10).ToString().Length));
 
     #endregion
 
@@ -21,19 +30,29 @@ namespace Common.Math
     /// <summary>
     /// Default constructor
     /// </summary>
-    public LongestLong() => Values = new List<long>();
+    public LongestLong() => Values = new LinkedList<long>();
 
     /// <summary>
     /// Variadic constructor
     /// </summary>
-    /// <param name="values">Value to initialize with</param>
-    public LongestLong(params long[] values) => Values = values.ToList();
+    /// <param name="list">Value to initialize with</param>
+    public LongestLong(params long[] list)
+    {
+      if (!ValidateNumbers(list)) throw new ArgumentException($"Only the first element from argument {nameof(list)} can have a negative value.");
+      Positive = list?.First() >= 0;
+      Values = AdjustList(new LinkedList<long>(list.Reverse()));
+    }
 
     /// <summary>
-    ///
+    /// Constructor
     /// </summary>
-    /// <param name="list"></param>
-    public LongestLong(List<long> list) => Values = list ?? new List<long>();
+    /// <param name="list">List of values to initialize from</param>
+    public LongestLong(List<long> list)
+    {
+      if (!ValidateNumbers(list)) throw new ArgumentException($"Only the first element from argument {nameof(list)} can have a negative value.");
+      Positive = list?.First() >= 0;
+      Values = list != null ? AdjustList(new LinkedList<long>(list.AsEnumerable().Reverse())) : new LinkedList<long>(new long[] { 0 });
+    }
 
     #endregion
 
@@ -44,7 +63,7 @@ namespace Common.Math
     public static LongestLong operator +(LongestLong a, long b)
     {
       var result = new List<long>();
-      Add(a.Values, new List<long>() { b }, ref result, a.Values.Count, false);
+      Add(a.Values, new LongestLong(b).Values, ref result, a.Values.Count, false);
       return new LongestLong(result);
     }
 
@@ -62,7 +81,7 @@ namespace Common.Math
     public static long operator +(long a, LongestLong b)
     {
       // TODO This can overflow
-      return a + b.Values[0];
+      return a + b.Values.First.Value;
     }
 
     #endregion
@@ -82,7 +101,7 @@ namespace Common.Math
     public static long operator -(long a, LongestLong b)
     {
       // TODO This can underflow
-      return a - b.Values[0];
+      return a - b.Values.First.Value;
     }
 
     #endregion
@@ -129,6 +148,39 @@ namespace Common.Math
 
     #region Methods
 
+    private static bool ValidateNumbers(IEnumerable<long> list) => list.Skip(1).All(num => num >= 0);
+
+    private static LinkedList<long> AdjustList(LinkedList<long> list)
+    {
+      long carry = 0;
+      list.Last.Value = System.Math.Abs(list.Last.Value);
+      //foreach (var item in list)
+      //{
+      //  if (item < MAX)
+      //  {
+      //    item += carry;
+      //    carry = 0;
+      //    continue;
+      //  }
+
+      //  var tmp = item / MAX;
+      //  item -= tmp * MAX + carry;
+      //  carry = tmp;
+      //}
+
+      //var en = list.GetEnumerator();
+
+      //while (en.MoveNext())
+      //{
+
+      //}
+
+      if (carry != 0)
+        list.AddFirst(carry);
+
+      return list;
+    }
+
     /// <summary>
     /// Recurvely adds list <paramref name="x"/> with list <paramref name="y"/>
     /// </summary>
@@ -137,41 +189,13 @@ namespace Common.Math
     /// <param name="result">Operation result</param>
     /// <param name="index">Recursion iteration index</param>
     /// <param name="carryover">Calculation carryover</param>
-    private static void Add(IReadOnlyList<long> x, IReadOnlyList<long> y, ref List<long> result, int index, bool carryover) {
-      // We should actually be working base max value of long.
-      // For sake of example, let us say that y is the shorter number
-      // We should consider each pair of longs individually
-      // Index should ALREADY be the last
-      // Before we start we should deal with any carry overs
-      // IE DO WE NEED TO ADD ANOTHER LIST TO THE START
+    private static void Add(IReadOnlyCollection<long> x, IReadOnlyCollection<long> y, ref List<long> result, int index, bool carryover)
+    {
 
-      if (index >= 0)
-      {
-        var temp = y[index] + x[index];
-
-        if (temp <= long.MaxValue && temp >= long.MinValue)
-        {
-          result.Insert(0, temp + (carryover ? 1 : 0));
-          Add(x, y, ref result, --index, false);
-        }
-        else
-        {
-          result.Insert(0, temp - long.MaxValue + (carryover ? 1 : 0));
-          Add(x, y, ref result, --index, true);
-        }
-      }
-      else
-      {
-        //bring down remaining from the longer one, which we are taking to be x
-        if (x.Count == y.Count && carryover)
-          result.Insert(0, 1);
-        else if (x.Count > y.Count)
-          for (int i = x.Count - y.Count; i > 0; i--)
-            result.Insert(0, x[i - 1]);
-      }
     }
 
-    private List<long> Multiply(List<long> x, List<long> y) {
+    private List<long> Multiply(List<long> x, List<long> y)
+    {
       if (x.Count > y.Count) throw new ArgumentException($"List {nameof(x)} must contain less elements than {nameof(y)}");
 
       // Multiplying is just adding y times
@@ -189,21 +213,16 @@ namespace Common.Math
 
     #endregion
 
-    public int CompareTo(LongestLong y) {
-      if (Values.Count > y.Values.Count) return 1;
-      if (Values.Count > y.Values.Count) return -1;
-
-      for (int i = Values.Count - 1; i >= 0; --i)
+    public override string ToString()
+    {
+      var sb = new StringBuilder
       {
-        if (Values[i] == y.Values[i]) continue;
-        return Values[i] > y.Values[i] ? 1 : -1;
-      }
+        Capacity = 1 + Values.Count
+      };
 
-      return 0;
-    }
+      sb.Append(Positive ? string.Empty : "-").Append(string.Concat(Values));
 
-    public override string ToString() {
-      throw new NotImplementedException();
+      return sb.ToString();
     }
   }
 }
