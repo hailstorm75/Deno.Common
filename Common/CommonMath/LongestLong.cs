@@ -13,7 +13,7 @@ namespace Common.Math
     /// <summary>
     /// Number container
     /// </summary>
-    public LinkedList<long> Values { get; }
+    public List<long> Values { get; }
 
     public bool Positive { get; }
 
@@ -21,7 +21,7 @@ namespace Common.Math
 
     #region Fields
 
-    private static readonly long MAX = long.Parse(1 + new string('0', (long.MaxValue / 10).ToString().Length));
+    public static readonly long MAX_VALUE = long.Parse("1" + new string('0', (long.MaxValue / 10).ToString().Length));
 
     #endregion
 
@@ -30,7 +30,7 @@ namespace Common.Math
     /// <summary>
     /// Default constructor
     /// </summary>
-    public LongestLong() => Values = new LinkedList<long>();
+    public LongestLong() => Values = new List<long>();
 
     /// <summary>
     /// Variadic constructor
@@ -40,7 +40,7 @@ namespace Common.Math
     {
       if (!ValidateNumbers(list)) throw new ArgumentException($"Only the first element from argument {nameof(list)} can have a negative value.");
       Positive = list?.First() >= 0;
-      Values = AdjustList(new LinkedList<long>(list.Reverse()));
+      Values = AdjustList(list.Reverse().ToList());
     }
 
     /// <summary>
@@ -51,7 +51,8 @@ namespace Common.Math
     {
       if (!ValidateNumbers(list)) throw new ArgumentException($"Only the first element from argument {nameof(list)} can have a negative value.");
       Positive = list?.First() >= 0;
-      Values = list != null ? AdjustList(new LinkedList<long>(list.AsEnumerable().Reverse())) : new LinkedList<long>(new long[] { 0 });
+      // TODO Optimize
+      Values = list != null ? AdjustList(list.AsEnumerable().Reverse().ToList()) : new List<long>{ 0 };
     }
 
     #endregion
@@ -60,20 +61,12 @@ namespace Common.Math
 
     #region Addition
 
-    public static LongestLong operator +(LongestLong a, long b)
-    {
-      var result = new List<long>();
-      Add(a.Values, new LongestLong(b).Values, ref result, a.Values.Count, false);
-      return new LongestLong(result);
-    }
+    public static LongestLong operator +(LongestLong a, long b) => a + new LongestLong(b);
 
     public static LongestLong operator +(LongestLong a, LongestLong b)
     {
       var result = new List<long>();
-      if (a.Values.Count > b.Values.Count)
-        Add(a.Values, b.Values, ref result, 0, false);
-      else
-        Add(b.Values, a.Values, ref result, 0, false);
+      Add(b.Values, a.Values, ref result, 0, false);
 
       return new LongestLong(result);
     }
@@ -81,17 +74,14 @@ namespace Common.Math
     public static long operator +(long a, LongestLong b)
     {
       // TODO This can overflow
-      return a + b.Values.First.Value;
+      return a + b.Values.First();
     }
 
     #endregion
 
     #region Subtraction
 
-    public static LongestLong operator -(LongestLong a, long b)
-    {
-      throw new NotImplementedException();
-    }
+    public static LongestLong operator -(LongestLong a, long b) => a - new LongestLong(b);
 
     public static LongestLong operator -(LongestLong a, LongestLong b)
     {
@@ -101,7 +91,7 @@ namespace Common.Math
     public static long operator -(long a, LongestLong b)
     {
       // TODO This can underflow
-      return a - b.Values.First.Value;
+      return a - b.Values.First();
     }
 
     #endregion
@@ -148,35 +138,38 @@ namespace Common.Math
 
     #region Methods
 
+    private static void LeftArgLargest(ref LongestLong x, ref LongestLong y)
+    {
+      if (x.Values.Count > y.Values.Count) return;
+
+      var tmp = x;
+      x = y;
+      y = tmp;
+    }
+
     private static bool ValidateNumbers(IEnumerable<long> list) => list.Skip(1).All(num => num >= 0);
 
-    private static LinkedList<long> AdjustList(LinkedList<long> list)
+    private static List<long> AdjustList(List<long> list)
     {
       long carry = 0;
-      list.Last.Value = System.Math.Abs(list.Last.Value);
-      //foreach (var item in list)
-      //{
-      //  if (item < MAX)
-      //  {
-      //    item += carry;
-      //    carry = 0;
-      //    continue;
-      //  }
 
-      //  var tmp = item / MAX;
-      //  item -= tmp * MAX + carry;
-      //  carry = tmp;
-      //}
+      list[list.Count - 1] = System.Math.Abs(list.Last());
+      for (var i = 0; i < list.Count; ++i)
+      {
+        if (list[i] < MAX_VALUE)
+        {
+          list[i] += carry;
+          carry = 0;
+          continue;
+        }
 
-      //var en = list.GetEnumerator();
-
-      //while (en.MoveNext())
-      //{
-
-      //}
+        var tmp = list[i] / MAX_VALUE;
+        list[i] -= tmp * MAX_VALUE - carry;
+        carry = tmp;
+      }
 
       if (carry != 0)
-        list.AddFirst(carry);
+        list.Add(carry);
 
       return list;
     }
@@ -189,9 +182,9 @@ namespace Common.Math
     /// <param name="result">Operation result</param>
     /// <param name="index">Recursion iteration index</param>
     /// <param name="carryover">Calculation carryover</param>
-    private static void Add(IReadOnlyCollection<long> x, IReadOnlyCollection<long> y, ref List<long> result, int index, bool carryover)
+    private static void Add(LongestLong x, LongestLong y)
     {
-
+      LeftArgLargest(ref x, ref y);
     }
 
     private List<long> Multiply(List<long> x, List<long> y)
@@ -220,7 +213,7 @@ namespace Common.Math
         Capacity = 1 + Values.Count
       };
 
-      sb.Append(Positive ? string.Empty : "-").Append(string.Concat(Values));
+      sb.Append(Positive ? string.Empty : "-").Append(string.Concat(Values.AsEnumerable().Reverse()));
 
       return sb.ToString();
     }

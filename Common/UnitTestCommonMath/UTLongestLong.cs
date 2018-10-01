@@ -65,8 +65,8 @@ namespace Common.Math.Tests
 
     [TestMethod, TestCategory("Method")]
     [DataRow("10223372036854775807", new[] { 1, long.MaxValue })]
-    [DataRow("1", new[] { long.MaxValue, long.MaxValue })]
     [DataRow("-10223372036854775807", new[] { -1, long.MaxValue })]
+    [DataRow("9223372036854775816223372036854775807", new[] { long.MaxValue, long.MaxValue })]
     public void ToStringTest(string expected, long[] values)
     {
       var longestLong = new LongestLong(values);
