@@ -66,7 +66,7 @@ namespace Common.Math
     public static LongestLong operator +(LongestLong a, LongestLong b)
     {
       var result = new List<long>();
-      Add(b.Values, a.Values, ref result, 0, false);
+      Add(a, b);
 
       return new LongestLong(result);
     }
