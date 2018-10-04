@@ -50,7 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UtExtensions.cs" />
+    <Compile Include="UtSerialization.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
