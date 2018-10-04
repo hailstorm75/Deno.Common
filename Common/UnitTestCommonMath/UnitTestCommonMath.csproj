@@ -48,6 +48,8 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Data\DataMatrix.cs" />
+    <Compile Include="Data\DataNumberInRange.cs" />
     <Compile Include="UtUniversalNumericOperation.cs" />
     <Compile Include="UtLongestLong.cs" />
     <Compile Include="UtMatrix.cs" />

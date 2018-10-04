@@ -1,4 +1,5 @@
 ﻿using System;
+using Common.Math.Tests.Data;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Common.Math.Tests
@@ -22,31 +23,26 @@ namespace Common.Math.Tests
     }
 
     [TestMethod, TestCategory("Constructor")]
-    [ExpectedException(typeof(ArgumentException))]
-    public void InitializeEqualMinMax()
-    {
-      var unused = new NumberInRange<int>(0, 0, 0);
-    }
-
-    [TestMethod, TestCategory("Constructor")]
     [ExpectedException(typeof(NotSupportedException))]
-    public void InitializeInvalidType()
+    public void InitializeUnsupportedException()
     {
       var unused = new NumberInRange<float>(0, 0, 5);
     }
 
     [TestMethod, TestCategory("Constructor")]
     [ExpectedException(typeof(ArgumentException))]
-    public void InitializeGreaterMin()
+    [DynamicData(nameof(DataNumberInRange.GetCtorArgumentExceptionData), typeof(DataNumberInRange), DynamicDataSourceType.Method)]
+    public void InitializeArgumentException(int value, int min, int max)
     {
-      var unused = new NumberInRange<int>(0, 1, 0);
+      var unused = new NumberInRange<int>(value, min, max);
     }
 
     [TestMethod, TestCategory("Constructor")]
-    public void InitializeAdjustToRange()
+    [DynamicData(nameof(DataNumberInRange.GetCtorAdjustRangeData), typeof(DataNumberInRange), DynamicDataSourceType.Method)]
+    public void InitializeAdjustToRange(int value, int min, int max, int expected)
     {
-      var numberInRange = new NumberInRange<int>(5, 0, 4);
-      Assert.AreEqual(0, numberInRange.Value);
+      var numberInRange = new NumberInRange<int>(value, min, max);
+      Assert.AreEqual(expected, numberInRange.Value);
     }
 
     #endregion
@@ -168,38 +164,6 @@ namespace Common.Math.Tests
     }
 
     #endregion
-
-    #endregion
-
-    #region Stress tests
-
-    [TestMethod, TestCategory("Property")]
-    public void SettingValueNegativeRange1()
-    {
-      var numberInRange = new NumberInRange<int>(-23, -8, -4);
-      Assert.AreEqual(-8, numberInRange.Value);
-    }
-
-    [TestMethod, TestCategory("Property")]
-    public void SettingValueNegativeRange2()
-    {
-      var numberInRange = new NumberInRange<int>(-24, -8, -4);
-      Assert.AreEqual(-4, numberInRange.Value);
-    }
-
-    [TestMethod, TestCategory("Property")]
-    public void SettingValueNegativeRange3()
-    {
-      var numberInRange = new NumberInRange<int>(-9, -7, -3);
-      Assert.AreEqual(-4, numberInRange.Value);
-    }
-
-    [TestMethod, TestCategory("Property")]
-    public void SettingValueNegativeRange4()
-    {
-      var numberInRange = new NumberInRange<int>(9, -7, -3);
-      Assert.AreEqual(-6, numberInRange.Value);
-    }
 
     #endregion
   }

@@ -1,4 +1,5 @@
 ﻿using System;
+using Common.Math.Tests.Data;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Common.Math.Tests
@@ -40,41 +41,24 @@ namespace Common.Math.Tests
 
     [TestMethod, TestCategory("Constructor")]
     [ExpectedException(typeof(ArgumentException))]
-    public void InitializeNegativeLength()
+    [DynamicData(nameof(DataMatrix.GetCtorExceptionData), typeof(DataMatrix), DynamicDataSourceType.Method)]
+    public void InitializeException(int length, int height)
     {
-      var unused = new Matrix<double>(-5, 5);
+      var unused = new Matrix<double>(length, height);
     }
 
     [TestMethod, TestCategory("Constructor")]
-    [ExpectedException(typeof(ArgumentException))]
-    public void InitializeNegativeHeight()
+    [DynamicData(nameof(DataMatrix.GetCtorInvertableData), typeof(DataMatrix), DynamicDataSourceType.Method)]
+    public void InitializeInvertable(int length, int height)
     {
-      var unused = new Matrix<double>(5, -5);
-    }
-
-    [TestMethod, TestCategory("Constructor")]
-    [ExpectedException(typeof(ArgumentException))]
-    public void InitializeZeroSize()
-    {
-      var unused = new Matrix<double>(0, 0);
-    }
-
-    [TestMethod, TestCategory("Constructor")]
-    public void InitializeInvertable()
-    {
-      var matrix = new Matrix<double>(4, 4);
+      var matrix = new Matrix<double>(length, height);
       Assert.AreEqual(Matrix<double>.Type.Invertable, matrix.MatrixType);
     }
 
     [TestMethod, TestCategory("Constructor")]
     public void InitializeIdentity()
     {
-      var matrix = new Matrix<double>(new double[,]
-      {
-        { 1, 0, 0 },
-        { 0, 1, 0 },
-        { 0, 0, 1 }
-      });
+      var matrix = new Matrix<double>(DataMatrix.InvertableMatrix);
       Assert.AreEqual(Matrix<double>.Type.Invertable | Matrix<double>.Type.Identity, matrix.MatrixType);
     }
 
@@ -82,12 +66,7 @@ namespace Common.Math.Tests
     public void InitializeIdentity2()
     {
       var matrix = new Matrix<double>(3, true);
-      CollectionAssert.AreEqual(new double[,]
-      {
-        { 1, 0, 0 },
-        { 0, 1, 0 },
-        { 0, 0, 1 }
-      }, matrix.MatrixValues);
+      CollectionAssert.AreEqual(DataMatrix.InvertableMatrix, matrix.MatrixValues);
     }
 
     #endregion
@@ -95,24 +74,13 @@ namespace Common.Math.Tests
     #region Propeerties
 
     [TestMethod, TestCategory("Property")]
-    public void Invert3X3()
+    [DynamicData(nameof(DataMatrix.GetInvertData), typeof(DataMatrix), DynamicDataSourceType.Method)]
+    public void Invert(double[,] from, double[,] to)
     {
-      var matrix = new Matrix<double>(new double[,]
-      {
-        { 1, 2, 3 },
-        { 0, 1, 4 },
-        { 5, 6, 0 },
-      });
+      var matrix = new Matrix<double>(from);
       var result = matrix.Inverse;
-      CollectionAssert.AreEqual(new double[,]
-      {
-        { -24, 18, 5 },
-        { 20, -15, -4 },
-        { -5, 4, 1 }
-      }, result.MatrixValues);
+      CollectionAssert.AreEqual(to, result.MatrixValues);
     }
-
-    // TODO
 
     #endregion
 
