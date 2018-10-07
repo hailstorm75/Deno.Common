@@ -7,9 +7,9 @@ using System.Reflection;
 using System.Collections.Generic;
 using System.Web.Script.Serialization;
 
-namespace Common.Serialization
+namespace Common.Data
 {
-  public static partial class SerializationExtensions
+  public static partial class Serialization
   {
     /// <summary>
     /// Contract resulver for <see cref="SerializeJSON2"/> to access non-public fields are properties
@@ -33,7 +33,7 @@ namespace Common.Serialization
     /// </summary>
     /// <param name="input">Object to serialize</param>
     /// <returns>JSON string</returns>
-    public static string SerializeJson(this object input)
+    public static string SerializeJson(object input)
     {
       var serializer = new JavaScriptSerializer();
       return serializer.Serialize(input);
@@ -56,7 +56,7 @@ namespace Common.Serialization
     /// </summary>
     /// <param name="input">Object to serialize</param>
     /// <returns>JSON string</returns>
-    public static string SerializeJson2(this object input)
+    public static string SerializeJson2(object input)
     {
       var settings = new JsonSerializerSettings()
       {
@@ -88,7 +88,7 @@ namespace Common.Serialization
     /// <param name="input">Object to serialize</param>
     /// <param name="file">File to serialize to</param>
     /// <returns>True if successful</returns>
-    public static bool SerializeJson2(this object input, StreamWriter file)
+    public static bool SerializeJson2(object input, StreamWriter file)
     {
       var serializer = new JsonSerializer
       {

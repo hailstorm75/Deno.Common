@@ -1,33 +1,38 @@
 ﻿using System;
-using System.Diagnostics;
+using System.Globalization;
+using static Common.Math.UniversalNumericOperation;
 
 namespace Common.Math
 {
   [Serializable]
-  public class NumberInRange : INumberInRange
+  public class NumberInRange<T> : INumberInRange<T> where T : struct, IComparable, IFormattable, IConvertible, IComparable<T>, IEquatable<T>
   {
     #region Properties
 
     /// <summary>
     /// Value in range
     /// </summary>
-    public int Value { get => _mValue; protected set => _mValue = AdjustValue(value); }
-    private int _mValue;
+    public T Value { get => value; protected set => this.value = AdjustValue(value); }
+    private T value;
 
     /// <summary>
     /// Range maximum
     /// </summary>
-    public int Max { get; }
+    public T Max { get; }
 
     /// <summary>
     /// Range minimum
     /// </summary>
-    public int Min { get; }
+    public T Min { get; }
+
+    #endregion
+
+    #region Fields
 
     /// <summary>
     /// Distance between <see cref="Min"/> and <see cref="Max"/>
     /// </summary>
-    private int RangeLen { get; set; }
+    private readonly T rangeLen;
 
     #endregion
 
@@ -39,13 +44,16 @@ namespace Common.Math
     /// <param name="value">Value to hold</param>
     /// <param name="min">Range minimum</param>
     /// <param name="max">Range maximum</param>
-    public NumberInRange(int value, int min = int.MinValue, int max = int.MaxValue)
+    public NumberInRange(T value, T min, T max)
     {
-      if (min == max) throw new ArgumentException($"Argument {nameof(min)} cannot be equal to argument {nameof(max)}.");
-      if (min > max) throw new ArgumentException($"Argument {nameof(min)} cannot be greater than argument {nameof(max)}.");
+      if (!default(T).IsSignedInteger()) throw new NotSupportedException($"T cannot be of type {typeof(T).Name}");
+      if (IsEqual(min, GetMinValue(value))) throw new ArgumentException($"Argumnet {nameof(min)} cannot be equal to {GetMinValue(value)}");
+      if (IsEqual(min, max)) throw new ArgumentException($"Argument {nameof(min)} cannot be equal to argument {nameof(max)}.");
+      if (IsGreater(min, max)) throw new ArgumentException($"Argument {nameof(min)} cannot be greater than argument {nameof(max)}.");
+
       Max = max;
       Min = min;
-      RangeLen = System.Math.Abs(Min - Max);
+      rangeLen = Add<T, int, T>(Abs(Abs(Min).Subtract(Abs(Max))), 1);
       Value = value;
     }
 
@@ -56,31 +64,34 @@ namespace Common.Math
     /// <summary>
     /// Adjusts value to fit given <see cref="Min"/> and <see cref="Max"/>
     /// </summary>
-    /// <param name="value">Value to adjust</param>
+    /// <param name="val">Value to adjust</param>
     /// <returns>Value in range</returns>
-    private int AdjustValue(int value)
+    private T AdjustValue(T val)
     {
-      if (value > Max)
+      if (IsGreaterEqual(val, Min) && IsLessEqual(val, Max)) return val;
+
+      if (IsGreater(val, Min))
       {
-        var fits = System.Math.Abs(value / RangeLen);
-        value -= fits * RangeLen;
-        if (Max < 0) value += Min;
-      }
-      else if (value < Min)
-      {
-        var fits = System.Math.Abs(value / RangeLen);
-        value += fits * RangeLen;
-        if (Min < 0) value += Max;
+        if (IsLess(Min, 0)) return Abs(val.Subtract(Min)).Modulo(rangeLen).Add(Min);
+
+        var remainder = val.Modulo(rangeLen);
+        return IsEqual(remainder, 0) ? Min : remainder.Add(Min);
       }
 
-      return value;
+      if (IsLess(val, Min))
+      {
+        var remainder = Abs(val.Subtract(Min)).Modulo(rangeLen);
+        return IsEqual(remainder, 0) ? Min : rangeLen.Subtract(remainder).Add(Min);
+      }
+
+      return Min.Subtract(Max);
     }
 
     /// <summary>
     /// Converts the <see cref="Value"/> of this instance to its equivalent string representation.
     /// </summary>
     /// <returns></returns>
-    public override string ToString() => _mValue.ToString();
+    public override string ToString() => value.ToString(CultureInfo.InvariantCulture);
 
     #endregion
 
@@ -91,17 +102,17 @@ namespace Common.Math
     /// <param name="a">Left hand side value</param>
     /// <param name="b">Right hand side value</param>
     /// <returns>Result</returns>
-    public static int operator +(int a, NumberInRange b) => (a + b.Value);
+    public static T operator +(T a, NumberInRange<T> b) => a.Add(b.Value);
 
     /// <param name="a">Left hand side value</param>
     /// <param name="b">Right hand side value</param>
     /// <returns>Result</returns>
-    public static int operator +(NumberInRange a, int b) => (a + new NumberInRange(b, a.Min, a.Max));
+    public static T operator +(NumberInRange<T> a, T b) => a + new NumberInRange<T>(b, a.Min, a.Max);
 
     /// <param name="a">Left hand side value</param>
     /// <param name="b">Right hand side value</param>
     /// <returns>Result</returns>
-    public static int operator +(NumberInRange a, NumberInRange b) => a.AdjustValue(a.Value + a.AdjustValue(b.Value));
+    public static T operator +(NumberInRange<T> a, NumberInRange<T> b) => a.AdjustValue(a.Value.Add(a.AdjustValue(b.Value)));
 
     #endregion
 
@@ -110,17 +121,17 @@ namespace Common.Math
     /// <param name="a">Left hand side value</param>
     /// <param name="b">Right hand side value</param>
     /// <returns>Result</returns>
-    public static int operator -(int a, NumberInRange b) => (a - b.Value);
+    public static T operator -(T a, NumberInRange<T> b) => a.Subtract(b.Value);
 
     /// <param name="a">Left hand side value</param>
     /// <param name="b">Right hand side value</param>
     /// <returns></returns>
-    public static int operator -(NumberInRange a, int b) => (a - new NumberInRange(b, a.Min, a.Max));
+    public static T operator -(NumberInRange<T> a, T b) => a - new NumberInRange<T>(b, a.Min, a.Max);
 
     /// <param name="a">Left hand side value</param>
     /// <param name="b">Right hand side value</param>
     /// <returns>Result</returns>
-    public static int operator -(NumberInRange a, NumberInRange b) => a.AdjustValue(a.Value - a.AdjustValue(b.Value));
+    public static T operator -(NumberInRange<T> a, NumberInRange<T> b) => a.AdjustValue(a.Value.Subtract(a.AdjustValue(b.Value)));
 
     #endregion
 
@@ -129,17 +140,17 @@ namespace Common.Math
     /// <param name="a">Left hand side value</param>
     /// <param name="b">Right hand side value</param>
     /// <returns>Result</returns>
-    public static int operator *(int a, NumberInRange b) => (a * b.Value);
+    public static T operator *(T a, NumberInRange<T> b) => a.Multiply(b.Value);
 
     /// <param name="a">Left hand side value</param>
     /// <param name="b">Right hand side value</param>
     /// <returns>Result</returns>
-    public static int operator *(NumberInRange a, int b) => (a * new NumberInRange(b, a.Min, a.Max));
+    public static T operator *(NumberInRange<T> a, T b) => a * new NumberInRange<T>(b, a.Min, a.Max);
 
     /// <param name="a">Left hand side value</param>
     /// <param name="b">Right hand side value</param>
     /// <returns>Result</returns>
-    public static int operator *(NumberInRange a, NumberInRange b) => a.AdjustValue(a.Value * a.AdjustValue(b.Value));
+    public static T operator *(NumberInRange<T> a, NumberInRange<T> b) => a.AdjustValue(a.Value.Multiply(a.AdjustValue(b.Value)));
 
     #endregion
 
@@ -148,17 +159,17 @@ namespace Common.Math
     /// <param name="a">Left hand side value</param>
     /// <param name="b">Right hand side value</param>
     /// <returns>Result</returns>
-    public static int operator /(int a, NumberInRange b) => (a / b.Value);
+    public static T operator /(T a, NumberInRange<T> b) => a.Divide(b.Value);
 
     /// <param name="a">Left hand side value</param>
     /// <param name="b">Right hand side value</param>
     /// <returns>Result</returns>
-    public static int operator /(NumberInRange a, int b) => (a / new NumberInRange(b, a.Min, a.Max));
+    public static T operator /(NumberInRange<T> a, T b) => a / new NumberInRange<T>(b, a.Min, a.Max);
 
     /// <param name="a">Left hand side value</param>
     /// <param name="b">Right hand side value</param>
     /// <returns>Result</returns>
-    public static int operator /(NumberInRange a, NumberInRange b) => a.AdjustValue(a.Value / a.AdjustValue(b.Value));
+    public static T operator /(NumberInRange<T> a, NumberInRange<T> b) => a.AdjustValue(a.Value.Divide(a.AdjustValue(b.Value)));
 
     #endregion
 
@@ -175,69 +186,47 @@ namespace Common.Math
 
     #endregion
 
-    #region IComparable implementation
-
-    public int CompareTo(int other) => _mValue.CompareTo(other);
-
-    public int CompareTo(INumberInRange other) => _mValue.CompareTo(other.Value);
-
-    #endregion
-
-    #region IEquatable implementation
-
-    public bool Equals(int other) => _mValue.Equals(other);
-
-    public bool Equals(INumberInRange other)
-    {
-      Debug.Assert(other != null, nameof(other) + " != null");
-      return Min.Equals(other.Min)
-          && Max.Equals(other.Max)
-          && Value.Equals(other.Value);
-    }
-
-    #endregion
-
     #region IConvertible implementation
 
-    public TypeCode GetTypeCode() => _mValue.GetTypeCode();
+    public TypeCode GetTypeCode() => value.GetTypeCode();
 
-    public bool ToBoolean(IFormatProvider provider) => ((IConvertible)_mValue).ToBoolean(provider);
+    public bool ToBoolean(IFormatProvider provider) => ((IConvertible)value).ToBoolean(provider);
 
-    public char ToChar(IFormatProvider provider) => ((IConvertible)_mValue).ToChar(provider);
+    public char ToChar(IFormatProvider provider) => ((IConvertible)value).ToChar(provider);
 
-    public sbyte ToSByte(IFormatProvider provider) => ((IConvertible)_mValue).ToSByte(provider);
+    public sbyte ToSByte(IFormatProvider provider) => ((IConvertible)value).ToSByte(provider);
 
-    public byte ToByte(IFormatProvider provider) => ((IConvertible)_mValue).ToByte(provider);
+    public byte ToByte(IFormatProvider provider) => ((IConvertible)value).ToByte(provider);
 
-    public short ToInt16(IFormatProvider provider) => ((IConvertible)_mValue).ToInt16(provider);
+    public short ToInt16(IFormatProvider provider) => ((IConvertible)value).ToInt16(provider);
 
-    public ushort ToUInt16(IFormatProvider provider) => ((IConvertible)_mValue).ToUInt16(provider);
+    public ushort ToUInt16(IFormatProvider provider) => ((IConvertible)value).ToUInt16(provider);
 
-    public int ToInt32(IFormatProvider provider) => ((IConvertible)_mValue).ToInt32(provider);
+    public int ToInt32(IFormatProvider provider) => ((IConvertible)value).ToInt32(provider);
 
-    public uint ToUInt32(IFormatProvider provider) => ((IConvertible)_mValue).ToUInt32(provider);
+    public uint ToUInt32(IFormatProvider provider) => ((IConvertible)value).ToUInt32(provider);
 
-    public long ToInt64(IFormatProvider provider) => ((IConvertible)_mValue).ToInt64(provider);
+    public long ToInt64(IFormatProvider provider) => ((IConvertible)value).ToInt64(provider);
 
-    public ulong ToUInt64(IFormatProvider provider) => ((IConvertible)_mValue).ToUInt64(provider);
+    public ulong ToUInt64(IFormatProvider provider) => ((IConvertible)value).ToUInt64(provider);
 
-    public float ToSingle(IFormatProvider provider) => ((IConvertible)_mValue).ToSingle(provider);
+    public float ToSingle(IFormatProvider provider) => ((IConvertible)value).ToSingle(provider);
 
-    public double ToDouble(IFormatProvider provider) => ((IConvertible)_mValue).ToDouble(provider);
+    public double ToDouble(IFormatProvider provider) => ((IConvertible)value).ToDouble(provider);
 
-    public decimal ToDecimal(IFormatProvider provider) => ((IConvertible)_mValue).ToDecimal(provider);
+    public decimal ToDecimal(IFormatProvider provider) => ((IConvertible)value).ToDecimal(provider);
 
-    public DateTime ToDateTime(IFormatProvider provider) => ((IConvertible)_mValue).ToDateTime(provider);
+    public DateTime ToDateTime(IFormatProvider provider) => ((IConvertible)value).ToDateTime(provider);
 
-    public string ToString(IFormatProvider provider) => _mValue.ToString(provider);
+    public string ToString(IFormatProvider provider) => value.ToString(provider);
 
-    public object ToType(Type conversionType, IFormatProvider provider) => ((IConvertible)_mValue).ToType(conversionType, provider);
+    public object ToType(Type conversionType, IFormatProvider provider) => ((IConvertible)value).ToType(conversionType, provider);
 
     #endregion
 
     #region IClonable implementation
 
-    public object Clone() => new NumberInRange(Value, Min, Max);
+    public object Clone() => new NumberInRange<T>(Value, Min, Max);
 
     #endregion
 
