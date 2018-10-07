@@ -2,20 +2,20 @@
 
 namespace Common.Math
 {
-  public interface INumberInRange : ICloneable, IConvertible, IFormattable, IComparable<int>, IComparable<INumberInRange>, IEquatable<int>, IEquatable<INumberInRange>
+  public interface INumberInRange<out T> : ICloneable, IConvertible, IFormattable
   {
     /// <summary>
     /// Range maximum
     /// </summary>
-    int Max { get; }
+    T Max { get; }
     /// <summary>
     /// Range minimum
     /// </summary>
-    int Min { get; }
+    T Min { get; }
     /// <summary>
     /// Value in range
     /// </summary>
-    int Value { get; }
+    T Value { get; }
 
     /// <summary>
     /// Converts the <see cref="Value"/> of this instance to its equivalent string representation.

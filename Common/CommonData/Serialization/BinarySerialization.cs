@@ -2,16 +2,16 @@
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 
-namespace Common.Serialization
+namespace Common.Data
 {
-  public static partial class SerializationExtensions
+  public static partial class Serialization
   {
     /// <summary>
     /// Serializes given <paramref name="input"/> to a stream
     /// </summary>
     /// <param name="input">Object to serialize</param>
     /// <returns>Stream</returns>
-    public static MemoryStream SerializeBinary(this object input)
+    public static MemoryStream SerializeBinary(object input)
     {
       var formatter = new BinaryFormatter();
       var stream = new MemoryStream();
@@ -26,7 +26,7 @@ namespace Common.Serialization
     /// <param name="input">Object to serialize</param>
     /// <param name="file">File to serialize to</param>
     /// <returns>True if successful</returns>
-    public static bool SerializeBinary(this object input, Stream file)
+    public static bool SerializeBinary(object input, Stream file)
     {
       var formatter = new BinaryFormatter();
       try
