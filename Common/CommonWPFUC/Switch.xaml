@@ -5,9 +5,16 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:CommonWPFUC"
              mc:Ignorable="d"
-             d:DesignHeight="{Binding Path=MainHeight, FallbackValue=26, Mode=OneWay}" d:DesignWidth="{Binding Path=MainWeight, FallbackValue=52, Mode=OneWay}">
+             d:DesignHeight="{Binding Path=MainHeight, FallbackValue=26, Mode=OneWay}"
+             d:DesignWidth="{Binding Path=MainWeight, FallbackValue=52, Mode=OneWay}"
+             MouseDown="UserControl_MouseDown">
   <Grid>
-    <Border CornerRadius="{Binding Path=CornerRadius, FallbackValue=13, Mode=OneWay}" Background="White">
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="0*"/>
+      <ColumnDefinition/>
+    </Grid.ColumnDefinitions>
+    <Border CornerRadius="{Binding Path=CornerRadius, FallbackValue=13, Mode=OneWay}"
+            Background="White" Grid.ColumnSpan="2">
       <Grid HorizontalAlignment="Stretch">
         <Grid ZIndex="0">
           <Grid.ColumnDefinitions>
@@ -15,11 +22,25 @@
             <ColumnDefinition/>
             <ColumnDefinition Width="0*"/>
           </Grid.ColumnDefinitions>
-          <Border CornerRadius="{Binding Path=CornerRadius, FallbackValue=13, Mode=OneWay}" BorderThickness="10" Background="LightGray" Grid.Column="0"/>
-          <Border CornerRadius="{Binding Path=CornerRadius, FallbackValue=13, Mode=OneWay}" BorderThickness="10" Background="LightGray" Grid.Column="1" Grid.ColumnSpan="2"/>
+          <Border CornerRadius="{Binding Path=CornerRadius, FallbackValue=13, Mode=OneWay}"
+                  BorderThickness="{Binding Path=DotSize, Mode=OneWay, FallbackValue=8}"
+                  Background="LightGray"
+                  Grid.Column="0"/>
+          <Border CornerRadius="{Binding Path=CornerRadius, FallbackValue=13, Mode=OneWay}"
+                  BorderThickness="{Binding Path=DotSize, Mode=OneWay, FallbackValue=8}"
+                  Background="LightGray"
+                  Grid.Column="1"
+                  Grid.ColumnSpan="2"/>
         </Grid>
-        <Grid ZIndex="1" Width="{Binding Size, FallbackValue=26, Mode=OneWay}" Height="{Binding Path=MainHeight, FallbackValue=26, Mode=OneWay}" Margin="0,0,26,0">
-          <Border CornerRadius="{Binding Path=CornerRadius, FallbackValue=13, Mode=OneWay}" Width="24" Height="24" Background="Gray" Margin="1, 1"/>
+        <Grid ZIndex="1"
+              Width="{Binding Size, FallbackValue=26, Mode=OneWay}"
+              Height="{Binding Path=MainHeight, FallbackValue=26, Mode=OneWay}"
+              Margin="{Binding Path=SwitchPosition, Mode=OneWay, FallbackValue='0, 0, 26, 0'}">
+          <Border CornerRadius="{Binding Path=CornerRadius, FallbackValue=13, Mode=OneWay}"
+                  Width="{Binding Path=SwitchSize, Mode=OneWay, FallbackValue=24}"
+                  Height="{Binding Path=SwitchSize, Mode=OneWay, FallbackValue=24}"
+                  Background="Gray"
+                  Margin="1, 1"/>
         </Grid>
       </Grid>
     </Border>

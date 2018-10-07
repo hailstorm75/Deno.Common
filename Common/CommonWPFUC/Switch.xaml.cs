@@ -27,10 +27,31 @@ namespace CommonWPFUC
   {
     #region Properties
 
-    public double Size { get; private set; } = 13;
+    public bool Enabled
+    {
+      get => enabled;
+      set
+      {
+        enabled = value;
+        EnabledChanged();
+      }
+    }
+    private bool enabled;
+
+    public double Size { get; set; } = 13;
+    private double SwitchSize => Size - 2;
+    private double DotSize => Size / 3;
     private double CornerRadius => Size / 2;
     private double MainWidth => Size * 2;
     private double MainHeight => Size;
+    private Thickness SwitchPostion { get; set; }
+
+    #endregion
+
+    #region Constants
+
+    private readonly Thickness SwitchLeft;
+    private readonly Thickness SwitchRight;
 
     #endregion
 
@@ -39,14 +60,21 @@ namespace CommonWPFUC
       DataContext = this;
 
       InitializeComponent();
+
+      SwitchLeft = new Thickness(0, 0, Size, 0);
+      SwitchRight = new Thickness(0, 0, -Size, 0);
+      SwitchPostion = SwitchLeft;
     }
 
     public event PropertyChangedEventHandler PropertyChanged;
-
     [NotifyPropertyChangedInvocator]
     protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
     {
       PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
+
+    private void EnabledChanged() => SwitchPostion = Enabled ? SwitchLeft : SwitchRight;
+
+    private void UserControl_MouseDown(object sender, MouseButtonEventArgs e) => Enabled = !Enabled;
   }
 }
