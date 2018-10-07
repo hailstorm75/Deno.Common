@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Common.Math
+﻿namespace Common.Math
 {
   internal static class UniversalNumericOperation
   {
