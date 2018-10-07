@@ -4,7 +4,7 @@ namespace Common.Math.Tests.Data
 {
   internal static class DataMatrix
   {
-    public static double[,] InvertableMatrix =
+    public static readonly double[,] InvertableMatrix =
     {
       {1, 0, 0},
       {0, 1, 0},
@@ -15,19 +15,19 @@ namespace Common.Math.Tests.Data
     {
       return new List<object[]>
       {
-        //new object[]
-        //{
-        //  new double[,]
-        //  {
-        //    { 3, 3.5 },
-        //    { 3.2, 3.6 },
-        //  },
-        //  new double[,]
-        //  {
-        //    { -9, 8.75 },
-        //    { 8, -7.5 },
-        //  }
-        //},
+        new object[]
+        {
+          new double[,]
+          {
+            { 4, 7 },
+            { 2, 6 },
+          },
+          new double[,]
+          {
+            { 0.6, -0.7 },
+            { -0.2, 0.4 },
+          }
+        },
         new object[]
         {
           new double[,]
@@ -41,6 +41,23 @@ namespace Common.Math.Tests.Data
             { -24, 18, 5 },
             { 20, -15, -4 },
             { -5, 4, 1 }
+          }
+        },
+        new object[]
+        {
+          new double[,]
+          {
+            { 1, 1, 1, 0 },
+            { 0, 3, 1, 2 },
+            { 2, 3, 1, 0 },
+            { 1, 0, 2, 1 },
+          },
+          new double[,]
+          {
+            { -3, -0.5, 1.5, 1 },
+            { 1, 0.25, -0.25, -0.5 },
+            { 3, 0.25, -1.25, -0.5 },
+            { -3, 0, 1, 1 },
           }
         }
       };

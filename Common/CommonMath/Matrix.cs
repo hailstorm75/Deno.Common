@@ -5,7 +5,7 @@ using static Common.Math.UniversalNumericOperation;
 namespace Common.Math
 {
   [Serializable]
-  public class Matrix<T> : IMatrix<T> where T: struct, IComparable, IFormattable, IConvertible, IComparable<T>, IEquatable<T>
+  public sealed class Matrix<T> : IMatrix<T> where T: struct, IComparable, IFormattable, IConvertible, IComparable<T>, IEquatable<T>
   {
     /// <summary>
     /// Matrix properties
@@ -201,7 +201,7 @@ namespace Common.Math
 
     #region Methods
 
-    protected virtual void UpdateProperties()
+    private void UpdateProperties()
     {
       determinant = (MatrixType & Type.Invertable) != 0 ? new Lazy<double?>(() => FindDeterminant(matrixValues)) : new Lazy<double?>(() => null);
       inverse = (MatrixType & Type.Invertable) != 0 ? new Lazy<IMatrix<T>>(FindInverse) : new Lazy<IMatrix<T>>(() => null);
@@ -247,8 +247,6 @@ namespace Common.Math
     /// <returns>True if <paramref name="matrix"/> is an identity matrix</returns>
     private static bool IsIdentity(T[,] matrix)
     {
-      if (matrix.GetLength(0) != matrix.GetLength(1)) return false;
-
       var index = 0;
       for (var i = 0; i < matrix.GetLength(0); i++)
       {
@@ -302,10 +300,10 @@ namespace Common.Math
       if (Rows == 2)
       {
         var inverseArray = new T[2, 2];
-        inverseArray[0, 0] = Multiply<T, double?, T>(MatrixValues[1, 1], Determinant);
-        inverseArray[0, 1] = Multiply<T, double?, T>(MatrixValues[0, 1], -Determinant);
-        inverseArray[1, 0] = Multiply<T, double?, T>(MatrixValues[1, 0], -Determinant);
-        inverseArray[1, 1] = Multiply<T, double?, T>(MatrixValues[0, 0], Determinant);
+        inverseArray[0, 0] = Multiply<T, double?, T>(MatrixValues[1, 1], 1 / Determinant);
+        inverseArray[0, 1] = Multiply<T, double?, T>(MatrixValues[0, 1], 1 / -Determinant);
+        inverseArray[1, 0] = Multiply<T, double?, T>(MatrixValues[1, 0], 1 / -Determinant);
+        inverseArray[1, 1] = Multiply<T, double?, T>(MatrixValues[0, 0], 1 / Determinant);
 
         return new Matrix<T>(inverseArray);
       }
