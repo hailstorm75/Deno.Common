@@ -10,7 +10,7 @@ namespace Common.Math.Tests
   {
     #region Initialization tests
 
-    [TestMethod]
+    [TestMethod, TestCategory("Constructor")]
     public void Initialize()
     {
       try
@@ -23,14 +23,14 @@ namespace Common.Math.Tests
       }
     }
 
-    [TestMethod]
+    [TestMethod, TestCategory("Constructor")]
     [ExpectedException(typeof(ArgumentException))]
     public void InitializeInvalidList()
     {
       var unused = new LongestLong(new List<long> { -1, 5, -8, 0, 7, -5 });
     }
 
-    [TestMethod]
+    [TestMethod, TestCategory("Constructor")]
     [ExpectedException(typeof(ArgumentException))]
     public void InitializeInvalidVariadic()
     {
@@ -41,7 +41,7 @@ namespace Common.Math.Tests
 
     #region Operator tests
 
-    [TestMethod]
+    [TestMethod, TestCategory("Operator")]
     public void AdditionIntClass()
     {
       var longestLong = new LongestLong();
@@ -63,7 +63,16 @@ namespace Common.Math.Tests
 
     #region To String tests
 
-    // TODO
+    [TestMethod, TestCategory("Method")]
+    [DataRow("10223372036854775807", new[] { 1, long.MaxValue })]
+    [DataRow("-10223372036854775807", new[] { -1, long.MaxValue })]
+    [DataRow("9223372036854775816223372036854775807", new[] { long.MaxValue, long.MaxValue })]
+    public void ToStringTest(string expected, long[] values)
+    {
+      var longestLong = new LongestLong(values);
+      var str = longestLong.ToString();
+      Assert.AreEqual(expected, str);
+    }
 
     #endregion
   }
