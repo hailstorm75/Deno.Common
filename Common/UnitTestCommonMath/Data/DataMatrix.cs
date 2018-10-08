@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Common.Math.Tests.Data
 {
@@ -10,6 +11,30 @@ namespace Common.Math.Tests.Data
       {0, 1, 0},
       {0, 0, 1}
     };
+
+    public static IEnumerable<object[]> GetCtorExceptionData()
+    {
+      return new List<object[]>
+      {
+        new object[] {-5, 5},
+        new object[] {5, -5},
+        new object[] {-5, 5},
+        new object[] {0, 0},
+        new object[] {0, 5},
+        new object[] {5, 0},
+      };
+    }
+
+    public static IEnumerable<object[]> GetCtorInvertableData()
+    {
+      return new List<object[]>
+      {
+        new object[]{4, 4},
+        new object[]{10, 10},
+        new object[]{100, 100},
+        new object[]{1000, 1000},
+      };
+    }
 
     public static IEnumerable<object[]> GetInvertData()
     {
@@ -63,27 +88,42 @@ namespace Common.Math.Tests.Data
       };
     }
 
-    public static IEnumerable<object[]> GetCtorExceptionData()
+    internal static IEnumerable<object[]> GetNonIdentityMatrixData()
     {
       return new List<object[]>
       {
-        new object[] {-5, 5},
-        new object[] {5, -5},
-        new object[] {-5, 5},
-        new object[] {0, 0},
-        new object[] {0, 5},
-        new object[] {5, 0},
-      };
-    }
-
-    public static IEnumerable<object[]> GetCtorInvertableData()
-    {
-      return new List<object[]>
-      {
-        new object[]{4, 4},
-        new object[]{10, 10},
-        new object[]{100, 100},
-        new object[]{1000, 1000},
+        new object[]
+        {
+          new double[,]
+          {
+            { 1, 1 }
+          }
+        },
+        new object[]
+        {
+          new double[,]
+          {
+            { 1 },
+            { 1 }
+          }
+        },
+        new object[]
+        {
+          new double[,]
+          {
+            { 4, 2, 7 },
+            { 8, 7, 0 }
+          }
+        },
+        new object[]
+        {
+          new double[,]
+          {
+            { 4, 8 },
+            { 2, 7 },
+            { 7, 0 }
+          }
+        }
       };
     }
   }

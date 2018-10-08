@@ -13,31 +13,26 @@ namespace Common.Math.Tests
     [TestMethod, TestCategory("Constructor")]
     public void InitializeLengthHeight()
     {
-      try
-      {
-        var unused = new Matrix<double>(5, 3);
-      }
-      catch (Exception)
-      {
-        Assert.Fail();
-      }
+      var unused = new Matrix<double>(5, 3);
     }
 
     [TestMethod, TestCategory("Constructor")]
     public void InitializeArray()
     {
-      try
+      var unused = new Matrix<double>(new double[,]
       {
-        var unused = new Matrix<double>(new double[,]
-        {
-          { 1, 2, 5 },
-          { 3, 5, 8 }
-        });
-      }
-      catch (Exception)
-      {
-        Assert.Fail();
-      }
+        { 1, 2, 5 },
+        { 3, 5, 8 }
+      });
+    }
+
+    [TestMethod]
+    [DataRow(0)]
+    [DataRow(-1)]
+    [ExpectedException(typeof(ArgumentException))]
+    public void InitializeInvlidSize(int size)
+    {
+      var unused = new Matrix<double>(size, false);
     }
 
     [TestMethod, TestCategory("Constructor")]
@@ -58,7 +53,7 @@ namespace Common.Math.Tests
     [ExpectedException(typeof(NotSupportedException))]
     public void InitializeInvalidType3()
     {
-      var unused = new Matrix<DateTime>(new [,] { { new DateTime(), } });
+      var unused = new Matrix<DateTime>(new[,] { { new DateTime(), } });
     }
 
     [TestMethod, TestCategory("Constructor")]
@@ -80,7 +75,7 @@ namespace Common.Math.Tests
     [ExpectedException(typeof(ArgumentException))]
     public void InitializeZeroDimension()
     {
-      var unused = new Matrix<double>(new double[,] {});
+      var unused = new Matrix<double>(new double[,] { });
     }
 
     [TestMethod, TestCategory("Constructor")]
@@ -101,7 +96,7 @@ namespace Common.Math.Tests
     [TestMethod, TestCategory("Constructor")]
     public void InitializeNonIdentity()
     {
-      var matrix = new Matrix<double>(new double[,] { {1, 2, 3}, {1, 2, 3}});
+      var matrix = new Matrix<double>(new double[,] { { 1, 2, 3 }, { 1, 2, 3 } });
       Assert.AreNotEqual(Matrix<double>.Type.Invertable | Matrix<double>.Type.Identity, matrix.MatrixType);
     }
 
@@ -121,8 +116,17 @@ namespace Common.Math.Tests
     public void Invert(double[,] from, double[,] to)
     {
       var matrix = new Matrix<double>(from);
-      var result = matrix.Inverse;
+      var result = matrix.GetInverse();
       CollectionAssert.AreEqual(to, result.MatrixValues, new DoubleComparer());
+    }
+
+    [TestMethod, TestCategory("Property")]
+    [ExpectedException(typeof(Matrix<double>.InvertableMatrixOperationException))]
+    [DynamicData(nameof(DataMatrix.GetNonIdentityMatrixData), typeof(DataMatrix), DynamicDataSourceType.Method)]
+    public void DeterminantException(double[,] from)
+    {
+      var matrix = new Matrix<double>(from);
+      var unused = matrix.GetDeterminant();
     }
 
     #endregion
