@@ -138,7 +138,6 @@ namespace Common.Data
       var i = 0;
       foreach (var transition in transitions)
       {
-        m_transitions[i]
         m_transitionFrom[i] = (int)transition.From;
         m_transitionOnInput[i] = int.Parse(transition.OnInput.ToString());
         m_transitionTo[i] = (int)transition.To;
