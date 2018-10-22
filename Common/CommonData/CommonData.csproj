@@ -45,6 +45,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DFA.cs" />
+    <Compile Include="DfaMinimizer.cs" />
+    <Compile Include="PatternFinder.cs" />
     <Compile Include="FileMan.cs" />
     <Compile Include="Serialization\JSONSerialization.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -53,6 +56,7 @@
     <Compile Include="Serialization\Extensions\JSONSerializationExt.cs" />
     <Compile Include="Serialization\Extensions\XMLSerializationExt.cs" />
     <Compile Include="Serialization\XMLSerialization.cs" />
+    <Compile Include="Trie.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
