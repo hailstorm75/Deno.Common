@@ -169,7 +169,7 @@ namespace Common.Math
       for (var i = 0; i < n.Columns; i++)
         for (var j = 0; j < m.Rows; j++)
           for (var k = 0; k < m.Rows; k++)
-            outputValues[i, j] = Multiply<T, T>(outputValues[i, j], m.MatrixValues[i, k], n.MatrixValues[k, j]);
+            outputValues[i, j] = outputValues[i, j].Add(Multiply<T, T>(m.MatrixValues[i, k], n.MatrixValues[k, j]));
 
       return new Matrix<T>(outputValues);
     }
