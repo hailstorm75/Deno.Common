@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Common.Data;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Common.Data.Tests

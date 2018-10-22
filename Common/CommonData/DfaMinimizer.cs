@@ -243,50 +243,55 @@ namespace Common.Data
 
     public Dfa<char> ToDfa()
     {
-      IEnumerable<Dfa<char>.Transition> Generate()
-      {
-        for (var t = 0; t < m_transitionCount; ++t)
-          if (m_blocks.Location[m_transitionFrom[t]] == m_blocks.First[m_blocks.SetOf[m_transitionFrom[t]]])
-            yield return new Dfa<char>.Transition((ulong)m_blocks.SetOf[m_transitionFrom[t]],
-                                                  (ulong)m_blocks.SetOf[m_transitionTo[t]],
-                                                         m_transitionOnInput[t].ToString()[0]);
-      }
 
-      return Dfa<char>.CreateFromTransitions(Generate());
+      return Dfa<char>.CreateFromTransitions(GetTransitions());
+    }
+
+    public IEnumerable<Dfa<char>.Transition> GetTransitions()
+    {
+      for (var t = 0; t < m_transitionCount; ++t)
+        if (m_blocks.Location[m_transitionFrom[t]] == m_blocks.First[m_blocks.SetOf[m_transitionFrom[t]]])
+          yield return new Dfa<char>.Transition((ulong)m_blocks.SetOf[m_transitionFrom[t]],
+                                                (ulong)m_blocks.SetOf[m_transitionTo[t]],
+                                                       m_transitionOnInput[t].ToString()[0]);
+    }
+
+    public IEnumerable<int> GetFinalStates()
+    {
+      for (var b = 0; b < m_blocks.SetCount; ++b)
+        if (m_blocks.First[b] < m_finalStatesCount)
+          yield return b;
+    }
+
+    public Tuple<int, int, int, int> GetAutomataInfo()
+    {
+      var transitionCount = 0;
+      var finalStateCount = 0;
+
+      for (var t = 0; t < m_transitionCount; ++t)
+        if (m_blocks.Location[m_transitionFrom[t]] == m_blocks.First[m_blocks.SetOf[m_transitionFrom[t]]])
+          ++transitionCount;
+
+      for (var b = 0; b < m_blocks.SetCount; ++b)
+        if (m_blocks.First[b] < m_finalStatesCount)
+          ++finalStateCount;
+
+      return new Tuple<int, int, int, int>(m_blocks.SetCount,
+                                           transitionCount,
+                                           m_blocks.SetOf[m_initialState],
+                                           finalStateCount);
     }
 
     public override string ToString()
     {
-      var mo = 0;
-      var fo = 0;
-      for (var t = 0; t < m_transitionCount; ++t)
-        if (m_blocks.Location[m_transitionFrom[t]] == m_blocks.First[m_blocks.SetOf[m_transitionFrom[t]]])
-          ++mo;
-      for (var b = 0; b < m_blocks.SetCount; ++b)
-        if (m_blocks.First[b] < m_finalStatesCount)
-          ++fo;
-
       var sb = new StringBuilder();
-      sb.Append(m_blocks.SetCount)
-        .Append(" ")
-        .Append(mo)
-        .Append(" ")
-        .Append(m_blocks.SetOf[m_initialState])
-        .Append(" ")
-        .Append($"{fo}\n");
 
-      for (var t = 0; t < m_transitionCount; ++t)
-        if (m_blocks.Location[m_transitionFrom[t]] == m_blocks.First[m_blocks.SetOf[m_transitionFrom[t]]])
-          sb.Append(m_blocks.SetOf[m_transitionFrom[t]].ToString())
-            .Append(" ")
-            .Append(m_transitionOnInput[t].ToString())
-            .Append(" ")
-            .Append(m_blocks.SetOf[m_transitionTo[t]].ToString())
-            .Append('\n');
-
-      for (var b = 0; b < m_blocks.SetCount; ++b)
-        if (m_blocks.First[b] < m_finalStatesCount)
-          sb.Append(b).Append('\n');
+      var header = GetAutomataInfo();
+      sb.Append($"{header.Item1} {header.Item2} {header.Item3} {header.Item4}\n");
+      foreach (var transition in GetTransitions())
+        sb.Append($"{transition.From} {transition.OnInput} {transition.To}\n");
+      foreach (var finalState in GetFinalStates())
+        sb.Append(finalState).Append('\n');
 
       return sb.ToString();
     }
