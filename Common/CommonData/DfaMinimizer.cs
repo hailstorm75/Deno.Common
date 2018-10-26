@@ -173,7 +173,7 @@ namespace Common.Data
       return this;
     }
 
-    public DfaMinimizer<T> PartitionTransions()
+    private DfaMinimizer<T> PartitionTransions()
     {
       m_finalStatesCount = m_reachableCount;
 
@@ -223,7 +223,7 @@ namespace Common.Data
       return this;
     }
 
-    public DfaMinimizer<T> SplitBlocksAndCoords()
+    private DfaMinimizer<T> SplitBlocksAndCoords()
     {
       MakeAdjacent(m_transitions.To);
 
@@ -246,6 +246,11 @@ namespace Common.Data
       }
 
       return this;
+    }
+
+    public DfaMinimizer<T> Process()
+    {
+      return this.PartitionTransions().SplitBlocksAndCoords();
     }
 
     public Dfa<T> ToDfa()
@@ -358,8 +363,7 @@ namespace Common.Data
       var dfaMinimizer = new DfaMinimizer<char>(trie.StateCount, trie.TransitionCount, 0, trie.WordCount);
       return dfaMinimizer.LoadTransitions(trie.Transitions())
                          .SetFinalState(trie.FinateStates)
-                         .PartitionTransions()
-                         .SplitBlocksAndCoords()
+                         .Process()
                          .ToDfa();
     }
   }
