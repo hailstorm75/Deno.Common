@@ -56,6 +56,7 @@
     <Compile Include="Serialization\Extensions\JSONSerializationExt.cs" />
     <Compile Include="Serialization\Extensions\XMLSerializationExt.cs" />
     <Compile Include="Serialization\XMLSerialization.cs" />
+    <Compile Include="Transition.cs" />
     <Compile Include="Trie.cs" />
   </ItemGroup>
   <ItemGroup>

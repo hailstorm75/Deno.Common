@@ -5,30 +5,36 @@ using System.Text;
 
 namespace Common.Data
 {
-  public class DfaMinimizer
+  public class DfaMinimizer<T> where T : IComparable, IComparable<T>, IEquatable<T>
   {
-    #region Fields
+    private struct Transitions
+    {
+      public int[] From { get; set; }
+      public int[] To { get; set; }
+      public T[] OnInput { get; set; }
 
-    private int[] m_marked;
-    private List<int> m_touched;
-    private int m_touchedCount;
-    private Partition m_blocks;
-    private Partition m_cords;
-    private int m_stateCount; // number of states
-    private int m_transitionCount; // number of transitions
-    private int m_finalStatesCount; // number of final states
-    private int m_initialState; // initial state
-    private int[] m_transitionFrom; // tails of transitions (i.e. to state)
-    private int[] m_transitionOnInput; // labels of transitions (i.e. on what input)
-    private int[] m_transitionTo; // heads of transitions (i.e. from state
+      public int Count { get; set; }
 
-    private List<Dfa<char>.Transition> m_transitions;
+      public Transitions(int count)
+      {
+        Count = count;
+        From = new int[Count];
+        To = new int[Count];
+        OnInput = new T[Count];
+      }
 
-    private int[] m_adjacent;
-    private int[] m_offset;
-    private int m_reachableCount = 0;
-
-    #endregion
+      public void LoadTransitions(IEnumerable<Transition<T>> transitions)
+      {
+        var i = 0;
+        foreach (var transition in transitions)
+        {
+          From[i] = (int)transition.From;
+          To[i] = (int)transition.To;
+          OnInput[i] = transition.OnInput;
+          i++;
+        }
+      }
+    }
 
     private struct Partition
     {
@@ -114,48 +120,51 @@ namespace Common.Data
       }
     }
 
+    #region Fields
+
+    private int[] m_marked;
+    private List<int> m_touched;
+    private int m_touchedCount;
+    private Partition m_blocks;
+    private Partition m_cords;
+    private int m_stateCount; // number of states
+    private int m_finalStatesCount; // number of final states
+    private int m_initialState; // initial state
+
+    private Transitions m_transitions;
+
+    private int[] m_adjacent;
+    private int[] m_offset;
+    private int m_reachableCount = 0;
+
+    #endregion
+
     public DfaMinimizer(int stateCount, int transitionCount, int initialState, int finalStatesCount)
     {
       m_stateCount = stateCount;
-      m_transitionCount = transitionCount;
       m_finalStatesCount = finalStatesCount;
       m_initialState = initialState;
 
       m_blocks = new Partition(stateCount);
+      m_transitions = new Transitions(transitionCount);
 
-      m_transitionFrom = new int[m_transitionCount];
-      m_transitionOnInput = new int[m_transitionCount];
-      m_transitionTo = new int[m_transitionCount];
-
-      m_transitions = new List<Dfa<char>.Transition>(m_transitionCount);
-
-      m_adjacent = new int[m_transitionCount];
+      m_adjacent = new int[transitionCount];
       m_offset = new int[m_stateCount + 1];
     }
 
-    public DfaMinimizer LoadTransitions(IEnumerable<Trie.Transition> transitions)
+    public DfaMinimizer<T> LoadTransitions(IEnumerable<Transition<T>> transitions)
     {
-      var i = 0;
-      foreach (var transition in transitions)
-      {
-        m_transitionFrom[i] = (int)transition.From;
-        m_transitionOnInput[i] = int.Parse(transition.OnInput.ToString());
-        m_transitionTo[i] = (int)transition.To;
-        ++i;
-      }
+      m_transitions.LoadTransitions(transitions);
 
       Reach(m_initialState);
-      RemoveUnreachable(m_transitionFrom, m_transitionTo);
+      RemoveUnreachable(m_transitions.From, m_transitions.To);
 
       return this;
     }
 
-    public DfaMinimizer SetFinalState(params int[] states)
-    {
-      return SetFinalState(states);
-    }
+    public DfaMinimizer<T> SetFinalState(params int[] states) => SetFinalState(states.ToList());
 
-    public DfaMinimizer SetFinalState(IEnumerable<int> states)
+    public DfaMinimizer<T> SetFinalState(IEnumerable<int> states)
     {
       foreach (var state in states)
         if (m_blocks.Location[state] < m_blocks.Past[0])
@@ -164,13 +173,14 @@ namespace Common.Data
       return this;
     }
 
-    public DfaMinimizer PartitionTransions()
+    public DfaMinimizer<T> PartitionTransions()
     {
       m_finalStatesCount = m_reachableCount;
-      RemoveUnreachable(m_transitionTo, m_transitionFrom);
 
-      m_touched = new List<int>(m_transitionCount + 1);
-      m_marked = new int[m_transitionCount + 1];
+      RemoveUnreachable(m_transitions.To, m_transitions.From);
+
+      m_touched = new List<int>(m_transitions.Count + 1);
+      m_marked = new int[m_transitions.Count + 1];
       m_marked[0] = m_finalStatesCount;
 
       if (m_finalStatesCount != 0)
@@ -180,59 +190,56 @@ namespace Common.Data
         m_blocks.Split(ref m_marked, m_touched, ref m_touchedCount);
       }
 
-      m_cords = new Partition(m_transitionCount);
-      if (m_transitionCount != 0)
+      m_cords = new Partition(m_transitions.Count);
+
+      if (m_transitions.Count == 0) return this;
+
+      //Array.Sort(m_cords.Elements, Compare);
+      var e = m_cords.Elements.Select(x => m_transitions.OnInput[x]).ToArray();
+      Array.Sort(e, m_cords.Elements);
+
+      m_cords.SetCount = m_marked[0] = 0;
+      // this code relies on the fact that cords.first[0] == 0 at this point for the first set to be correct
+      var currentLabel = m_transitions.OnInput[m_cords.Elements[0]];
+
+      for (var i = 0; i < m_transitions.Count; ++i)
       {
-        //Array.Sort(m_cords.Elements, Compare);
-        var e = m_cords.Elements.Select(x => m_transitionOnInput[x]).ToArray();
-        Array.Sort(e, m_cords.Elements);
+        var t = m_cords.Elements[i];
 
-        m_cords.SetCount = m_marked[0] = 0;
-        // this code relies on the fact that cords.first[0] == 0 at this point for the first set to be correct
-        var currentLabel = m_transitionOnInput[m_cords.Elements[0]];
-
-        for (var i = 0; i < m_transitionCount; ++i)
+        if (!m_transitions.OnInput[t].Equals(currentLabel))
         {
-          var t = m_cords.Elements[i];
-
-          if (m_transitionOnInput[t] != currentLabel)
-          {
-            currentLabel = m_transitionOnInput[t];
-            m_cords.Past[m_cords.SetCount++] = i;
-            m_cords.First[m_cords.SetCount] = i;
-            m_marked[m_cords.SetCount] = 0;
-          }
-
-          m_cords.SetOf[t] = m_cords.SetCount;
-          m_cords.Location[t] = i;
+          currentLabel = m_transitions.OnInput[t];
+          m_cords.Past[m_cords.SetCount++] = i;
+          m_cords.First[m_cords.SetCount] = i;
+          m_marked[m_cords.SetCount] = 0;
         }
 
-        m_cords.Past[m_cords.SetCount++] = m_transitionCount;
+        m_cords.SetOf[t] = m_cords.SetCount;
+        m_cords.Location[t] = i;
       }
+
+      m_cords.Past[m_cords.SetCount++] = m_transitions.Count;
 
       return this;
     }
 
-    public DfaMinimizer SplitBlocksAndCoords()
+    public DfaMinimizer<T> SplitBlocksAndCoords()
     {
-      MakeAdjacent(m_transitionTo);
+      MakeAdjacent(m_transitions.To);
 
       int b = 1, c = 0;
       while (c < m_cords.SetCount)
       {
-        for (int i = m_cords.First[c]; i < m_cords.Past[c]; ++i)
-          m_blocks.Mark(m_transitionFrom[m_cords.Elements[i]], ref m_marked, ref m_touched, ref m_touchedCount);
+        for (var i = m_cords.First[c]; i < m_cords.Past[c]; ++i)
+          m_blocks.Mark(m_transitions.From[m_cords.Elements[i]], ref m_marked, ref m_touched, ref m_touchedCount);
 
         m_blocks.Split(ref m_marked, m_touched, ref m_touchedCount); ++c;
 
         while (b < m_blocks.SetCount)
         {
-          for (int i = m_blocks.First[b]; i < m_blocks.Past[b]; ++i)
-          {
+          for (var i = m_blocks.First[b]; i < m_blocks.Past[b]; ++i)
             for (var j = m_offset[m_blocks.Elements[i]]; j < m_offset[m_blocks.Elements[i] + 1]; ++j)
               m_cords.Mark(m_adjacent[j], ref m_marked, ref m_touched, ref m_touchedCount);
-          }
-
 
           m_cords.Split(ref m_marked, m_touched, ref m_touchedCount); ++b;
         }
@@ -241,19 +248,18 @@ namespace Common.Data
       return this;
     }
 
-    public Dfa<char> ToDfa()
+    public Dfa<T> ToDfa()
     {
-
-      return Dfa<char>.CreateFromTransitions(GetTransitions());
+      return Dfa<T>.CreateFromTransitions(GetTransitions());
     }
 
-    public IEnumerable<Dfa<char>.Transition> GetTransitions()
+    public IEnumerable<Transition<T>> GetTransitions()
     {
-      for (var t = 0; t < m_transitionCount; ++t)
-        if (m_blocks.Location[m_transitionFrom[t]] == m_blocks.First[m_blocks.SetOf[m_transitionFrom[t]]])
-          yield return new Dfa<char>.Transition((ulong)m_blocks.SetOf[m_transitionFrom[t]],
-                                                (ulong)m_blocks.SetOf[m_transitionTo[t]],
-                                                       m_transitionOnInput[t].ToString()[0]);
+      for (var i = 0; i < m_transitions.Count; ++i)
+        if (m_blocks.Location[m_transitions.From[i]] == m_blocks.First[m_blocks.SetOf[m_transitions.From[i]]])
+          yield return new Transition<T>(m_blocks.SetOf[m_transitions.From[i]],
+                                         m_blocks.SetOf[m_transitions.To[i]],
+                                         m_transitions.OnInput[i]);
     }
 
     public IEnumerable<int> GetFinalStates()
@@ -268,8 +274,8 @@ namespace Common.Data
       var transitionCount = 0;
       var finalStateCount = 0;
 
-      for (var t = 0; t < m_transitionCount; ++t)
-        if (m_blocks.Location[m_transitionFrom[t]] == m_blocks.First[m_blocks.SetOf[m_transitionFrom[t]]])
+      for (var t = 0; t < m_transitions.Count; ++t)
+        if (m_blocks.Location[m_transitions.From[t]] == m_blocks.First[m_blocks.SetOf[m_transitions.From[t]]])
           ++transitionCount;
 
       for (var b = 0; b < m_blocks.SetCount; ++b)
@@ -296,20 +302,18 @@ namespace Common.Data
       return sb.ToString();
     }
 
-    private int Compare(int lhs, int rhs) => m_transitionOnInput[lhs] < m_transitionOnInput[rhs] ? 1 : 0;
-
     private void MakeAdjacent(IReadOnlyList<int> states)
     {
       for (var state = 0; state <= m_stateCount; ++state)
         m_offset[state] = 0;
 
-      for (var transition = 0; transition < m_transitionCount; ++transition)
+      for (var transition = 0; transition < m_transitions.Count; ++transition)
         ++m_offset[states[transition]];
 
       for (var state = 0; state < m_stateCount; ++state)
         m_offset[state + 1] += m_offset[state];
 
-      for (var transition = m_transitionCount; transition-- != 0;)
+      for (var transition = m_transitions.Count; transition-- != 0;)
         m_adjacent[--m_offset[states[transition]]] = transition;
     }
 
@@ -334,26 +338,26 @@ namespace Common.Data
 
       // remove unreachable states and transitions
       var count = 0;
-      for (var t = 0; t < m_transitionCount; ++t)
+      for (var t = 0; t < m_transitions.Count; ++t)
       {
         if (m_blocks.Location[tail[t]] >= m_reachableCount) continue;
 
         head[count] = head[t];
-        m_transitionOnInput[count] = m_transitionOnInput[t];
+        m_transitions.OnInput[count] = m_transitions.OnInput[t];
         tail[count] = tail[t];
         ++count;
       }
 
-      m_transitionCount = count;
+      m_transitions.Count = count;
       m_blocks.Past[0] = m_reachableCount;
       m_reachableCount = 0;
     }
 
     public static Dfa<char> Minimize(Trie trie)
     {
-      var dfaMinimizer = new DfaMinimizer((int)trie.StateCount, (int)trie.TransitionCount, 0, trie.WordCount);
+      var dfaMinimizer = new DfaMinimizer<char>(trie.StateCount, trie.TransitionCount, 0, trie.WordCount);
       return dfaMinimizer.LoadTransitions(trie.Transitions())
-                         .SetFinalState(trie.FinateStates.Select(x => (int)x))
+                         .SetFinalState(trie.FinateStates)
                          .PartitionTransions()
                          .SplitBlocksAndCoords()
                          .ToDfa();

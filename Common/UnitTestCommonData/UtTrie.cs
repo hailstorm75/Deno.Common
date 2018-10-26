@@ -14,9 +14,9 @@ namespace Common.Data.Tests
       var trie = new Trie();
       trie.Add("234").Add("2301").Add("501").Add("01");
 
-      var min = new DfaMinimizer(11, 10, 0, 4);
+      var min = new DfaMinimizer<char>(trie.StateCount, trie.TransitionCount, 0, trie.WordCount);
       min.LoadTransitions(trie.Transitions())
-         .SetFinalState(trie.FinateStates.Select(x => (int)x))
+         .SetFinalState(trie.FinateStates)
          .PartitionTransions()
          .SplitBlocksAndCoords();
 
@@ -30,7 +30,7 @@ namespace Common.Data.Tests
       var trie = new Trie();
       trie.Add("234").Add("2301").Add("501").Add("01");
 
-      var result = DfaMinimizer.Minimize(trie);
+      var result = DfaMinimizer<char>.Minimize(trie);
     }
   }
 }

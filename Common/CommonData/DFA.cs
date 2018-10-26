@@ -4,25 +4,11 @@ namespace Common.Data
 {
   public class Dfa<T>
   {
-    public sealed class Transition
-    {
-      public ulong From { get; }
-      public ulong To { get; }
-      public T OnInput { get; }
-
-      public Transition(ulong from, ulong to, T onInput)
-      {
-        From = from;
-        To = to;
-        OnInput = onInput;
-      }
-    }
-
     public sealed class State
     {
       #region Properties
 
-      public readonly ulong Id;
+      public readonly int Id;
       public Dictionary<T, State> Children { get; set; }
 
       #endregion
@@ -34,32 +20,32 @@ namespace Common.Data
       /// <param name="depth">Node depth</param>
       /// <param name="parent">Node parent</param>
       /// <param name="id"></param>
-      public State(ulong id)
+      public State(int id)
       {
         Id = id;
         Children = new Dictionary<T, State>();
       }
 
-      public State Insert(T c, ref ulong id)
+      public int Insert(T c, int id)
       {
-        if (!Children.ContainsKey(c))
-          Children.Add(c, new State(id++));
+        if (Children.ContainsKey(c)) return id;
 
-        return this;
+        Children.Add(c, new State(id));
+        return id + 1;
       }
     }
 
     #region Properties
 
-    public virtual IEnumerable<ulong> FinateStates { get; }
-    public virtual ulong StateCount { get; }
-    public virtual ulong TransitionCount { get; }
+    public virtual IEnumerable<int> FinateStates { get; }
+    public virtual int StateCount { get; }
+    public virtual int TransitionCount { get; }
 
     #endregion
 
     #region Fields
 
-    protected HashSet<ulong> m_finateStates;
+    protected HashSet<int> m_finateStates;
     protected HashSet<T> m_alphabet;
 
     #endregion
@@ -67,10 +53,10 @@ namespace Common.Data
     public Dfa()
     {
       m_alphabet = new HashSet<T>();
-      m_finateStates = new HashSet<ulong>();
+      m_finateStates = new HashSet<int>();
     }
 
-    public static Dfa<T> CreateFromTransitions(IEnumerable<Transition> transitions)
+    public static Dfa<T> CreateFromTransitions(IEnumerable<Transition<T>> transitions)
     {
       var dfa = new Dfa<T>();
       foreach (var transition in transitions)
@@ -81,11 +67,11 @@ namespace Common.Data
       return dfa;
     }
 
-    protected static IEnumerable<Transition> GenerateTransitions(State state)
+    protected static IEnumerable<Transition<T>> GenerateTransitions(State state)
     {
       foreach (var child in state.Children)
       {
-        yield return new Transition(state.Id, child.Value.Id, child.Key);
+        yield return new Transition<T>(state.Id, child.Value.Id, child.Key);
 
         foreach (var transition in GenerateTransitions(child.Value))
           yield return transition;

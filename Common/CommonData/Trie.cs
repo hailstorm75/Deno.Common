@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace Common.Data
 {
@@ -13,13 +10,12 @@ namespace Common.Data
   {
     private readonly State m_root;
 
-    public override IEnumerable<ulong> FinateStates => m_finateStates.Select(x => x);
+    public override IEnumerable<int> FinateStates => m_finateStates.Select(x => x);
 
-    private ulong m_stateCount;
-    public override ulong StateCount => m_stateCount;
+    private int m_stateCount;
+    public override int StateCount => m_stateCount;
 
-    private ulong m_transitionCount;
-    public override ulong TransitionCount => m_transitionCount;
+    public override int TransitionCount => m_stateCount - 1;
 
     public int WordCount => m_finateStates.Count;
 
@@ -63,12 +59,11 @@ namespace Common.Data
 
       foreach (var character in word)
       {
-        root.Insert(character, ref m_stateCount);
+        m_stateCount = root.Insert(character, m_stateCount);
         root = root.Children[character];
 
         if (m_alphabet.Contains(character)) continue;
 
-        m_transitionCount++;
         m_alphabet.Add(character);
       }
 
@@ -77,7 +72,7 @@ namespace Common.Data
       return this;
     }
 
-    public IEnumerable<Transition> Transitions() => GenerateTransitions(m_root);
+    public IEnumerable<Transition<char>> Transitions() => GenerateTransitions(m_root);
 
     #endregion
   }
