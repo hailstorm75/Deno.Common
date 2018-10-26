@@ -13,14 +13,7 @@ namespace Common.Math.Tests
     [TestMethod, TestCategory(Constants.CONSTRUCTOR)]
     public void Initialize()
     {
-      try
-      {
-        var unsued = new NumberInRange<int>(0, 5, 10);
-      }
-      catch (Exception e)
-      {
-        Assert.Fail($"Exception caught: {e}");
-      }
+      var unsued = new NumberInRange<int>(0, 5, 10);
     }
 
     [TestMethod, TestCategory(Constants.CONSTRUCTOR)]
