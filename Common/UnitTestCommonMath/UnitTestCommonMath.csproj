@@ -64,6 +64,10 @@
       <Project>{0947d327-7152-4f35-b4bf-33ed73905bf3}</Project>
       <Name>CommonMath</Name>
     </ProjectReference>
+    <ProjectReference Include="..\UnitTestConstants\UnitTestConstants.csproj">
+      <Project>{b35933ad-3a2c-410f-a85d-f1fbd3bf5311}</Project>
+      <Name>UnitTestConstants</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

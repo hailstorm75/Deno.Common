@@ -1,4 +1,5 @@
 ﻿using System;
+using UnitTestConstants;
 using System.Collections;
 using Common.Math.Tests.Data;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -10,58 +11,53 @@ namespace Common.Math.Tests
   {
     #region Initialization
 
-    [TestMethod, TestCategory("Constructor")]
+    [TestMethod, TestCategory(Constants.CONSTRUCTOR)]
     public void InitializeLengthHeight()
     {
-      try
-      {
-        var unused = new Matrix<double>(5, 3);
-      }
-      catch (Exception)
-      {
-        Assert.Fail();
-      }
+      var unused = new Matrix<double>(5, 3);
     }
 
-    [TestMethod, TestCategory("Constructor")]
+    [TestMethod, TestCategory(Constants.CONSTRUCTOR)]
     public void InitializeArray()
     {
-      try
+      var unused = new Matrix<double>(new double[,]
       {
-        var unused = new Matrix<double>(new double[,]
-        {
-          { 1, 2, 5 },
-          { 3, 5, 8 }
-        });
-      }
-      catch (Exception)
-      {
-        Assert.Fail();
-      }
+        { 1, 2, 5 },
+        { 3, 5, 8 }
+      });
     }
 
-    [TestMethod, TestCategory("Constructor")]
+    [TestMethod, TestCategory(Constants.CONSTRUCTOR)]
+    [DataRow(0)]
+    [DataRow(-1)]
+    [ExpectedException(typeof(ArgumentException))]
+    public void InitializeInvlidSize(int size)
+    {
+      var unused = new Matrix<double>(size, false);
+    }
+
+    [TestMethod, TestCategory(Constants.CONSTRUCTOR)]
     [ExpectedException(typeof(NotSupportedException))]
     public void InitializeInvalidType1()
     {
       var unused = new Matrix<DateTime>(5, 5);
     }
 
-    [TestMethod, TestCategory("Constructor")]
+    [TestMethod, TestCategory(Constants.CONSTRUCTOR)]
     [ExpectedException(typeof(NotSupportedException))]
     public void InitializeInvalidType2()
     {
       var unused = new Matrix<DateTime>(5, true);
     }
 
-    [TestMethod, TestCategory("Constructor")]
+    [TestMethod, TestCategory(Constants.CONSTRUCTOR)]
     [ExpectedException(typeof(NotSupportedException))]
     public void InitializeInvalidType3()
     {
-      var unused = new Matrix<DateTime>(new [,] { { new DateTime(), } });
+      var unused = new Matrix<DateTime>(new[,] { { new DateTime(), } });
     }
 
-    [TestMethod, TestCategory("Constructor")]
+    [TestMethod, TestCategory(Constants.CONSTRUCTOR)]
     [ExpectedException(typeof(ArgumentException))]
     [DynamicData(nameof(DataMatrix.GetCtorExceptionData), typeof(DataMatrix), DynamicDataSourceType.Method)]
     public void InitializeException(int length, int height)
@@ -69,21 +65,21 @@ namespace Common.Math.Tests
       var unused = new Matrix<double>(length, height);
     }
 
-    [TestMethod, TestCategory("Constructor")]
+    [TestMethod, TestCategory(Constants.CONSTRUCTOR)]
     [ExpectedException(typeof(ArgumentException))]
     public void InitializeNull()
     {
       var unused = new Matrix<double>(null);
     }
 
-    [TestMethod, TestCategory("Constructor")]
+    [TestMethod, TestCategory(Constants.CONSTRUCTOR)]
     [ExpectedException(typeof(ArgumentException))]
     public void InitializeZeroDimension()
     {
-      var unused = new Matrix<double>(new double[,] {});
+      var unused = new Matrix<double>(new double[,] { });
     }
 
-    [TestMethod, TestCategory("Constructor")]
+    [TestMethod, TestCategory(Constants.CONSTRUCTOR)]
     [DynamicData(nameof(DataMatrix.GetCtorInvertableData), typeof(DataMatrix), DynamicDataSourceType.Method)]
     public void InitializeInvertable(int length, int height)
     {
@@ -91,21 +87,21 @@ namespace Common.Math.Tests
       Assert.AreEqual(Matrix<double>.Type.Invertable, matrix.MatrixType);
     }
 
-    [TestMethod, TestCategory("Constructor")]
+    [TestMethod, TestCategory(Constants.CONSTRUCTOR)]
     public void InitializeIdentity()
     {
       var matrix = new Matrix<double>(DataMatrix.InvertableMatrix);
       Assert.AreEqual(Matrix<double>.Type.Invertable | Matrix<double>.Type.Identity, matrix.MatrixType);
     }
 
-    [TestMethod, TestCategory("Constructor")]
+    [TestMethod, TestCategory(Constants.CONSTRUCTOR)]
     public void InitializeNonIdentity()
     {
-      var matrix = new Matrix<double>(new double[,] { {1, 2, 3}, {1, 2, 3}});
+      var matrix = new Matrix<double>(new double[,] { { 1, 2, 3 }, { 1, 2, 3 } });
       Assert.AreNotEqual(Matrix<double>.Type.Invertable | Matrix<double>.Type.Identity, matrix.MatrixType);
     }
 
-    [TestMethod, TestCategory("Constructor")]
+    [TestMethod, TestCategory(Constants.CONSTRUCTOR)]
     public void InitializeIdentity2()
     {
       var matrix = new Matrix<double>(3, true);
@@ -114,22 +110,66 @@ namespace Common.Math.Tests
 
     #endregion
 
-    #region Propeerties
+    #region Methods
 
-    [TestMethod, TestCategory("Property")]
+    [TestMethod, TestCategory(Constants.METHOD)]
     [DynamicData(nameof(DataMatrix.GetInvertData), typeof(DataMatrix), DynamicDataSourceType.Method)]
     public void Invert(double[,] from, double[,] to)
     {
       var matrix = new Matrix<double>(from);
-      var result = matrix.Inverse;
+      var result = matrix.GetInverse();
       CollectionAssert.AreEqual(to, result.MatrixValues, new DoubleComparer());
+    }
+
+    [TestMethod, TestCategory(Constants.METHOD)]
+    [ExpectedException(typeof(Matrix<double>.InvertableMatrixOperationException))]
+    [DynamicData(nameof(DataMatrix.GetNonIdentityMatrixData), typeof(DataMatrix), DynamicDataSourceType.Method)]
+    public void DeterminantException(double[,] from)
+    {
+      var matrix = new Matrix<double>(from);
+      var unused = matrix.GetDeterminant();
     }
 
     #endregion
 
     #region Operators
 
-    // TODO
+    #region Addition
+
+    #endregion
+
+    #region Subtraction
+
+    #endregion
+
+    #region Multiplication
+
+    [TestMethod, TestCategory(Constants.OPERATOR)]
+    [DynamicData(nameof(DataMatrix.GetMultiplicationClassClassData), typeof(DataMatrix), DynamicDataSourceType.Method)]
+    public void MultiplicationClassClass(double[,] lhs, double[,] rhs, double[,] expected)
+    {
+      var matrixA = new Matrix<double>(lhs);
+      var matrixB = new Matrix<double>(rhs);
+      var result = matrixA * matrixB;
+
+      CollectionAssert.AreEqual(expected, result.MatrixValues, new DoubleComparer());
+    }
+
+    [TestMethod, TestCategory(Constants.OPERATOR)]
+    [DynamicData(nameof(DataMatrix.GetMultiplicationInvalidClassClassData), typeof(DataMatrix), DynamicDataSourceType.Method)]
+    [ExpectedException(typeof(Matrix<double>.MatrixDimensionException))]
+    public void MultiplicationInvalidClassClass(double[,] lhs, double[,] rhs)
+    {
+      var matrixA = new Matrix<double>(lhs);
+      var matrixB = new Matrix<double>(rhs);
+      var unused = matrixA * matrixB;
+    }
+
+    #endregion
+
+    #region Division
+
+    #endregion
 
     #endregion
   }
