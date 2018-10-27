@@ -58,20 +58,17 @@ namespace Common.Math
     }
     private T[,] matrixValues;
 
+    #endregion
+
     /// <summary>
     /// Determinant of the matrix.
-    /// <para>WARNING: Returns null if <see cref="MatrixType"/> is <see cref="Type.NonInvertable"/></para>
     /// </summary>
-    public double? Determinant => determinant.Value;
-    private Lazy<double?> determinant;
+    private Lazy<double> determinant;
 
     /// <summary>
     /// Inverse of the matrix
     /// </summary>
-    public IMatrix<T> Inverse => inverse.Value;
     private Lazy<IMatrix<T>> inverse;
-
-    #endregion
 
     #region Constructors
 
@@ -172,7 +169,7 @@ namespace Common.Math
       for (var i = 0; i < n.Columns; i++)
         for (var j = 0; j < m.Rows; j++)
           for (var k = 0; k < m.Rows; k++)
-            outputValues[i, j] = Multiply<T, T>(outputValues[i, j], m.MatrixValues[i, k], n.MatrixValues[k, j]);
+            outputValues[i, j] = outputValues[i, j].Add(Multiply<T, T>(m.MatrixValues[i, k], n.MatrixValues[k, j]));
 
       return new Matrix<T>(outputValues);
     }
@@ -201,10 +198,14 @@ namespace Common.Math
 
     #region Methods
 
+    public double GetDeterminant() => determinant.Value;
+
+    public IMatrix<T> GetInverse() => inverse.Value;
+
     private void UpdateProperties()
     {
-      determinant = (MatrixType & Type.Invertable) != 0 ? new Lazy<double?>(() => FindDeterminant(matrixValues)) : new Lazy<double?>(() => null);
-      inverse = (MatrixType & Type.Invertable) != 0 ? new Lazy<IMatrix<T>>(FindInverse) : new Lazy<IMatrix<T>>(() => null);
+      determinant = new Lazy<double>(() => CalculateDeterminant(matrixValues));
+      inverse = new Lazy<IMatrix<T>>(CalculateInverse);
     }
 
     public override string ToString()
@@ -295,15 +296,18 @@ namespace Common.Math
     /// Find the inverse of the matrix
     /// </summary>
     /// <returns>Inverted matrix</returns>
-    private IMatrix<T> FindInverse()
+    private IMatrix<T> CalculateInverse()
     {
+      if (MatrixValues.GetLength(0) != MatrixValues.GetLength(1))
+        throw new InvertableMatrixOperationException("Determinant can be calculated only for NxN matricies.");
+
       if (Rows == 2)
       {
         var inverseArray = new T[2, 2];
-        inverseArray[0, 0] = Multiply<T, double?, T>(MatrixValues[1, 1], 1 / Determinant);
-        inverseArray[0, 1] = Multiply<T, double?, T>(MatrixValues[0, 1], 1 / -Determinant);
-        inverseArray[1, 0] = Multiply<T, double?, T>(MatrixValues[1, 0], 1 / -Determinant);
-        inverseArray[1, 1] = Multiply<T, double?, T>(MatrixValues[0, 0], 1 / Determinant);
+        inverseArray[0, 0] = Multiply<T, double, T>(MatrixValues[1, 1], 1 / GetDeterminant());
+        inverseArray[0, 1] = Multiply<T, double, T>(MatrixValues[0, 1], 1 / -GetDeterminant());
+        inverseArray[1, 0] = Multiply<T, double, T>(MatrixValues[1, 0], 1 / -GetDeterminant());
+        inverseArray[1, 1] = Multiply<T, double, T>(MatrixValues[0, 0], 1 / GetDeterminant());
 
         return new Matrix<T>(inverseArray);
       }
@@ -328,7 +332,7 @@ namespace Common.Math
             coords[1] = 0;
           }
 
-          matrixofminors[i, j] = (dynamic)FindDeterminant(submatrix);
+          matrixofminors[i, j] = (dynamic)CalculateDeterminant(submatrix);
         }
       }
 
@@ -337,7 +341,7 @@ namespace Common.Math
 
       for (var i = 0; i < Columns; i++)
         for (var j = 0; j < Columns; j++)
-          cofactorMatrix.MatrixValues[i, j] = Multiply<T, double?, T>(cofactorMatrix.MatrixValues[i, j], (1 / Determinant));
+          cofactorMatrix.MatrixValues[i, j] = Multiply<T, double, T>(cofactorMatrix.MatrixValues[i, j], (1 / GetDeterminant()));
 
       return cofactorMatrix;
     }
@@ -347,7 +351,7 @@ namespace Common.Math
     /// </summary>
     /// <exception cref="InvertableMatrixOperationException"></exception>
     /// <returns>Determinant value</returns>
-    private static double FindDeterminant(T[,] matrix)
+    private static double CalculateDeterminant(T[,] matrix)
     {
       if (matrix.GetLength(0) != matrix.GetLength(1))
         throw new InvertableMatrixOperationException("Determinant can be calculated only for NxN matricies.");
@@ -391,7 +395,7 @@ namespace Common.Math
 
             determinant = Add<T, double, double>(
               Multiply<T, int, T>(
-                Multiply<T, double, T>(matrix[0, i], FindDeterminant(data)),
+                Multiply<T, double, T>(matrix[0, i], CalculateDeterminant(data)),
                 sign),
               determinant);
             sign = -sign;
@@ -405,12 +409,12 @@ namespace Common.Math
 
     #region Exceptions
 
-    private sealed class InvertableMatrixOperationException : Exception
+    internal sealed class InvertableMatrixOperationException : Exception
     {
       public InvertableMatrixOperationException(string message) : base(message) { }
     }
 
-    private sealed class MatrixDimensionException : Exception
+    internal sealed class MatrixDimensionException : Exception
     {
       public MatrixDimensionException(string message) : base(message) { }
     }

@@ -7,8 +7,9 @@ namespace Common.Math
     int Rows { get; }
     int Columns { get; }
     T[,] MatrixValues { get; set; }
-    double? Determinant { get; }
 
+    double GetDeterminant();
+    IMatrix<T> GetInverse();
     IMatrix<T> Transpose();
     IMatrix<T> MatrixOfCofactors();
     string ToString();
