@@ -5,8 +5,10 @@ using System.Runtime.InteropServices.ComTypes;
 
 namespace Common.Data
 {
+  [Serializable]
   public class Dfa<T>
   {
+    [Serializable]
     public sealed class State
     {
       #region Properties

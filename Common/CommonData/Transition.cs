@@ -1,5 +1,8 @@
-﻿namespace Common.Data
+﻿using System;
+
+namespace Common.Data
 {
+  [Serializable]
   public sealed class Transition<T>
   {
     public int From { get; }

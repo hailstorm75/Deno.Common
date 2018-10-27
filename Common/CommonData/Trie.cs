@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Common.Data
@@ -6,6 +7,7 @@ namespace Common.Data
   /// <summary>
   /// Digital tree
   /// </summary>
+  [Serializable]
   public class Trie : Dfa<char>
   {
     public override IEnumerable<int> FinateStates => m_finateStates.Select(x => x);
