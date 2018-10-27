@@ -4,6 +4,20 @@ using System.Linq;
 
 namespace Common.Data
 {
+  static class MyClass
+  {
+    public static IEnumerable<TSource> DistinctBy<TSource, TKey> (this IEnumerable<TSource> source, Func<TSource, TKey> keySelector)
+    {
+      HashSet<TKey> seenKeys = new HashSet<TKey>();
+      foreach (TSource element in source)
+      {
+        if (seenKeys.Add(keySelector(element)))
+        {
+          yield return element;
+        }
+      }
+    }
+  }
   public class PatternFinder
   {
     #region Subclasses
@@ -82,14 +96,26 @@ namespace Common.Data
 
     public PatternFinder FindPattern()
     {
-      var min = DfaMinimizer<char>.Minimize(Strings);
+      var minimized = DfaMinimizer<char>.Minimize(Strings);
+      var transitions = minimized.GetTransitions().ToList();
+      var acceptingStates = minimized.GetAcceptingStates().ToList();
+
+      var result = GenerateRegex(transitions, acceptingStates);
 
       return this;
     }
 
-    public string Result()
+    
+
+    private string GenerateRegex(IReadOnlyCollection<Transition<char>> transitions, IEnumerable<int> finalStates)
     {
-      return String.Join(" + ", FoundPatterns.Select(x => x.ToString()));
+      for (var i = 0; i < transitions.DistinctBy(x => x.From).Count(); ++i)
+      {
+
+
+      }
+
+      return string.Empty;
     }
   }
 }

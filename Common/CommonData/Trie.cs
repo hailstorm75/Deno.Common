@@ -8,8 +8,6 @@ namespace Common.Data
   /// </summary>
   public class Trie : Dfa<char>
   {
-    private readonly State m_root;
-
     public override IEnumerable<int> FinateStates => m_finateStates.Select(x => x);
 
     private int m_stateCount;
@@ -24,8 +22,7 @@ namespace Common.Data
     /// </summary>
     public Trie()
     {
-      m_stateCount = 0;
-      m_root = new State(m_stateCount++);
+      m_stateCount = 1;
     }
 
     #region Methods

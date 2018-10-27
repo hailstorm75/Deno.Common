@@ -45,7 +45,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DFA.cs" />
+    <Compile Include="Dfa.cs" />
     <Compile Include="DfaMinimizer.cs" />
     <Compile Include="PatternFinder.cs" />
     <Compile Include="FileMan.cs" />

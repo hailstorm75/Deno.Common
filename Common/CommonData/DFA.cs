@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.InteropServices.ComTypes;
 
 namespace Common.Data
 {
@@ -16,9 +19,6 @@ namespace Common.Data
       /// <summary>
       /// Default constructor
       /// </summary>
-      /// <param name="value">Node value</param>
-      /// <param name="depth">Node depth</param>
-      /// <param name="parent">Node parent</param>
       /// <param name="id"></param>
       public State(int id)
       {
@@ -45,24 +45,25 @@ namespace Common.Data
 
     #region Fields
 
+    protected State m_root;
     protected HashSet<int> m_finateStates;
     protected HashSet<T> m_alphabet;
 
     #endregion
 
-    public Dfa()
+    public Dfa(int rootId = 0)
     {
+      m_root = new State(rootId);
       m_alphabet = new HashSet<T>();
       m_finateStates = new HashSet<int>();
     }
 
-    public static Dfa<T> CreateFromTransitions(IEnumerable<Transition<T>> transitions)
+    public static Dfa<T> CreateFromTransitions(List<Transition<T>> transitions, List<int> finalStates, int initialState)
     {
       var dfa = new Dfa<T>();
-      foreach (var transition in transitions)
-      {
-        var t = transition;
-      }
+      var root = transitions.Where(x => x.From == initialState);
+      foreach (var transition in root)
+        dfa.m_root.Insert(transition.OnInput, transition.To);
 
       return dfa;
     }

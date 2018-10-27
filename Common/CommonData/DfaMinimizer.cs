@@ -253,11 +253,6 @@ namespace Common.Data
       return this.PartitionTransions().SplitBlocksAndCoords();
     }
 
-    public Dfa<T> ToDfa()
-    {
-      return Dfa<T>.CreateFromTransitions(GetTransitions());
-    }
-
     public IEnumerable<Transition<T>> GetTransitions()
     {
       for (var i = 0; i < m_transitions.Count; ++i)
@@ -267,7 +262,7 @@ namespace Common.Data
                                          m_transitions.OnInput[i]);
     }
 
-    public IEnumerable<int> GetFinalStates()
+    public IEnumerable<int> GetAcceptingStates()
     {
       for (var b = 0; b < m_blocks.SetCount; ++b)
         if (m_blocks.First[b] < m_finalStatesCount)
@@ -301,7 +296,7 @@ namespace Common.Data
       sb.Append($"{header.Item1} {header.Item2} {header.Item3} {header.Item4}\n");
       foreach (var transition in GetTransitions())
         sb.Append($"{transition.From} {transition.OnInput} {transition.To}\n");
-      foreach (var finalState in GetFinalStates())
+      foreach (var finalState in GetAcceptingStates())
         sb.Append(finalState).Append('\n');
 
       return sb.ToString();
@@ -358,13 +353,12 @@ namespace Common.Data
       m_reachableCount = 0;
     }
 
-    public static Dfa<char> Minimize(Trie trie)
+    public static DfaMinimizer<char> Minimize(Trie trie)
     {
       var dfaMinimizer = new DfaMinimizer<char>(trie.StateCount, trie.TransitionCount, 0, trie.WordCount);
       return dfaMinimizer.LoadTransitions(trie.Transitions())
-                         .SetFinalState(trie.FinateStates)
-                         .Process()
-                         .ToDfa();
+        .SetFinalState(trie.FinateStates)
+        .Process();
     }
   }
 }
