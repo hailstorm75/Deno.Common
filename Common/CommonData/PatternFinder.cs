@@ -88,16 +88,21 @@ namespace Common.Data
     {
       protected abstract int Precedence { get; }
       public abstract int Length { get; }
-      public abstract string ToString(int flags);
 
-      protected string parens(RegexExpression exp, RegexExpression parent, int flags)
+      public virtual bool IsEmpty => false;
+      public virtual bool IsSingleCharacter => false;
+      public virtual bool IsSingleCodepoint => false;
+
+      public abstract string ToString(string flags);
+
+      protected static string Parens(RegexExpression exp, RegexExpression parent, string flags)
       {
-        var isUnicode = flags && flags.indexOf('u') != -1;
+        var isUnicode = flags != null && flags.IndexOf('u') != -1;
 
         var str = exp.ToString(flags);
 
         if (exp.Precedence < parent.Precedence && !exp.IsSingleCharacter && !(isUnicode && exp.IsSingleCodepoint))
-          return "(?:" + str + ")";
+          return $"(?:{str})";
 
         return str;
       }
@@ -128,7 +133,7 @@ namespace Common.Data
 
       public override int Length => m_options.First().Length;
 
-      public override string ToString(int flags) => string.Join("|", m_options.Select(o => parens(o, this, flags)));
+      public override string ToString(string flags) => string.Join("|", m_options.Select(o => Parens(o, this, flags)));
     }
 
     /**
@@ -140,7 +145,6 @@ namespace Common.Data
 
       public CharClass(string a, string b)
       {
-        //this.set = regenerate(a, b);
         m_set = new List<string> { a, b };
       }
 
@@ -148,17 +152,18 @@ namespace Common.Data
 
       public override int Length => 1;
 
-      public bool IsSingleCharacter => this.m_set.Any(c => c.Length == 1);
+      public override bool IsSingleCharacter => this.m_set.Any(c => c.Length == 1);
 
-      public bool IsSingleCodepoint => true;
+      public override bool IsSingleCodepoint => true;
 
-      public CharClass CharClass => set;
+      public CharClass CharClass => m_set;
 
-      public override string ToString(int flags)
+      public override string ToString(string flags)
       {
-        return this.set.toString({
-          hasUnicodeFlag: flags && flags.indexOf('u') != -1
-        });
+        //return this.set.toString({
+        //  hasUnicodeFlag: flags && flags.indexOf('u') != -1
+        //});
+        return string.Empty;
       }
     }
 
@@ -167,7 +172,7 @@ namespace Common.Data
      */
     private class Concatenation : RegexExpression
     {
-      public Concatenation(Literal lhs, Literal rhs)
+      public Concatenation(RegexExpression lhs, RegexExpression rhs)
       {
         Lhs = lhs;
         Rhs = rhs;
@@ -177,31 +182,29 @@ namespace Common.Data
 
       public override int Length => Lhs.Length + Rhs.Length;
 
-      public Literal Lhs { get; set; }
+      public RegexExpression Lhs { get; }
 
-      public Literal Rhs { get; set; }
+      public RegexExpression Rhs { get; }
 
-      public override string ToString(int flags)
-      {
-        return parens(this.a, this, flags) + parens(this.b, this, flags);
-      }
+      public override string ToString(string flags) => Parens(Lhs, this, flags) + Parens(Rhs, this, flags);
 
       public Literal GetLiteral(string side)
       {
-        if (side == "start" && this.Lhs.getLiteral)
-          return this.Lhs.getLiteral(side);
+        if (side == "start" && Lhs.Literal != null)
+          return Lhs.GetLiteral(side);
 
-        if (side == "end" && this.Rhs.getLiteral)
-          return this.Rhs.getLiteral;
+        if (side == "end" && Rhs.Literal != null)
+          return Rhs;
+
+        return null;
       }
 
-      public RegexExpression removeSubstring(string side, int len)
+      public RegexExpression removeSubstring(string side = "", int len = 0)
       {
-        var a = this, b = this;
-        if (side == "start" && a.removeSubstring)
+        if (side == "start" && a.removeSubstring() != null)
           a = a.removeSubstring(side, len);
 
-        if (side === "end" && b.removeSubstring)
+        if (side == "end" && b.removeSubstring() != null)
           b = b.removeSubstring(side, len);
 
         return Lhs.IsEmpty ? Rhs : Rhs.IsEmpty ? Lhs as RegexExpression : new Concatenation(Lhs, Rhs);
@@ -227,7 +230,7 @@ namespace Common.Data
 
       public override int Length => Expression.Length;
 
-      public override string ToString(int flags) => parens(Expression, this, flags) + Type;
+      public override string ToString(string flags) => Parens(Expression, this, flags) + Type;
     }
 
     /**
@@ -239,15 +242,15 @@ namespace Common.Data
 
       #region Properties
 
-      public string Value { get; set; }
+      public string Value { get; }
 
       public override int Length => Value.Length;
 
-      public bool IsEmpty => Value == string.Empty;
+      public override bool IsEmpty => Value == string.Empty;
 
-      public bool IsSingleCharacter => Length == 1;
+      public override bool IsSingleCharacter => Length == 1;
 
-      public bool IsSingleCodepoint => Array.from(this.value).length == 1;
+      public override bool IsSingleCodepoint => IsSingleCharacter;
 
       public string Literal => Value;
 
@@ -255,7 +258,7 @@ namespace Common.Data
 
       #endregion
 
-      public override string ToString(int flags)
+      public override string ToString(string flags)
       {
         //return jsesc(this.value, { es6: flags && flags.indexOf('u') != -1 })
         //.replace(/[\t\n\f\r\$\(\)\*\+\-\.\?\[\]\^\|]/ g, '\\$&')
@@ -265,10 +268,7 @@ namespace Common.Data
         return string.Empty;
       }
 
-      public CharClass GetCharClass()
-      {
-        return IsSingleCodepoint ? (CharClass)Value : null;
-      }
+      public CharClass GetCharClass() => IsSingleCodepoint ? new CharClass(Value, string.Empty) : null;
 
       public Literal RemoveSubstring(string side, int len)
       {
@@ -336,19 +336,19 @@ namespace Common.Data
 
     private static string Star(string exp) => exp != null ? exp + "*" : null;
 
-    private static string Union(RegexExpression a, RegexExpression b)
+    private static RegexExpression Union(RegexExpression a, RegexExpression b)
     {
       if (a == null || b == null || a == b) return a || b;
 
       // Hoist common substrings at the start and end of the options
       RegexExpression res;
 
-      var s = removeCommonSubstring(a, b, "start");
+      var s = RemoveCommonSubstring(a, b, "start");
       a = s.Item1;
       b = s.Item2;
       var start = s.Item3;
 
-      var e = removeCommonSubstring(a, b, "end");
+      var e = RemoveCommonSubstring(a, b, "end");
       a = e.Item1;
       b = e.Item2;
       var end = e.Item3;
@@ -358,32 +358,32 @@ namespace Common.Data
         res = new Repetition(a.IsEmpty ? b : a, '?');
 
       else if (a is Repetition && ((Repetition)a).Type == '?')
-      res = new Repetition(new Alternation((a as Repetition).Expression, b), '?');
+      res = new Repetition(new Alternation(((Repetition) a).Expression, b), '?');
       else if (b is Repetition && ((Repetition)b).Type == '?')
-      res = new Repetition(new Alternation(a, (b as Repetition).Expression), '?');
+      res = new Repetition(new Alternation(a, ((Repetition) b).Expression), '?');
       else
       {
         // Check if we can make a character class instead of an alternation
         var ac = a.getCharClass && a.getCharClass();
         var bc = b.getCharClass && b.getCharClass();
 
-        res = ac && bc ? new CharClass(ac, bc) : new Alternation(a, b);
+        res = ac && bc ? new CharClass(ac, bc) as RegexExpression : new Alternation(a, b);
       }
 
-      if (start) res = new Concatenation(new Literal(start), res);
-      if (end) res = new Concatenation(res, new Literal(end));
+      if (start != null) res = new Concatenation(new Literal(start), res);
+      if (end != null) res = new Concatenation(res, new Literal(end));
 
       return res;
     }
 
-    private static Tuple<string, string, string> removeCommonSubstring(RegexExpression a, RegexExpression b, string side)
+    private static Tuple<string, string, string> RemoveCommonSubstring(RegexExpression a, RegexExpression b, string side)
     {
       var al = a.getLiteral && a.getLiteral(side);
       var bl = b.getLiteral && b.getLiteral(side);
       if (!al || !bl)
         return new Tuple<string, string, string>(a, b, null);
 
-      var s = commonSubstring(al, bl, side);
+      var s = CommonSubstring(al, bl, side);
       if (s == null)
         return new Tuple<string, string, string>(a, b, string.Empty);
 
@@ -393,7 +393,7 @@ namespace Common.Data
       return new Tuple<string, string, string>(a, b, s);
     }
 
-    private static string commonSubstring(string a, string b, string side)
+    private static string CommonSubstring(string a, string b, string side)
     {
       var dir = side == "start" ? 1 : -1;
       a = Array.from(a);
