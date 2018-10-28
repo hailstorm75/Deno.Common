@@ -91,6 +91,7 @@ namespace Common.Data
 
     public PatternFinder(IEnumerable<string> strings)
     {
+      Strings = new Trie();
       Strings.AddRange(strings);
     }
 
@@ -104,8 +105,6 @@ namespace Common.Data
 
       return this;
     }
-
-    
 
     private string GenerateRegex(IReadOnlyCollection<Transition<char>> transitions, IEnumerable<int> finalStates)
     {
