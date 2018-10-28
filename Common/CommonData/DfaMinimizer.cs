@@ -7,43 +7,79 @@ namespace Common.Data
 {
   public class DfaMinimizer<T> where T : IComparable, IComparable<T>, IEquatable<T>
   {
-    private struct Transitions
+    #region Nested types
+
+    private class Transitions
     {
-      public int[] From { get; set; }
-      public int[] To { get; set; }
-      public T[] OnInput { get; set; }
+      public struct Pair<X>
+      {
+        public Func<int, X> Get { get; }
+        public Action<int, X> Set { get; }
+
+        public Pair(Func<int, X> get, Action<int, X> set)
+        {
+          Get = get;
+          Set = set;
+        }
+      }
+
+      #region Fields
+
+      private IEnumerable<Transition<T>> m_transitions;
+
+      #endregion
 
       public int Count { get; set; }
 
-      public Transitions(int count)
+      #region Properties
+
+      public Pair<int> From { get; }
+      public Pair<int> To { get; }
+      public Pair<T> OnInput { get; }
+
+      #endregion
+
+      public Transitions(int count, IEnumerable<Transition<T>> transitions)
       {
         Count = count;
-        From = new int[Count];
-        To = new int[Count];
-        OnInput = new T[Count];
+        m_transitions = transitions;
+
+        From = new Pair<int>(GetFrom, SetFrom);
+        To = new Pair<int>(GetTo, SetTo);
+        OnInput = new Pair<T>(GetOnInput, SetOnInput);
       }
 
-      public void LoadTransitions(IEnumerable<Transition<T>> transitions)
-      {
-        var i = 0;
-        foreach (var transition in transitions)
-        {
-          From[i] = (int)transition.From;
-          To[i] = (int)transition.To;
-          OnInput[i] = transition.OnInput;
-          i++;
-        }
-      }
+      #region Methods
+
+      private int GetFrom(int i) => m_transitions.Select(x => x.From).ElementAt(i);
+
+      private void SetFrom(int i, int val) => m_transitions.ElementAt(i).From = val;
+
+      private int GetTo(int i) => m_transitions.Select(x => x.To).ElementAt(i);
+
+      private void SetTo(int i, int val) => m_transitions.ElementAt(i).To = val;
+
+      private T GetOnInput(int i) => m_transitions.Select(x => x.OnInput).ElementAt(i);
+
+      private void SetOnInput(int i, T val) => m_transitions.ElementAt(i).OnInput = val;
+
+      #endregion
     }
 
     private struct Partition
     {
+      #region Properties
+
       public int[] Elements { get; set; }
       public int[] Location { get; }
       public int[] SetOf { get; set; }
       public int[] First { get; }
       public int[] Past { get; }
       public int SetCount { get; set; }
+
+      #endregion
+
+      #region Constructors
 
       public Partition(int elementCount)
       {
@@ -64,6 +100,10 @@ namespace Common.Data
         First[0] = 0;
         Past[0] = elementCount;
       }
+
+      #endregion
+
+      #region Methods
 
       public void Mark(int element, ref int[] marked, ref List<int> touched, ref int touchedCount)
       {
@@ -118,7 +158,11 @@ namespace Common.Data
           marked[set] = 0;
         }
       }
+
+      #endregion
     }
+
+    #endregion
 
     #region Fields
 
@@ -146,15 +190,16 @@ namespace Common.Data
       m_initialState = initialState;
 
       m_blocks = new Partition(stateCount);
-      m_transitions = new Transitions(transitionCount);
 
       m_adjacent = new int[transitionCount];
       m_offset = new int[m_stateCount + 1];
     }
 
-    public DfaMinimizer<T> LoadTransitions(IEnumerable<Transition<T>> transitions)
+    #region Methods
+
+    public DfaMinimizer<T> LoadTransitions(List<Transition<T>> transitions)
     {
-      m_transitions.LoadTransitions(transitions);
+      m_transitions = new Transitions(transitions.Count, transitions);
 
       Reach(m_initialState);
       RemoveUnreachable(m_transitions.From, m_transitions.To);
@@ -195,20 +240,20 @@ namespace Common.Data
       if (m_transitions.Count == 0) return this;
 
       //Array.Sort(m_cords.Elements, Compare);
-      var e = m_cords.Elements.Select(x => m_transitions.OnInput[x]).ToArray();
+      var e = m_cords.Elements.Select(x => m_transitions.OnInput.Get(x)).ToArray();
       Array.Sort(e, m_cords.Elements);
 
       m_cords.SetCount = m_marked[0] = 0;
       // this code relies on the fact that cords.first[0] == 0 at this point for the first set to be correct
-      var currentLabel = m_transitions.OnInput[m_cords.Elements[0]];
+      var currentLabel = m_transitions.OnInput.Get(m_cords.Elements[0]);
 
       for (var i = 0; i < m_transitions.Count; ++i)
       {
         var t = m_cords.Elements[i];
 
-        if (!m_transitions.OnInput[t].Equals(currentLabel))
+        if (!m_transitions.OnInput.Get(t).Equals(currentLabel))
         {
-          currentLabel = m_transitions.OnInput[t];
+          currentLabel = m_transitions.OnInput.Get(t);
           m_cords.Past[m_cords.SetCount++] = i;
           m_cords.First[m_cords.SetCount] = i;
           m_marked[m_cords.SetCount] = 0;
@@ -231,7 +276,7 @@ namespace Common.Data
       while (c < m_cords.SetCount)
       {
         for (var i = m_cords.First[c]; i < m_cords.Past[c]; ++i)
-          m_blocks.Mark(m_transitions.From[m_cords.Elements[i]], ref m_marked, ref m_touched, ref m_touchedCount);
+          m_blocks.Mark(m_transitions.From.Get(m_cords.Elements[i]), ref m_marked, ref m_touched, ref m_touchedCount);
 
         m_blocks.Split(ref m_marked, m_touched, ref m_touchedCount); ++c;
 
@@ -256,10 +301,10 @@ namespace Common.Data
     public IEnumerable<Transition<T>> GetTransitions()
     {
       for (var i = 0; i < m_transitions.Count; ++i)
-        if (m_blocks.Location[m_transitions.From[i]] == m_blocks.First[m_blocks.SetOf[m_transitions.From[i]]])
-          yield return new Transition<T>(m_blocks.SetOf[m_transitions.From[i]],
-                                         m_blocks.SetOf[m_transitions.To[i]],
-                                         m_transitions.OnInput[i]);
+        if (m_blocks.Location[m_transitions.From.Get(i)] == m_blocks.First[m_blocks.SetOf[m_transitions.From.Get(i)]])
+          yield return new Transition<T>(m_blocks.SetOf[m_transitions.From.Get(i)],
+                                         m_blocks.SetOf[m_transitions.To.Get(i)],
+                                         m_transitions.OnInput.Get(i));
     }
 
     public IEnumerable<int> GetAcceptingStates()
@@ -275,7 +320,7 @@ namespace Common.Data
       var finalStateCount = 0;
 
       for (var t = 0; t < m_transitions.Count; ++t)
-        if (m_blocks.Location[m_transitions.From[t]] == m_blocks.First[m_blocks.SetOf[m_transitions.From[t]]])
+        if (m_blocks.Location[m_transitions.From.Get(t)] == m_blocks.First[m_blocks.SetOf[m_transitions.From.Get(t)]])
           ++transitionCount;
 
       for (var b = 0; b < m_blocks.SetCount; ++b)
@@ -302,19 +347,19 @@ namespace Common.Data
       return sb.ToString();
     }
 
-    private void MakeAdjacent(IReadOnlyList<int> states)
+    private void MakeAdjacent(Transitions.Pair<int> states)
     {
       for (var state = 0; state <= m_stateCount; ++state)
         m_offset[state] = 0;
 
       for (var transition = 0; transition < m_transitions.Count; ++transition)
-        ++m_offset[states[transition]];
+        ++m_offset[states.Get(transition)];
 
       for (var state = 0; state < m_stateCount; ++state)
         m_offset[state + 1] += m_offset[state];
 
       for (var transition = m_transitions.Count; transition-- != 0;)
-        m_adjacent[--m_offset[states[transition]]] = transition;
+        m_adjacent[--m_offset[states.Get(transition)]] = transition;
     }
 
     private void Reach(int state)
@@ -328,23 +373,24 @@ namespace Common.Data
       m_blocks.Location[state] = m_reachableCount++;
     }
 
-    private void RemoveUnreachable(int[] tail, int[] head)
+    private void RemoveUnreachable(Transitions.Pair<int> tail, Transitions.Pair<int> head)
     {
       MakeAdjacent(tail);
       // walk the DFA graph marking reachable states
       for (var i = 0; i < m_reachableCount; ++i)
         for (var j = m_offset[m_blocks.Elements[i]]; j < m_offset[m_blocks.Elements[i] + 1]; ++j)
-          Reach(head[m_adjacent[j]]);
+          Reach(head.Get(m_adjacent[j]));
 
       // remove unreachable states and transitions
       var count = 0;
       for (var t = 0; t < m_transitions.Count; ++t)
       {
-        if (m_blocks.Location[tail[t]] >= m_reachableCount) continue;
+        if (m_blocks.Location[tail.Get(t)] >= m_reachableCount) continue;
 
-        head[count] = head[t];
-        m_transitions.OnInput[count] = m_transitions.OnInput[t];
-        tail[count] = tail[t];
+        head.Set(count, head.Get(t));
+        m_transitions.OnInput.Set(count, m_transitions.OnInput.Get(t));
+        tail.Set(count, tail.Get(t));
+
         ++count;
       }
 
@@ -356,9 +402,11 @@ namespace Common.Data
     public static DfaMinimizer<char> Minimize(Trie trie)
     {
       var dfaMinimizer = new DfaMinimizer<char>(trie.StateCount, trie.TransitionCount, 0, trie.WordCount);
-      return dfaMinimizer.LoadTransitions(trie.Transitions())
+      return dfaMinimizer.LoadTransitions(trie.Transitions().ToList())
         .SetFinalState(trie.FinateStates)
         .Process();
     }
+
+    #endregion
   }
 }
