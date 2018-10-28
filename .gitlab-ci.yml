@@ -1,12 +1,15 @@
+variables:
+    - nuget: 'C:\GitLab-Runner\nuget.exe'
+
 stages:
   - build
 
 build_job:
   stage: build
   script:
-  - ls
+  - ls Common
   - 'echo restoring nuget...'
-  - .\nuget.exe restore Common\Common.sln
+  - '%nuget% restore Common\Common.sln'
   - 'echo building...'
   - 'msbuild Common\Common.sln /p:Configuration=Debug /p:Platform="Any CPU"'
   except:
