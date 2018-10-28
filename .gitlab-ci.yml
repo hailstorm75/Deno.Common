@@ -6,7 +6,7 @@ build_job:
   script:
   - ls
   - 'echo restoring nuget...'
-  - 'nuget restore Common\Common.sln'
+  - .\nuget.exe restore Common\Common.sln
   - 'echo building...'
   - 'msbuild Common\Common.sln /p:Configuration=Debug /p:Platform="Any CPU"'
   except:
