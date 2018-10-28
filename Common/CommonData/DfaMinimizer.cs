@@ -314,6 +314,13 @@ namespace Common.Data
           yield return b;
     }
 
+    /// <summary>
+    /// 1. State count
+    /// 2. Transition count
+    /// 3. Initial state
+    /// 4. Final state count
+    /// </summary>
+    /// <returns></returns>
     public Tuple<int, int, int, int> GetAutomataInfo()
     {
       var transitionCount = 0;
