@@ -5,6 +5,6 @@ build_job:
   stage: build
   script:
   - 'echo building...'
-  - 'msbuild.exe C:\Users\Denis\Source\Repos\Common\Common\Common.sln'
+  - 'msbuild.exe Common.sln'
   except:
   - tags
