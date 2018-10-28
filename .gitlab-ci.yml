@@ -4,7 +4,9 @@ stages:
 build_job:
   stage: build
   script:
+  - 'echo restoring nuget...'
+  - 'nuget restore Common\Common.sln'
   - 'echo building...'
-  - 'msbuild Common.sln /p:Configuration=Debug /p:Platform="Any CPU"'
+  - 'msbuild Common\Common.sln /p:Configuration=Debug /p:Platform="Any CPU"'
   except:
   - tags
