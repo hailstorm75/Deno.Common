@@ -5,6 +5,6 @@ build_job:
   stage: build
   script:
   - 'echo building...'
-  - 'msbuild.exe Common.sln'
+  - 'msbuild Common.sln /p:Configuration=Debug /p:Platform="Any CPU"'
   except:
   - tags
