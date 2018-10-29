@@ -116,6 +116,17 @@ namespace Common.Data
       #endregion
     }
 
+    private interface ILiteral
+    {
+      string GetLiteral(string side);
+      RegexExpression RemoveSubstring(string side, int len);
+    }
+
+    private interface ICharClass
+    {
+      List<string> GetCharClass();
+    }
+
     /**
      * Represents an alternation (e.g. `foo|bar`)
      */
@@ -153,13 +164,15 @@ namespace Common.Data
 
       public override string ToString(string flags) => string.Join("|", m_options.Select(o => Parens(o, this, flags)));
 
+      public override string ToString() => this.ToString(string.Empty);
+
       #endregion
     }
 
     /**
      * Represents a character class (e.g. [0-9a-z])
      */
-    private class CharClass : RegexExpression
+    private class CharClass : RegexExpression, ICharClass
     {
       #region Properties
 
@@ -175,10 +188,9 @@ namespace Common.Data
 
       #endregion
 
-      public CharClass(string a, string b)
-      {
-        Set = new List<string> { a, b };
-      }
+      public CharClass(string a, string b) => Set = new List<string> { a, b };
+
+      #region Methods
 
       public override string ToString(string flags)
       {
@@ -187,12 +199,18 @@ namespace Common.Data
         //});
         return string.Empty;
       }
+
+      public override string ToString() => this.ToString(string.Empty);
+
+      public List<string> GetCharClass() => Set;
+
+      #endregion
     }
 
     /**
      * Represents a concatenation (e.g. `foo`)
      */
-    private class Concatenation : RegexExpression
+    private class Concatenation : RegexExpression, ILiteral
     {
       #region Properties
 
@@ -200,9 +218,9 @@ namespace Common.Data
 
       public override int Length => Lhs.Length + Rhs.Length;
 
-      public RegexExpression Lhs { get; }
+      public RegexExpression Lhs { get; private set; }
 
-      public RegexExpression Rhs { get; }
+      public RegexExpression Rhs { get; private set; }
 
       #endregion
 
@@ -216,26 +234,34 @@ namespace Common.Data
 
       public override string ToString(string flags) => Parens(Lhs, this, flags) + Parens(Rhs, this, flags);
 
-      public Literal GetLiteral(string side)
+      public override string ToString() => this.ToString(string.Empty);
+
+      public string GetLiteral(string side)
       {
-        if (side == "start" && Lhs.Literal != null)
-          return Lhs.GetLiteral(side);
-
-        if (side == "end" && Rhs.Literal != null)
-          return Rhs;
-
-        return null;
+        switch (side)
+        {
+          case "start" when Lhs is ILiteral lhsLiteral:
+            return lhsLiteral.GetLiteral(side);
+          case "end" when Rhs is ILiteral rhsLiteral:
+            return rhsLiteral.ToString();
+          default:
+            return null;
+        }
       }
 
-      public RegexExpression removeSubstring(string side = "", int len = 0)
+      public RegexExpression RemoveSubstring(string side = "", int len = 0)
       {
-        if (side == "start" && a.removeSubstring() != null)
-          a = a.removeSubstring(side, len);
+        switch (side)
+        {
+          case "start" when Lhs is ILiteral lhsLiteral:
+            Lhs = lhsLiteral.RemoveSubstring(side, len);
+            break;
+          case "end" when Rhs is ILiteral rhsLiterl:
+            Rhs = rhsLiterl.RemoveSubstring(side, len);
+            break;
+        }
 
-        if (side == "end" && b.removeSubstring() != null)
-          b = b.removeSubstring(side, len);
-
-        return Lhs.IsEmpty ? Rhs : Rhs.IsEmpty ? Lhs as RegexExpression : new Concatenation(Lhs, Rhs);
+        return Lhs.IsEmpty ? Rhs : Rhs.IsEmpty ? Lhs : new Concatenation(Lhs, Rhs);
       }
 
       #endregion
@@ -264,13 +290,19 @@ namespace Common.Data
         Type = type;
       }
 
+      #region Methods
+
       public override string ToString(string flags) => Parens(Expression, this, flags) + Type;
+
+      public override string ToString() => this.ToString(string.Empty);
+
+      #endregion
     }
 
     /**
      * Represents a literal (e.g. a string)
      */
-    private class Literal : RegexExpression
+    private class Literal : RegexExpression, ILiteral, ICharClass
     {
       #region Properties
 
@@ -283,8 +315,6 @@ namespace Common.Data
       public override bool IsSingleCharacter => Length == 1;
 
       public override bool IsSingleCodepoint => IsSingleCharacter;
-
-      public string Literal => Value;
 
       protected override int Precedence => 2;
 
@@ -304,9 +334,13 @@ namespace Common.Data
         return string.Empty;
       }
 
-      public CharClass GetCharClass() => IsSingleCodepoint ? new CharClass(Value, string.Empty) : null;
+      public override string ToString() => ToString(string.Empty);
 
-      public Literal RemoveSubstring(string side, int len)
+      public List<string> GetCharClass() => IsSingleCodepoint ? new List<string> { Value } : null;
+
+      public string GetLiteral(string side) => Value;
+
+      public RegexExpression RemoveSubstring(string side, int len)
       {
         switch (side)
         {
@@ -324,7 +358,7 @@ namespace Common.Data
 
     #endregion
 
-    public Trie Strings { private get; set; }
+    private Trie Strings { get; }
 
     private IEnumerable<PatternPart> FoundPatterns { get; set; }
 
@@ -345,7 +379,9 @@ namespace Common.Data
       return result;
     }
 
-    private string GenerateRegex(IReadOnlyCollection<Transition<char>> transitions, IReadOnlyCollection<int> finalStates, int numberOfState)
+    #region Static Methods
+
+    private static string GenerateRegex(IReadOnlyCollection<Transition<char>> transitions, IReadOnlyCollection<int> finalStates, int numberOfState)
     {
       var B = transitions.DistinctBy(x => x.From).ToDictionary(state => state.From, state => finalStates.Contains(state.From) ? new Literal(string.Empty) as RegexExpression : null);
       var A = new RegexExpression[numberOfState, numberOfState];
@@ -405,10 +441,10 @@ namespace Common.Data
       else
       {
         // Check if we can make a character class instead of an alternation
-        var ac = a.getCharClass && a.getCharClass();
-        var bc = b.getCharClass && b.getCharClass();
+        var ac = (a as ICharClass)?.GetCharClass();
+        var bc = (b as ICharClass)?.GetCharClass();
 
-        res = ac && bc ? new CharClass(ac, bc) as RegexExpression : new Alternation(a, b);
+        res = ac != null && bc != null ? new CharClass(ac, bc) as RegexExpression : new Alternation(a, b);
       }
 
       if (start != null) res = new Concatenation(new Literal(start), res);
@@ -417,28 +453,25 @@ namespace Common.Data
       return res;
     }
 
-    private static Tuple<string, string, string> RemoveCommonSubstring(RegexExpression a, RegexExpression b, string side)
+    private static Tuple<RegexExpression, RegexExpression, string> RemoveCommonSubstring(RegexExpression a, RegexExpression b, string side)
     {
-      var al = a.getLiteral && a.getLiteral(side);
-      var bl = b.getLiteral && b.getLiteral(side);
-      if (!al || !bl)
-        return new Tuple<string, string, string>(a, b, null);
+      var al = (a as ILiteral)?.GetLiteral(side);
+      var bl = (b as ILiteral)?.GetLiteral(side);
+      if (al == null || bl == null)
+        return new Tuple<RegexExpression, RegexExpression, string>(a, b, null);
 
       var s = CommonSubstring(al, bl, side);
-      if (s == null)
-        return new Tuple<string, string, string>(a, b, string.Empty);
+      if (s == null) return new Tuple<RegexExpression, RegexExpression, string>(a, b, string.Empty);
 
-      a = a.removeSubstring(side, s.Length);
-      b = b.removeSubstring(side, s.Length);
+      a = (a as ILiteral)?.RemoveSubstring(side, s.Length);
+      b = (b as ILiteral)?.RemoveSubstring(side, s.Length);
 
-      return new Tuple<string, string, string>(a, b, s);
+      return new Tuple<RegexExpression, RegexExpression, string>(a, b, s);
     }
 
     private static string CommonSubstring(string a, string b, string side)
     {
       var dir = side == "start" ? 1 : -1;
-      a = Array.from(a);
-      b = Array.from(b);
       var ai = dir == 1 ? 0 : a.Length - 1;
       var ae = dir == 1 ? a.Length : -1;
       var bi = dir == 1 ? 0 : b.Length - 1;
@@ -483,5 +516,7 @@ namespace Common.Data
 
       return new Concatenation(a, b);
     }
+
+    #endregion
   }
 }
