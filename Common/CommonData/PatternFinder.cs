@@ -86,12 +86,18 @@ namespace Common.Data
 
     private abstract class RegexExpression
     {
+      #region Properties
+
       protected abstract int Precedence { get; }
       public abstract int Length { get; }
 
       public virtual bool IsEmpty => false;
       public virtual bool IsSingleCharacter => false;
       public virtual bool IsSingleCodepoint => false;
+
+      #endregion
+
+      #region Methods
 
       public abstract string ToString(string flags);
 
@@ -106,6 +112,8 @@ namespace Common.Data
 
         return str;
       }
+
+      #endregion
     }
 
     /**
@@ -113,11 +121,23 @@ namespace Common.Data
      */
     private class Alternation : RegexExpression
     {
-      public Alternation(params RegexExpression[] options) => m_options = Flatten(options.ToList()).OrderBy(x => x.Length);
+      #region Fields
+
+      private IEnumerable<RegexExpression> m_options;
+
+      #endregion
+
+      #region Properties
 
       protected override int Precedence => 1;
 
-      private IEnumerable<RegexExpression> m_options;
+      public override int Length => m_options.First().Length;
+
+      #endregion
+
+      public Alternation(params RegexExpression[] options) => m_options = Flatten(options.ToList()).OrderBy(x => x.Length);
+
+      #region Methods
 
       private static IEnumerable<RegexExpression> Flatten(IEnumerable<RegexExpression> options)
       {
@@ -131,9 +151,9 @@ namespace Common.Data
         }
       }
 
-      public override int Length => m_options.First().Length;
-
       public override string ToString(string flags) => string.Join("|", m_options.Select(o => Parens(o, this, flags)));
+
+      #endregion
     }
 
     /**
@@ -141,22 +161,24 @@ namespace Common.Data
      */
     private class CharClass : RegexExpression
     {
-      private List<string> m_set;
-
-      public CharClass(string a, string b)
-      {
-        m_set = new List<string> { a, b };
-      }
+      #region Properties
 
       protected override int Precedence => 1;
 
       public override int Length => 1;
 
-      public override bool IsSingleCharacter => this.m_set.Any(c => c.Length == 1);
+      public override bool IsSingleCharacter => Set.Any(c => c.Length == 1);
 
       public override bool IsSingleCodepoint => true;
 
-      public CharClass CharClass => m_set;
+      public List<string> Set { get; }
+
+      #endregion
+
+      public CharClass(string a, string b)
+      {
+        Set = new List<string> { a, b };
+      }
 
       public override string ToString(string flags)
       {
@@ -172,11 +194,7 @@ namespace Common.Data
      */
     private class Concatenation : RegexExpression
     {
-      public Concatenation(RegexExpression lhs, RegexExpression rhs)
-      {
-        Lhs = lhs;
-        Rhs = rhs;
-      }
+      #region Properties
 
       protected override int Precedence => 2;
 
@@ -185,6 +203,16 @@ namespace Common.Data
       public RegexExpression Lhs { get; }
 
       public RegexExpression Rhs { get; }
+
+      #endregion
+
+      public Concatenation(RegexExpression lhs, RegexExpression rhs)
+      {
+        Lhs = lhs;
+        Rhs = rhs;
+      }
+
+      #region Methods
 
       public override string ToString(string flags) => Parens(Lhs, this, flags) + Parens(Rhs, this, flags);
 
@@ -209,6 +237,8 @@ namespace Common.Data
 
         return Lhs.IsEmpty ? Rhs : Rhs.IsEmpty ? Lhs as RegexExpression : new Concatenation(Lhs, Rhs);
       }
+
+      #endregion
     }
 
     /**
@@ -216,19 +246,23 @@ namespace Common.Data
      */
     private class Repetition : RegexExpression
     {
-      public Repetition(RegexExpression expr, char type)
-      {
-        Expression = expr;
-        Type = type;
-      }
+      #region Properties
 
-      public RegexExpression Expression { get; set; };
+      public RegexExpression Expression { get; }
 
       public char Type { get; }
 
       protected override int Precedence => 3;
 
       public override int Length => Expression.Length;
+
+      #endregion
+
+      public Repetition(RegexExpression expr, char type)
+      {
+        Expression = expr;
+        Type = type;
+      }
 
       public override string ToString(string flags) => Parens(Expression, this, flags) + Type;
     }
@@ -238,8 +272,6 @@ namespace Common.Data
      */
     private class Literal : RegexExpression
     {
-      public Literal(string value) => Value = value;
-
       #region Properties
 
       public string Value { get; }
@@ -257,6 +289,10 @@ namespace Common.Data
       protected override int Precedence => 2;
 
       #endregion
+
+      public Literal(string value) => Value = value;
+
+      #region Methods
 
       public override string ToString(string flags)
       {
@@ -282,6 +318,8 @@ namespace Common.Data
             return this;
         }
       }
+
+      #endregion
     }
 
     #endregion
@@ -309,36 +347,39 @@ namespace Common.Data
 
     private string GenerateRegex(IReadOnlyCollection<Transition<char>> transitions, IReadOnlyCollection<int> finalStates, int numberOfState)
     {
-      var B = transitions.DistinctBy(x => x.From).ToDictionary(state => state.From, state => finalStates.Contains(state.From) ? string.Empty : null);
-      var A = new string[numberOfState, numberOfState];
+      var B = transitions.DistinctBy(x => x.From).ToDictionary(state => state.From, state => finalStates.Contains(state.From) ? new Literal(string.Empty) as RegexExpression : null);
+      var A = new RegexExpression[numberOfState, numberOfState];
       foreach (var transition in transitions)
-        A[transition.From, transition.To] = transition.OnInput.ToString();
+        A[transition.From, transition.To] = A[transition.From, transition.To] != null ? Union(A[transition.From, transition.To], new Literal(transition.OnInput.ToString())) : new Literal(transition.OnInput.ToString());
 
-      for (var n = numberOfState - 1; n >= 1; n--)
+      // Solve the of equations
+      for (var n = numberOfState - 1; n >= 0; n--)
       {
-        B[n] = string.Concat(Star(A[n, n]), B[n]);
-        for (var j = 1; j < n; j++)
-          A[n, j] = string.Concat(Star(A[n, n]), A[n, j]);
-        for (var i = 1; i < n; i++)
+        if (A[n, n] != null)
         {
-          if (B.ContainsKey(i))
-            B[i] += string.Concat(A[i, n], B[n]);
-          else
-            B.Add(i, string.Concat(A[i, n], B[n]));
+          B[n] = Concat(Star(A[n, n]), B[n]);
+          for (var j = 0; j < n; j++)
+            A[n, j] = Concat(Star(A[n, n]), A[n, j]);
+        }
 
-          for (var j = 1; j < n; j++)
-            A[i, j] = string.Concat(Star(A[i, n]), A[n, j]);
+        for (var i = 0; i < n; i++)
+        {
+          if (A[i, n] == null) continue;
+
+          B[i] = Union(B[i], Concat(A[i, n], B[n]));
+          for (var j = 0; j < n; j++)
+            A[i, j] = Union(A[i, j], Concat(A[i, n], A[n, j]));
         }
       }
 
-      return B[1];
+      return B[1].ToString("");
     }
 
-    private static string Star(string exp) => exp != null ? exp + "*" : null;
+    private static RegexExpression Star(RegexExpression exp) => exp != null ? new Repetition(exp, '*') : null;
 
     private static RegexExpression Union(RegexExpression a, RegexExpression b)
     {
-      if (a == null || b == null || a == b) return a || b;
+      if (a == null || b == null || a == b) return a ?? b;
 
       // Hoist common substrings at the start and end of the options
       RegexExpression res;
@@ -358,9 +399,9 @@ namespace Common.Data
         res = new Repetition(a.IsEmpty ? b : a, '?');
 
       else if (a is Repetition && ((Repetition)a).Type == '?')
-      res = new Repetition(new Alternation(((Repetition) a).Expression, b), '?');
+        res = new Repetition(new Alternation(((Repetition)a).Expression, b), '?');
       else if (b is Repetition && ((Repetition)b).Type == '?')
-      res = new Repetition(new Alternation(a, ((Repetition) b).Expression), '?');
+        res = new Repetition(new Alternation(a, ((Repetition)b).Expression), '?');
       else
       {
         // Check if we can make a character class instead of an alternation
@@ -418,7 +459,7 @@ namespace Common.Data
       return res;
     }
 
-    private RegexExpression concat(RegexExpression a, RegexExpression b)
+    private static RegexExpression Concat(RegexExpression a, RegexExpression b)
     {
       if (a == null || b == null) return null;
 
