@@ -383,7 +383,10 @@ namespace Common.Data
 
     private static string GenerateRegex(IReadOnlyCollection<Transition<char>> transitions, IReadOnlyCollection<int> finalStates, int numberOfState)
     {
-      var B = transitions.DistinctBy(x => x.From).ToDictionary(state => state.From, state => finalStates.Contains(state.From) ? new Literal(string.Empty) as RegexExpression : null);
+      // TODO Missing accepting state in IEnumerable
+      var bFrom = transitions.DistinctBy(x => x.From).Select(x => x.From);
+      var bTo = transitions.DistinctBy(x => x.To).Select(x => x.To);
+      var B = bFrom.Union(bTo).Distinct().ToDictionary(state => state, state => finalStates.Contains(state) ? new Literal(string.Empty) as RegexExpression : null);
       var A = new RegexExpression[numberOfState, numberOfState];
       foreach (var transition in transitions)
         A[transition.From, transition.To] = A[transition.From, transition.To] != null ? Union(A[transition.From, transition.To], new Literal(transition.OnInput.ToString())) : new Literal(transition.OnInput.ToString());
@@ -444,7 +447,7 @@ namespace Common.Data
         var ac = (a as ICharClass)?.GetCharClass();
         var bc = (b as ICharClass)?.GetCharClass();
 
-        res = ac != null && bc != null ? new CharClass(ac, bc) as RegexExpression : new Alternation(a, b);
+        res = ac != null && bc != null ? /*new CharClass(ac, bc) as RegexExpression*/ throw new NotImplementedException() : new Alternation(a, b);
       }
 
       if (start != null) res = new Concatenation(new Literal(start), res);
