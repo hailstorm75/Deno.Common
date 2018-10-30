@@ -30,6 +30,13 @@ namespace Common.Data
       Character
     }
 
+    private enum Side
+    {
+      Start,
+      End,
+      Unknown
+    }
+
     public class Pattern
     {
       public List<PatternPart> Patterns { get; set; }
@@ -118,8 +125,8 @@ namespace Common.Data
 
     private interface ILiteral
     {
-      string GetLiteral(string side);
-      RegexExpression RemoveSubstring(string side, int len);
+      string GetLiteral(Side side);
+      RegexExpression RemoveSubstring(Side side, int len);
     }
 
     private interface ICharClass
@@ -236,28 +243,32 @@ namespace Common.Data
 
       public override string ToString() => this.ToString(string.Empty);
 
-      public string GetLiteral(string side)
+      public string GetLiteral(Side side)
       {
         switch (side)
         {
-          case "start" when Lhs is ILiteral lhsLiteral:
+          case Side.Start when Lhs is ILiteral lhsLiteral:
             return lhsLiteral.GetLiteral(side);
-          case "end" when Rhs is ILiteral rhsLiteral:
+          case Side.End when Rhs is ILiteral rhsLiteral:
             return rhsLiteral.ToString();
+          case Side.Unknown:
           default:
             return null;
         }
       }
 
-      public RegexExpression RemoveSubstring(string side = "", int len = 0)
+      public RegexExpression RemoveSubstring(Side side = Side.Unknown, int len = 0)
       {
         switch (side)
         {
-          case "start" when Lhs is ILiteral lhsLiteral:
+          case Side.Start when Lhs is ILiteral lhsLiteral:
             Lhs = lhsLiteral.RemoveSubstring(side, len);
             break;
-          case "end" when Rhs is ILiteral rhsLiterl:
+          case Side.End when Rhs is ILiteral rhsLiterl:
             Rhs = rhsLiterl.RemoveSubstring(side, len);
+            break;
+          case Side.Unknown:
+          default:
             break;
         }
 
@@ -338,16 +349,17 @@ namespace Common.Data
 
       public List<string> GetCharClass() => IsSingleCodepoint ? new List<string> { Value } : null;
 
-      public string GetLiteral(string side) => Value;
+      public string GetLiteral(Side side) => Value;
 
-      public RegexExpression RemoveSubstring(string side, int len)
+      public RegexExpression RemoveSubstring(Side side, int len)
       {
         switch (side)
         {
-          case "start":
+          case Side.Start:
             return new Literal(this.Value.Substring(len));
-          case "end":
+          case Side.End:
             return new Literal(this.Value.Substring(0, this.Value.Length - len - 1));
+          case Side.Unknown:
           default:
             return this;
         }
@@ -423,12 +435,12 @@ namespace Common.Data
       // Hoist common substrings at the start and end of the options
       RegexExpression res;
 
-      var s = RemoveCommonSubstring(a, b, "start");
+      var s = RemoveCommonSubstring(a, b, Side.Start);
       a = s.Item1;
       b = s.Item2;
       var start = s.Item3;
 
-      var e = RemoveCommonSubstring(a, b, "end");
+      var e = RemoveCommonSubstring(a, b, Side.End);
       a = e.Item1;
       b = e.Item2;
       var end = e.Item3;
@@ -456,7 +468,7 @@ namespace Common.Data
       return res;
     }
 
-    private static Tuple<RegexExpression, RegexExpression, string> RemoveCommonSubstring(RegexExpression a, RegexExpression b, string side)
+    private static Tuple<RegexExpression, RegexExpression, string> RemoveCommonSubstring(RegexExpression a, RegexExpression b, Side side)
     {
       var al = (a as ILiteral)?.GetLiteral(side);
       var bl = (b as ILiteral)?.GetLiteral(side);
@@ -472,9 +484,9 @@ namespace Common.Data
       return new Tuple<RegexExpression, RegexExpression, string>(a, b, s);
     }
 
-    private static string CommonSubstring(string a, string b, string side)
+    private static string CommonSubstring(string a, string b, Side side)
     {
-      var dir = side == "start" ? 1 : -1;
+      var dir = side == Side.Start ? 1 : -1;
       var ai = dir == 1 ? 0 : a.Length - 1;
       var ae = dir == 1 ? a.Length : -1;
       var bi = dir == 1 ? 0 : b.Length - 1;
