@@ -63,12 +63,12 @@ namespace Common.Math
     /// <summary>
     /// Determinant of the matrix.
     /// </summary>
-    private Lazy<double> determinant;
+    private Lazy<double> m_determinant;
 
     /// <summary>
     /// Inverse of the matrix
     /// </summary>
-    private Lazy<IMatrix<T>> inverse;
+    private Lazy<IMatrix<T>> m_inverse;
 
     #region Constructors
 
@@ -198,14 +198,14 @@ namespace Common.Math
 
     #region Methods
 
-    public double GetDeterminant() => determinant.Value;
+    public double GetDeterminant() => m_determinant.Value;
 
-    public IMatrix<T> GetInverse() => inverse.Value;
+    public IMatrix<T> GetInverse() => m_inverse.Value;
 
     private void UpdateProperties()
     {
-      determinant = new Lazy<double>(() => CalculateDeterminant(matrixValues));
-      inverse = new Lazy<IMatrix<T>>(CalculateInverse);
+      m_determinant = new Lazy<double>(() => CalculateDeterminant(matrixValues));
+      m_inverse = new Lazy<IMatrix<T>>(CalculateInverse);
     }
 
     public override string ToString()
