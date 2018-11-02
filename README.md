@@ -1,2 +1,2 @@
 # Description
-A collection extension libraries for various use-cases.
+A collection of extension libraries for various use-cases.
