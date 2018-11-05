@@ -1,10 +1,13 @@
 ﻿using System;
 using static Common.Math.UniversalNumericOperation;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Common.Math
 {
   [Serializable]
-  public sealed class Matrix<T> : BaseMatrix<T> where T : struct, IComparable, IFormattable, IConvertible, IComparable<T>, IEquatable<T>
+  public sealed class ModuloMatrix<T> : BaseMatrix<T> where T : struct, IComparable, IFormattable, IConvertible, IComparable<T>, IEquatable<T>
   {
     #region Properties
 
@@ -26,6 +29,8 @@ namespace Common.Math
       }
     }
 
+    public uint ModuloValue { get; }
+
     #endregion
 
     #region Constructors
@@ -34,14 +39,16 @@ namespace Common.Math
     /// Constructor
     /// </summary>
     /// <param name="values">2D Array of values</param>
+    /// <param name="modulo">ModuloValue of matrix</param>
     /// <exception cref="ArgumentException"></exception>
     /// <exception cref="NotSupportedException"></exception>
-    public Matrix(T[,] values)
+    public ModuloMatrix(T[,] values, uint modulo)
     {
-      if (!default(T).IsNumber()) throw new NotSupportedException($"T cannot be of type {typeof(T).Name}");
+      if (!default(T).IsUnsignedInteger()) throw new NotSupportedException($"T cannot be of type {typeof(T).Name}");
       if (values == null) throw new ArgumentException($"Argument {nameof(values)} cannot be null.");
       if (values.GetLength(0) == 0 || values.GetLength(1) == 0) throw new ArgumentException($"Argument {nameof(values)} cannot have a dimension of size 0.");
 
+      ModuloValue = modulo;
       MatrixType = GetMatrixType(values);
       MatrixValues = values;
     }
@@ -50,12 +57,13 @@ namespace Common.Math
     /// Constructor for square matrix
     /// </summary>
     /// <param name="size">Value for both the <see cref="BaseMatrix{T}.Rows"/> and <see cref="BaseMatrix{T}.Columns"/> properties</param>
+    /// <param name="modulo">ModuloValue of matrix</param>
     /// <param name="identity">Set to True to create an identity matrix</param>
     /// <exception cref="ArgumentException"></exception>
     /// <exception cref="NotSupportedException"></exception>
-    public Matrix(int size, bool identity)
+    public ModuloMatrix(int size, uint modulo, bool identity = false)
     {
-      if (!default(T).IsNumber()) throw new NotSupportedException($"T cannot be of type {typeof(T).Name}");
+      if (!default(T).IsUnsignedInteger()) throw new NotSupportedException($"T cannot be of type {typeof(T).Name}");
       if (size < 0) throw new ArgumentException($"Argument {nameof(size)} cannot be negative.");
       if (size == 0) throw new ArgumentException($"Argument {nameof(size)} cannot be equal to 0.");
 
@@ -64,6 +72,7 @@ namespace Common.Math
         for (var i = 0; i < size; i++)
           matrix[i, i] = (dynamic)1;
 
+      ModuloValue = modulo;
       MatrixType = Type.Identity | Type.Invertable;
       MatrixValues = matrix;
     }
@@ -74,15 +83,17 @@ namespace Common.Math
     /// </summary>
     /// <param name="length">Length of matrix</param>
     /// <param name="height">Height of matrix</param>
+    /// <param name="modulo">ModuloValue of matrix</param>
     /// <exception cref="ArgumentException"></exception>
     /// <exception cref="NotSupportedException"></exception>
-    public Matrix(int length, int height)
+    public ModuloMatrix(int length, int height, uint modulo)
     {
       if (!default(T).IsNumber()) throw new NotSupportedException($"T cannot be of type {typeof(T).Name}");
       if (length < 0) throw new ArgumentException($"Argument {nameof(length)} cannot be negative.");
       if (height < 0) throw new ArgumentException($"Argument {nameof(height)} cannot be negative.");
       if (length == 0 || height == 0) throw new ArgumentException($"Arguments {nameof(length)} and {nameof(height)} cannot be equal to 0.");
 
+      ModuloValue = modulo;
       MatrixValues = new T[length, height];
 
       if (Columns == Rows) MatrixType = Type.Invertable;
@@ -92,7 +103,7 @@ namespace Common.Math
 
     #region Operators
 
-    public static Matrix<T> operator +(Matrix<T> m, Matrix<T> n)
+    public static ModuloMatrix<T> operator +(ModuloMatrix<T> m, ModuloMatrix<T> n)
     {
       if (m.Rows != n.Rows || m.Columns != m.Rows)
         throw new MatrixDimensionException("Matricies of different dimensions cannot be summed.");
@@ -103,10 +114,10 @@ namespace Common.Math
         for (var j = 0; j < m.Rows; j++)
           outputvalues[i, j] = Add<T, T>(m.MatrixValues[i, j], n.MatrixValues[i, j]);
 
-      return new Matrix<T>(outputvalues);
+      return new ModuloMatrix<T>(outputvalues, m.ModuloValue);
     }
 
-    public static Matrix<T> operator -(Matrix<T> m, Matrix<T> n)
+    public static ModuloMatrix<T> operator -(ModuloMatrix<T> m, ModuloMatrix<T> n)
     {
       if (m.Rows != n.Rows || m.Columns != m.Rows)
         throw new MatrixDimensionException("Matricies of different dimensions cannot be subtracted.");
@@ -117,10 +128,10 @@ namespace Common.Math
         for (var j = 0; j < m.Rows; j++)
           outputValues[i, j] = Subtract<T, T>(m.MatrixValues[i, j], n.MatrixValues[i, j]);
 
-      return new Matrix<T>(outputValues);
+      return new ModuloMatrix<T>(outputValues, m.ModuloValue);
     }
 
-    public static Matrix<T> operator *(Matrix<T> m, Matrix<T> n)
+    public static ModuloMatrix<T> operator *(ModuloMatrix<T> m, ModuloMatrix<T> n)
     {
       if (m.Rows != n.Columns)
         throw new MatrixDimensionException("");
@@ -132,27 +143,27 @@ namespace Common.Math
           for (var k = 0; k < m.Rows; k++)
             outputValues[i, j] = outputValues[i, j].Add(Multiply<T, T>(m.MatrixValues[i, k], n.MatrixValues[k, j]));
 
-      return new Matrix<T>(outputValues);
+      return new ModuloMatrix<T>(outputValues, m.ModuloValue);
     }
 
-    public static Matrix<T> operator *(double m, Matrix<T> n)
+    public static ModuloMatrix<T> operator *(double m, ModuloMatrix<T> n)
     {
       var outputvalues = new T[n.Rows, n.Columns];
       for (var i = 0; i < n.Rows; i++)
         for (var j = 0; j < n.Columns; j++)
           outputvalues[i, j] = Multiply<T, double, T>(n.MatrixValues[i, j], m);
 
-      return new Matrix<T>(outputvalues);
+      return new ModuloMatrix<T>(outputvalues, n.ModuloValue);
     }
 
-    public static Matrix<T> operator /(double m, Matrix<T> n)
+    public static ModuloMatrix<T> operator /(double m, ModuloMatrix<T> n)
     {
       var outputvalues = new T[n.Rows, n.Columns];
       for (var i = 0; i < n.Rows; i++)
         for (var j = 0; j < n.Columns; j++)
           outputvalues[i, j] = Divide<T, double, T>(n.MatrixValues[i, j], m);
 
-      return new Matrix<T>(outputvalues);
+      return new ModuloMatrix<T>(outputvalues, n.ModuloValue);
     }
 
     #endregion
@@ -199,7 +210,7 @@ namespace Common.Math
         for (var j = 0; j < Columns; j++)
           transposedValues[i, j] = MatrixValues[j, i];
 
-      return new Matrix<T>(transposedValues);
+      return new ModuloMatrix<T>(transposedValues, ModuloValue);
     }
 
     public override IMatrix<T> MatrixOfCofactors()
@@ -217,7 +228,7 @@ namespace Common.Math
         if (Rows % 2 == 0) sign = -sign;
       }
 
-      return new Matrix<T>(cofactorvalues);
+      return new ModuloMatrix<T>(cofactorvalues, ModuloValue);
     }
 
     /// <summary>
@@ -237,7 +248,7 @@ namespace Common.Math
         inverseArray[1, 0] = Multiply<T, double, T>(MatrixValues[1, 0], 1 / -GetDeterminant());
         inverseArray[1, 1] = Multiply<T, double, T>(MatrixValues[0, 0], 1 / GetDeterminant());
 
-        return new Matrix<T>(inverseArray);
+        return new ModuloMatrix<T>(inverseArray, ModuloValue);
       }
 
       var matrixofminors = new T[Columns, Rows];
@@ -264,7 +275,7 @@ namespace Common.Math
         }
       }
 
-      var minorMatrix = new Matrix<T>(matrixofminors);
+      var minorMatrix = new ModuloMatrix<T>(matrixofminors, ModuloValue);
       var cofactorMatrix = minorMatrix.MatrixOfCofactors().Transpose();
 
       for (var i = 0; i < Columns; i++)
