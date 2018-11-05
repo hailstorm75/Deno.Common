@@ -51,6 +51,10 @@ namespace Common.Math
       ModuloValue = modulo;
       MatrixType = GetMatrixType(values);
       MatrixValues = values;
+
+      for (var row = 0; row < Rows; row++)
+        for (var col = 0; col < Columns; col++)
+          MatrixValues[row, col] = AdjustValue(MatrixValues[row, col]);
     }
 
     /// <summary>
@@ -112,7 +116,7 @@ namespace Common.Math
 
       for (var i = 0; i < m.Columns; i++)
         for (var j = 0; j < m.Rows; j++)
-          outputvalues[i, j] = Add<T, T>(m.MatrixValues[i, j], n.MatrixValues[i, j]);
+          outputvalues[i, j] = m.AdjustValue(Add<T, T>(m.MatrixValues[i, j], n.MatrixValues[i, j]));
 
       return new ModuloMatrix<T>(outputvalues, m.ModuloValue);
     }
@@ -126,7 +130,7 @@ namespace Common.Math
 
       for (var i = 0; i < m.Columns; i++)
         for (var j = 0; j < m.Rows; j++)
-          outputValues[i, j] = Subtract<T, T>(m.MatrixValues[i, j], n.MatrixValues[i, j]);
+          outputValues[i, j] = m.AdjustValue(Subtract<T, T>(m.MatrixValues[i, j], n.MatrixValues[i, j]));
 
       return new ModuloMatrix<T>(outputValues, m.ModuloValue);
     }
@@ -141,7 +145,7 @@ namespace Common.Math
       for (var i = 0; i < n.Columns; i++)
         for (var j = 0; j < m.Rows; j++)
           for (var k = 0; k < m.Rows; k++)
-            outputValues[i, j] = outputValues[i, j].Add(Multiply<T, T>(m.MatrixValues[i, k], n.MatrixValues[k, j]));
+            outputValues[i, j] = m.AdjustValue(outputValues[i, j].Add(Multiply<T, T>(m.MatrixValues[i, k], n.MatrixValues[k, j])));
 
       return new ModuloMatrix<T>(outputValues, m.ModuloValue);
     }
@@ -237,6 +241,7 @@ namespace Common.Math
     /// <returns>Inverted matrix</returns>
     protected override IMatrix<T> CalculateInverse()
     {
+      // TODO Introduce value adjustment
       if (MatrixValues.GetLength(0) != MatrixValues.GetLength(1))
         throw new InvertableMatrixOperationException("Determinant can be calculated only for NxN matricies.");
 
@@ -292,6 +297,7 @@ namespace Common.Math
     /// <returns>Determinant value</returns>
     private static double CalculateDeterminant(T[,] matrix)
     {
+      // TODO Introduce value adjustment
       if (matrix.GetLength(0) != matrix.GetLength(1))
         throw new InvertableMatrixOperationException("Determinant can be calculated only for NxN matricies.");
 
@@ -343,6 +349,8 @@ namespace Common.Math
           return determinant;
       }
     }
+
+    private T AdjustValue(T value) => NumberInRange<T>.AdjustValue(value, (dynamic)0, (dynamic)ModuloValue);
 
     #endregion
   }

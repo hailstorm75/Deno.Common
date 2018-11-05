@@ -145,16 +145,6 @@ namespace Common.Math
       return new Matrix<T>(outputvalues);
     }
 
-    public static Matrix<T> operator /(double m, Matrix<T> n)
-    {
-      var outputvalues = new T[n.Rows, n.Columns];
-      for (var i = 0; i < n.Rows; i++)
-        for (var j = 0; j < n.Columns; j++)
-          outputvalues[i, j] = Divide<T, double, T>(n.MatrixValues[i, j], m);
-
-      return new Matrix<T>(outputvalues);
-    }
-
     public static Matrix<T> operator /(Matrix<T> m, double n)
     {
       var outputvalues = new T[m.Rows, m.Columns];
