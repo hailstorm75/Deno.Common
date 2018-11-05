@@ -178,12 +178,6 @@ namespace Common.Math
 
     public override IMatrix<T> GetInverse() => m_inverse.Value;
 
-    private void UpdateProperties()
-    {
-      m_determinant = new Lazy<double>(() => CalculateDeterminant(m_matrixValues));
-      m_inverse = new Lazy<IMatrix<T>>(CalculateInverse);
-    }
-
     /// <summary>
     ///
     /// </summary>
@@ -225,7 +219,7 @@ namespace Common.Math
       {
         for (var j = 0; j < Columns; j++)
         {
-          cofactorvalues[i, j] = Multiply<T, int, T>(MatrixValues[i, j], sign);
+          cofactorvalues[i, j] = NumberInRange<T>.AdjustValue(Multiply<T, int, T>(MatrixValues[i, j], sign), (dynamic)0, (dynamic)ModuloValue);
           sign = -sign;
         }
 
@@ -248,10 +242,10 @@ namespace Common.Math
       if (Rows == 2)
       {
         var inverseArray = new T[2, 2];
-        inverseArray[0, 0] = Multiply<T, double, T>(MatrixValues[1, 1], 1 / GetDeterminant());
-        inverseArray[0, 1] = Multiply<T, double, T>(MatrixValues[0, 1], 1 / -GetDeterminant());
-        inverseArray[1, 0] = Multiply<T, double, T>(MatrixValues[1, 0], 1 / -GetDeterminant());
-        inverseArray[1, 1] = Multiply<T, double, T>(MatrixValues[0, 0], 1 / GetDeterminant());
+        inverseArray[0, 0] = NumberInRange<T>.AdjustValue(Multiply<T, double, T>(MatrixValues[1, 1], 1 / GetDeterminant()), (dynamic)0, (dynamic)ModuloValue);
+        inverseArray[0, 1] = NumberInRange<T>.AdjustValue(Multiply<T, double, T>(MatrixValues[0, 1], 1 / -GetDeterminant()), (dynamic)0, (dynamic)ModuloValue);
+        inverseArray[1, 0] = NumberInRange<T>.AdjustValue(Multiply<T, double, T>(MatrixValues[1, 0], 1 / -GetDeterminant()), (dynamic)0, (dynamic)ModuloValue);
+        inverseArray[1, 1] = NumberInRange<T>.AdjustValue(Multiply<T, double, T>(MatrixValues[0, 0], 1 / GetDeterminant()), (dynamic)0, (dynamic)ModuloValue);
 
         return new ModuloMatrix<T>(inverseArray, ModuloValue);
       }
@@ -285,70 +279,11 @@ namespace Common.Math
 
       for (var i = 0; i < Columns; i++)
         for (var j = 0; j < Columns; j++)
-          cofactorMatrix.MatrixValues[i, j] = Multiply<T, double, T>(cofactorMatrix.MatrixValues[i, j], (1 / GetDeterminant()));
+          cofactorMatrix.MatrixValues[i, j] = NumberInRange<T>.AdjustValue(Multiply<T, double, T>(cofactorMatrix.MatrixValues[i, j], (1 / GetDeterminant())), (dynamic)0, (dynamic)ModuloValue);
 
       return cofactorMatrix;
     }
 
-    /// <summary>
-    /// Finds the determinant of the matrix
-    /// </summary>
-    /// <exception cref="BaseMatrix{T}.InvertableMatrixOperationException"></exception>
-    /// <returns>Determinant value</returns>
-    private static double CalculateDeterminant(T[,] matrix)
-    {
-      // TODO Introduce value adjustment
-      if (matrix.GetLength(0) != matrix.GetLength(1))
-        throw new InvertableMatrixOperationException("Determinant can be calculated only for NxN matricies.");
-
-      switch (matrix.GetLength(0))
-      {
-        case 2:
-          return Subtract<T, double>(
-                  Multiply<T, T>(matrix[0, 0], matrix[1, 1]),
-                  Multiply<T, T>(matrix[0, 1], matrix[1, 0]));
-        case 3:
-          var left = Add<T, T>(
-                      Multiply<T, T>(matrix[0, 0], matrix[1, 1], matrix[2, 2]),
-                      Multiply<T, T>(matrix[0, 1], matrix[1, 2], matrix[2, 0]),
-                      Multiply<T, T>(matrix[0, 2], matrix[1, 0], matrix[2, 1]));
-          var right = Add<T, T>(
-                       Multiply<T, T>(matrix[0, 2], matrix[1, 1], matrix[2, 0]),
-                       Multiply<T, T>(matrix[0, 0], matrix[1, 2], matrix[2, 1]),
-                       Multiply<T, T>(matrix[0, 1], matrix[1, 0], matrix[2, 2]));
-          return Subtract<T, double>(left, right);
-        default:
-          var determinant = 0d;
-          var sign = 1;
-          for (var i = 0; i < matrix.GetLength(0); i++)
-          {
-            var coords = new[] { 0, 0 };
-            var data = new T[matrix.GetLength(0) - 1, matrix.GetLength(0) - 1];
-
-            for (var row = 1; row < matrix.GetLength(0); row++)
-            {
-              for (var col = 0; col < matrix.GetLength(0); col++)
-              {
-                if (row == 0 || col == i) continue;
-                data[coords[0], coords[1]++] = matrix[row, col];
-
-                if (coords[1] != matrix.GetLength(0) - 1) continue;
-                coords[0]++;
-                coords[1] = 0;
-              }
-            }
-
-            determinant = Add<T, double, double>(
-              Multiply<T, int, T>(
-                Multiply<T, double, T>(matrix[0, i], CalculateDeterminant(data)),
-                sign),
-              determinant);
-            sign = -sign;
-          }
-
-          return determinant;
-      }
-    }
 
     private T AdjustValue(T value) => NumberInRange<T>.AdjustValue(value, (dynamic)0, (dynamic)ModuloValue);
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text;
+using static Common.Math.UniversalNumericOperation;
 
 namespace Common.Math
 {
@@ -60,6 +61,12 @@ namespace Common.Math
 
     #region Methods
 
+    protected void UpdateProperties()
+    {
+      m_determinant = new Lazy<double>(() => CalculateDeterminant(m_matrixValues));
+      m_inverse = new Lazy<IMatrix<T>>(CalculateInverse);
+    }
+
     /// <summary>
     /// Validates whether given <paramref name="matrix"/> is an identity matrix
     /// </summary>
@@ -77,6 +84,65 @@ namespace Common.Math
       }
 
       return true;
+    }
+
+    /// <summary>
+    /// Finds the determinant of the matrix
+    /// </summary>
+    /// <exception cref="BaseMatrix{T}.InvertableMatrixOperationException"></exception>
+    /// <returns>Determinant value</returns>
+    protected static double CalculateDeterminant(T[,] matrix)
+    {
+      if (matrix.GetLength(0) != matrix.GetLength(1))
+        throw new InvertableMatrixOperationException("Determinant can be calculated only for NxN matricies.");
+
+      switch (matrix.GetLength(0))
+      {
+        case 2:
+          return Subtract<T, double>(
+                  Multiply<T, T>(matrix[0, 0], matrix[1, 1]),
+                  Multiply<T, T>(matrix[0, 1], matrix[1, 0]));
+        case 3:
+          var left = Add<T, T>(
+                      Multiply<T, T>(matrix[0, 0], matrix[1, 1], matrix[2, 2]),
+                      Multiply<T, T>(matrix[0, 1], matrix[1, 2], matrix[2, 0]),
+                      Multiply<T, T>(matrix[0, 2], matrix[1, 0], matrix[2, 1]));
+          var right = Add<T, T>(
+                       Multiply<T, T>(matrix[0, 2], matrix[1, 1], matrix[2, 0]),
+                       Multiply<T, T>(matrix[0, 0], matrix[1, 2], matrix[2, 1]),
+                       Multiply<T, T>(matrix[0, 1], matrix[1, 0], matrix[2, 2]));
+          return Subtract<T, double>(left, right);
+        default:
+          var determinant = 0d;
+          var sign = 1;
+          for (var i = 0; i < matrix.GetLength(0); i++)
+          {
+            var coords = new[] { 0, 0 };
+            var data = new T[matrix.GetLength(0) - 1, matrix.GetLength(0) - 1];
+
+            for (var row = 1; row < matrix.GetLength(0); row++)
+            {
+              for (var col = 0; col < matrix.GetLength(0); col++)
+              {
+                if (row == 0 || col == i) continue;
+                data[coords[0], coords[1]++] = matrix[row, col];
+
+                if (coords[1] != matrix.GetLength(0) - 1) continue;
+                coords[0]++;
+                coords[1] = 0;
+              }
+            }
+
+            determinant = Add<T, double, double>(
+              Multiply<T, int, T>(
+                Multiply<T, double, T>(matrix[0, i], CalculateDeterminant(data)),
+                sign),
+              determinant);
+            sign = -sign;
+          }
+
+          return determinant;
+      }
     }
 
     public abstract double GetDeterminant();
