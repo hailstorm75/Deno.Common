@@ -94,13 +94,13 @@ namespace Common.Math
 
     public static Matrix<T> operator +(Matrix<T> m, Matrix<T> n)
     {
-      if (m.Rows != n.Rows || m.Columns != m.Rows)
+      if (m.Rows != n.Rows || m.Columns != n.Columns)
         throw new MatrixDimensionException("Matricies of different dimensions cannot be summed.");
 
-      var outputvalues = new T[m.Columns, m.Rows];
+      var outputvalues = new T[m.Rows, m.Columns];
 
-      for (var i = 0; i < m.Columns; i++)
-        for (var j = 0; j < m.Rows; j++)
+      for (var i = 0; i < m.Rows; i++)
+        for (var j = 0; j < m.Columns; j++)
           outputvalues[i, j] = Add<T, T>(m.MatrixValues[i, j], n.MatrixValues[i, j]);
 
       return new Matrix<T>(outputvalues);
@@ -108,13 +108,13 @@ namespace Common.Math
 
     public static Matrix<T> operator -(Matrix<T> m, Matrix<T> n)
     {
-      if (m.Rows != n.Rows || m.Columns != m.Rows)
+      if (m.Rows != n.Rows || m.Columns != n.Columns)
         throw new MatrixDimensionException("Matricies of different dimensions cannot be subtracted.");
 
-      var outputValues = new T[m.Columns, m.Rows];
+      var outputValues = new T[m.Rows, m.Columns];
 
-      for (var i = 0; i < m.Columns; i++)
-        for (var j = 0; j < m.Rows; j++)
+      for (var i = 0; i < m.Rows; i++)
+        for (var j = 0; j < m.Columns; j++)
           outputValues[i, j] = Subtract<T, T>(m.MatrixValues[i, j], n.MatrixValues[i, j]);
 
       return new Matrix<T>(outputValues);
@@ -151,6 +151,16 @@ namespace Common.Math
       for (var i = 0; i < n.Rows; i++)
         for (var j = 0; j < n.Columns; j++)
           outputvalues[i, j] = Divide<T, double, T>(n.MatrixValues[i, j], m);
+
+      return new Matrix<T>(outputvalues);
+    }
+
+    public static Matrix<T> operator /(Matrix<T> m, double n)
+    {
+      var outputvalues = new T[m.Rows, m.Columns];
+      for (var i = 0; i < m.Rows; i++)
+        for (var j = 0; j < m.Columns; j++)
+          outputvalues[i, j] = Divide<T, double, T>(m.MatrixValues[i, j], n);
 
       return new Matrix<T>(outputvalues);
     }
