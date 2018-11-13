@@ -1,31 +1,27 @@
 ﻿using System;
-using static Common.Math.UniversalNumericOperation;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace Common.Math
+namespace Common.Math.Matricies
 {
+  /// <summary>
+  /// Class representing a mathematical matrix with modulo values
+  /// </summary>
+  /// <typeparam name="T">Type can only be numeric and non-negative</typeparam>
   [Serializable]
   public sealed class ModuloMatrix<T> : BaseMatrix<T> where T : struct, IComparable, IFormattable, IConvertible, IComparable<T>, IEquatable<T>
   {
     #region Properties
 
-    /// <summary>
-    /// Matrix type
-    /// </summary>
-    public Type MatrixType { get; }
+    /// <inheritdoc />
+    public override Type MatrixType { get; }
 
-    /// <summary>
-    /// Matrix data
-    /// </summary>
+    /// <inheritdoc />
     public override T[,] MatrixValues
     {
       get => m_matrixValues;
       set
       {
         m_matrixValues = value;
-        UpdateProperties();
+        Recalculate();
       }
     }
 
@@ -116,7 +112,7 @@ namespace Common.Math
 
       for (var i = 0; i < m.Columns; i++)
         for (var j = 0; j < m.Rows; j++)
-          outputvalues[i, j] = m.AdjustValue(Add<T, T>(m.MatrixValues[i, j], n.MatrixValues[i, j]));
+          outputvalues[i, j] = m.AdjustValue(UniversalNumericOperation.Add<T, T>(m.MatrixValues[i, j], n.MatrixValues[i, j]));
 
       return new ModuloMatrix<T>(outputvalues, m.ModuloValue);
     }
@@ -130,7 +126,7 @@ namespace Common.Math
 
       for (var i = 0; i < m.Columns; i++)
         for (var j = 0; j < m.Rows; j++)
-          outputValues[i, j] = m.AdjustValue(Subtract<T, T>(m.MatrixValues[i, j], n.MatrixValues[i, j]));
+          outputValues[i, j] = m.AdjustValue(UniversalNumericOperation.Subtract<T, T>(m.MatrixValues[i, j], n.MatrixValues[i, j]));
 
       return new ModuloMatrix<T>(outputValues, m.ModuloValue);
     }
@@ -145,7 +141,7 @@ namespace Common.Math
       for (var i = 0; i < n.Columns; i++)
         for (var j = 0; j < m.Rows; j++)
           for (var k = 0; k < m.Rows; k++)
-            outputValues[i, j] = m.AdjustValue(outputValues[i, j].Add(Multiply<T, T>(m.MatrixValues[i, k], n.MatrixValues[k, j])));
+            outputValues[i, j] = m.AdjustValue(outputValues[i, j].Add(UniversalNumericOperation.Multiply<T, T>(m.MatrixValues[i, k], n.MatrixValues[k, j])));
 
       return new ModuloMatrix<T>(outputValues, m.ModuloValue);
     }
@@ -155,7 +151,7 @@ namespace Common.Math
       var outputvalues = new T[n.Rows, n.Columns];
       for (var i = 0; i < n.Rows; i++)
         for (var j = 0; j < n.Columns; j++)
-          outputvalues[i, j] = Multiply<T, double, T>(n.MatrixValues[i, j], m);
+          outputvalues[i, j] = UniversalNumericOperation.Multiply<T, double, T>(n.MatrixValues[i, j], m);
 
       return new ModuloMatrix<T>(outputvalues, n.ModuloValue);
     }
@@ -165,7 +161,7 @@ namespace Common.Math
       var outputvalues = new T[n.Rows, n.Columns];
       for (var i = 0; i < n.Rows; i++)
         for (var j = 0; j < n.Columns; j++)
-          outputvalues[i, j] = Divide<T, double, T>(n.MatrixValues[i, j], m);
+          outputvalues[i, j] = UniversalNumericOperation.Divide<T, double, T>(n.MatrixValues[i, j], m);
 
       return new ModuloMatrix<T>(outputvalues, n.ModuloValue);
     }
@@ -174,33 +170,13 @@ namespace Common.Math
 
     #region Methods
 
+    /// <inheritdoc />
     public override double GetDeterminant() => m_determinant.Value;
 
+    /// <inheritdoc />
     public override IMatrix<T> GetInverse() => m_inverse.Value;
 
-    /// <summary>
-    ///
-    /// </summary>
-    /// <param name="matrix"></param>
-    /// <returns></returns>
-    private static Type GetMatrixType(T[,] matrix)
-    {
-      Type result;
-      if (matrix.GetLength(0) == matrix.GetLength(1))
-      {
-        result = Type.Invertable;
-        if (IsIdentity(matrix)) result |= Type.Identity;
-      }
-      else
-        result = Type.NonInvertable;
-
-      return result;
-    }
-
-    /// <summary>
-    /// Transposes matrix
-    /// </summary>
-    /// <returns>Transposed matrix</returns>
+    /// <inheritdoc />
     public override IMatrix<T> Transpose()
     {
       var transposedValues = new T[Rows, Columns];
@@ -211,6 +187,7 @@ namespace Common.Math
       return new ModuloMatrix<T>(transposedValues, ModuloValue);
     }
 
+    /// <inheritdoc />
     public override IMatrix<T> MatrixOfCofactors()
     {
       var sign = 1;
@@ -219,7 +196,7 @@ namespace Common.Math
       {
         for (var j = 0; j < Columns; j++)
         {
-          cofactorvalues[i, j] = NumberInRange<T>.AdjustValue(Multiply<T, int, T>(MatrixValues[i, j], sign), (dynamic)0, (dynamic)ModuloValue);
+          cofactorvalues[i, j] = NumberInRange<T>.AdjustValue(UniversalNumericOperation.Multiply<T, int, T>(MatrixValues[i, j], sign), (dynamic)0, (dynamic)ModuloValue);
           sign = -sign;
         }
 
@@ -229,10 +206,7 @@ namespace Common.Math
       return new ModuloMatrix<T>(cofactorvalues, ModuloValue);
     }
 
-    /// <summary>
-    /// Find the inverse of the matrix
-    /// </summary>
-    /// <returns>Inverted matrix</returns>
+    /// <inheritdoc />
     protected override IMatrix<T> CalculateInverse()
     {
       // TODO Introduce value adjustment
@@ -242,10 +216,10 @@ namespace Common.Math
       if (Rows == 2)
       {
         var inverseArray = new T[2, 2];
-        inverseArray[0, 0] = NumberInRange<T>.AdjustValue(Multiply<T, double, T>(MatrixValues[1, 1], 1 / GetDeterminant()), (dynamic)0, (dynamic)ModuloValue);
-        inverseArray[0, 1] = NumberInRange<T>.AdjustValue(Multiply<T, double, T>(MatrixValues[0, 1], 1 / -GetDeterminant()), (dynamic)0, (dynamic)ModuloValue);
-        inverseArray[1, 0] = NumberInRange<T>.AdjustValue(Multiply<T, double, T>(MatrixValues[1, 0], 1 / -GetDeterminant()), (dynamic)0, (dynamic)ModuloValue);
-        inverseArray[1, 1] = NumberInRange<T>.AdjustValue(Multiply<T, double, T>(MatrixValues[0, 0], 1 / GetDeterminant()), (dynamic)0, (dynamic)ModuloValue);
+        inverseArray[0, 0] = NumberInRange<T>.AdjustValue(UniversalNumericOperation.Multiply<T, double, T>(MatrixValues[1, 1], 1 / GetDeterminant()), (dynamic)0, (dynamic)ModuloValue);
+        inverseArray[0, 1] = NumberInRange<T>.AdjustValue(UniversalNumericOperation.Multiply<T, double, T>(MatrixValues[0, 1], 1 / -GetDeterminant()), (dynamic)0, (dynamic)ModuloValue);
+        inverseArray[1, 0] = NumberInRange<T>.AdjustValue(UniversalNumericOperation.Multiply<T, double, T>(MatrixValues[1, 0], 1 / -GetDeterminant()), (dynamic)0, (dynamic)ModuloValue);
+        inverseArray[1, 1] = NumberInRange<T>.AdjustValue(UniversalNumericOperation.Multiply<T, double, T>(MatrixValues[0, 0], 1 / GetDeterminant()), (dynamic)0, (dynamic)ModuloValue);
 
         return new ModuloMatrix<T>(inverseArray, ModuloValue);
       }
@@ -279,12 +253,16 @@ namespace Common.Math
 
       for (var i = 0; i < Columns; i++)
         for (var j = 0; j < Columns; j++)
-          cofactorMatrix.MatrixValues[i, j] = NumberInRange<T>.AdjustValue(Multiply<T, double, T>(cofactorMatrix.MatrixValues[i, j], (1 / GetDeterminant())), (dynamic)0, (dynamic)ModuloValue);
+          cofactorMatrix.MatrixValues[i, j] = NumberInRange<T>.AdjustValue(UniversalNumericOperation.Multiply<T, double, T>(cofactorMatrix.MatrixValues[i, j], (1 / GetDeterminant())), (dynamic)0, (dynamic)ModuloValue);
 
       return cofactorMatrix;
     }
 
-
+    /// <summary>
+    /// Adjusts given <paramref name="value"/> to modulo range
+    /// </summary>
+    /// <param name="value">Value to adjust</param>
+    /// <returns>Adjusted value</returns>
     private T AdjustValue(T value) => NumberInRange<T>.AdjustValue(value, (dynamic)0, (dynamic)ModuloValue);
 
     #endregion

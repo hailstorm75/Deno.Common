@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Text;
-using static Common.Math.UniversalNumericOperation;
 
-namespace Common.Math
+namespace Common.Math.Matricies
 {
+  /// <summary>
+  /// Base class for all matrix classes
+  /// </summary>
+  /// <typeparam name="T">Type of values which of the matrix</typeparam>
   [Serializable]
   public abstract class BaseMatrix<T> : IMatrix<T>
   {
@@ -39,6 +42,9 @@ namespace Common.Math
     /// </summary>
     protected Lazy<IMatrix<T>> m_inverse;
 
+    /// <summary>
+    /// Matrix data
+    /// </summary>
     protected T[,] m_matrixValues;
 
     #endregion   
@@ -46,25 +52,49 @@ namespace Common.Math
     #region Properties
 
     /// <summary>
-    /// Matrix length
+    /// Matrix type
     /// </summary>
+    public abstract Type MatrixType { get; }
+
+    /// <inheritdoc />
     public int Columns => MatrixValues.GetLength(1);
 
-    /// <summary>
-    /// Matrix height
-    /// </summary>
+    /// <inheritdoc />
     public int Rows => MatrixValues.GetLength(0);
 
+    /// <inheritdoc />
     public abstract T[,] MatrixValues { get; set; }
 
     #endregion
 
     #region Methods
 
-    protected void UpdateProperties()
+    /// <summary>
+    /// Requests the <see cref="m_determinant"/> and <seealso cref="m_inverse"/> to be recalculated
+    /// </summary>
+    protected void Recalculate()
     {
       m_determinant = new Lazy<double>(() => CalculateDeterminant(m_matrixValues));
       m_inverse = new Lazy<IMatrix<T>>(CalculateInverse);
+    }
+
+    /// <summary>
+    /// Getter for the matrix type property
+    /// </summary>
+    /// <param name="matrix"></param>
+    /// <returns>Matrix type</returns>
+    protected static Type GetMatrixType(T[,] matrix)
+    {
+      Type result;
+      if (matrix.GetLength(0) == matrix.GetLength(1))
+      {
+        result = Type.Invertable;
+        if (IsIdentity(matrix)) result |= Type.Identity;
+      }
+      else
+        result = Type.NonInvertable;
+
+      return result;
     }
 
     /// <summary>
@@ -99,19 +129,19 @@ namespace Common.Math
       switch (matrix.GetLength(0))
       {
         case 2:
-          return Subtract<T, double>(
-                  Multiply<T, T>(matrix[0, 0], matrix[1, 1]),
-                  Multiply<T, T>(matrix[0, 1], matrix[1, 0]));
+          return UniversalNumericOperation.Subtract<T, double>(
+                  UniversalNumericOperation.Multiply<T, T>(matrix[0, 0], matrix[1, 1]),
+                  UniversalNumericOperation.Multiply<T, T>(matrix[0, 1], matrix[1, 0]));
         case 3:
-          var left = Add<T, T>(
-                      Multiply<T, T>(matrix[0, 0], matrix[1, 1], matrix[2, 2]),
-                      Multiply<T, T>(matrix[0, 1], matrix[1, 2], matrix[2, 0]),
-                      Multiply<T, T>(matrix[0, 2], matrix[1, 0], matrix[2, 1]));
-          var right = Add<T, T>(
-                       Multiply<T, T>(matrix[0, 2], matrix[1, 1], matrix[2, 0]),
-                       Multiply<T, T>(matrix[0, 0], matrix[1, 2], matrix[2, 1]),
-                       Multiply<T, T>(matrix[0, 1], matrix[1, 0], matrix[2, 2]));
-          return Subtract<T, double>(left, right);
+          var left = UniversalNumericOperation.Add<T, T>(
+                      UniversalNumericOperation.Multiply<T, T>(matrix[0, 0], matrix[1, 1], matrix[2, 2]),
+                      UniversalNumericOperation.Multiply<T, T>(matrix[0, 1], matrix[1, 2], matrix[2, 0]),
+                      UniversalNumericOperation.Multiply<T, T>(matrix[0, 2], matrix[1, 0], matrix[2, 1]));
+          var right = UniversalNumericOperation.Add<T, T>(
+                       UniversalNumericOperation.Multiply<T, T>(matrix[0, 2], matrix[1, 1], matrix[2, 0]),
+                       UniversalNumericOperation.Multiply<T, T>(matrix[0, 0], matrix[1, 2], matrix[2, 1]),
+                       UniversalNumericOperation.Multiply<T, T>(matrix[0, 1], matrix[1, 0], matrix[2, 2]));
+          return UniversalNumericOperation.Subtract<T, double>(left, right);
         default:
           var determinant = 0d;
           var sign = 1;
@@ -133,9 +163,9 @@ namespace Common.Math
               }
             }
 
-            determinant = Add<T, double, double>(
-              Multiply<T, int, T>(
-                Multiply<T, double, T>(matrix[0, i], CalculateDeterminant(data)),
+            determinant = UniversalNumericOperation.Add<T, double, double>(
+              UniversalNumericOperation.Multiply<T, int, T>(
+                UniversalNumericOperation.Multiply<T, double, T>(matrix[0, i], CalculateDeterminant(data)),
                 sign),
               determinant);
             sign = -sign;
@@ -145,14 +175,22 @@ namespace Common.Math
       }
     }
 
+    /// <inheritdoc />
     public abstract double GetDeterminant();
 
+    /// <summary>
+    /// Find the inverse of the matrix
+    /// </summary>
+    /// <returns>Instance of the inversed matrix</returns>
     protected abstract IMatrix<T> CalculateInverse();
 
+    /// <inheritdoc />
     public abstract IMatrix<T> GetInverse();
 
+    /// <inheritdoc />
     public abstract IMatrix<T> MatrixOfCofactors();
 
+    /// <inheritdoc />
     public abstract IMatrix<T> Transpose();
 
     public override string ToString()

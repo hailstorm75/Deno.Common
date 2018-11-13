@@ -1,28 +1,27 @@
 ﻿using System;
-using static Common.Math.UniversalNumericOperation;
 
-namespace Common.Math
+namespace Common.Math.Matricies
 {
+  /// <summary>
+  /// Class representing a mathematical matrix
+  /// </summary>
+  /// <typeparam name="T">Type can only be numeric</typeparam>
   [Serializable]
   public sealed class Matrix<T> : BaseMatrix<T> where T : struct, IComparable, IFormattable, IConvertible, IComparable<T>, IEquatable<T>
   {
     #region Properties
 
-    /// <summary>
-    /// Matrix type
-    /// </summary>
-    public Type MatrixType { get; }
+    /// <inheritdoc />
+    public override Type MatrixType { get; }
 
-    /// <summary>
-    /// Matrix data
-    /// </summary>
+    /// <inheritdoc />
     public override T[,] MatrixValues
     {
       get => m_matrixValues;
       set
       {
         m_matrixValues = value;
-        UpdateProperties();
+        Recalculate();
       }
     }
 
@@ -101,7 +100,7 @@ namespace Common.Math
 
       for (var i = 0; i < m.Rows; i++)
         for (var j = 0; j < m.Columns; j++)
-          outputvalues[i, j] = Add<T, T>(m.MatrixValues[i, j], n.MatrixValues[i, j]);
+          outputvalues[i, j] = UniversalNumericOperation.Add<T, T>(m.MatrixValues[i, j], n.MatrixValues[i, j]);
 
       return new Matrix<T>(outputvalues);
     }
@@ -115,7 +114,7 @@ namespace Common.Math
 
       for (var i = 0; i < m.Rows; i++)
         for (var j = 0; j < m.Columns; j++)
-          outputValues[i, j] = Subtract<T, T>(m.MatrixValues[i, j], n.MatrixValues[i, j]);
+          outputValues[i, j] = UniversalNumericOperation.Subtract<T, T>(m.MatrixValues[i, j], n.MatrixValues[i, j]);
 
       return new Matrix<T>(outputValues);
     }
@@ -130,7 +129,7 @@ namespace Common.Math
       for (var i = 0; i < n.Columns; i++)
         for (var j = 0; j < m.Rows; j++)
           for (var k = 0; k < m.Rows; k++)
-            outputValues[i, j] = outputValues[i, j].Add(Multiply<T, T>(m.MatrixValues[i, k], n.MatrixValues[k, j]));
+            outputValues[i, j] = outputValues[i, j].Add(UniversalNumericOperation.Multiply<T, T>(m.MatrixValues[i, k], n.MatrixValues[k, j]));
 
       return new Matrix<T>(outputValues);
     }
@@ -140,7 +139,7 @@ namespace Common.Math
       var outputvalues = new T[n.Rows, n.Columns];
       for (var i = 0; i < n.Rows; i++)
         for (var j = 0; j < n.Columns; j++)
-          outputvalues[i, j] = Multiply<T, double, T>(n.MatrixValues[i, j], m);
+          outputvalues[i, j] = UniversalNumericOperation.Multiply<T, double, T>(n.MatrixValues[i, j], m);
 
       return new Matrix<T>(outputvalues);
     }
@@ -150,7 +149,7 @@ namespace Common.Math
       var outputvalues = new T[m.Rows, m.Columns];
       for (var i = 0; i < m.Rows; i++)
         for (var j = 0; j < m.Columns; j++)
-          outputvalues[i, j] = Divide<T, double, T>(m.MatrixValues[i, j], n);
+          outputvalues[i, j] = UniversalNumericOperation.Divide<T, double, T>(m.MatrixValues[i, j], n);
 
       return new Matrix<T>(outputvalues);
     }
@@ -159,33 +158,13 @@ namespace Common.Math
 
     #region Methods
 
+    /// <inheritdoc />
     public override double GetDeterminant() => m_determinant.Value;
 
+    /// <inheritdoc />
     public override IMatrix<T> GetInverse() => m_inverse.Value;
 
-    /// <summary>
-    ///
-    /// </summary>
-    /// <param name="matrix"></param>
-    /// <returns></returns>
-    private static Type GetMatrixType(T[,] matrix)
-    {
-      Type result;
-      if (matrix.GetLength(0) == matrix.GetLength(1))
-      {
-        result = Type.Invertable;
-        if (IsIdentity(matrix)) result |= Type.Identity;
-      }
-      else
-        result = Type.NonInvertable;
-
-      return result;
-    }
-
-    /// <summary>
-    /// Transposes matrix
-    /// </summary>
-    /// <returns>Transposed matrix</returns>
+    /// <inheritdoc />
     public override IMatrix<T> Transpose()
     {
       var transposedValues = new T[Rows, Columns];
@@ -196,6 +175,7 @@ namespace Common.Math
       return new Matrix<T>(transposedValues);
     }
 
+    /// <inheritdoc />
     public override IMatrix<T> MatrixOfCofactors()
     {
       var sign = 1;
@@ -204,7 +184,7 @@ namespace Common.Math
       {
         for (var j = 0; j < Columns; j++)
         {
-          cofactorvalues[i, j] = Multiply<T, int, T>(MatrixValues[i, j], sign);
+          cofactorvalues[i, j] = UniversalNumericOperation.Multiply<T, int, T>(MatrixValues[i, j], sign);
           sign = -sign;
         }
 
@@ -214,10 +194,7 @@ namespace Common.Math
       return new Matrix<T>(cofactorvalues);
     }
 
-    /// <summary>
-    /// Find the inverse of the matrix
-    /// </summary>
-    /// <returns>Inverted matrix</returns>
+    /// <inheritdoc />
     protected override IMatrix<T> CalculateInverse()
     {
       if (MatrixValues.GetLength(0) != MatrixValues.GetLength(1))
@@ -226,10 +203,10 @@ namespace Common.Math
       if (Rows == 2)
       {
         var inverseArray = new T[2, 2];
-        inverseArray[0, 0] = Multiply<T, double, T>(MatrixValues[1, 1], 1 / GetDeterminant());
-        inverseArray[0, 1] = Multiply<T, double, T>(MatrixValues[0, 1], 1 / -GetDeterminant());
-        inverseArray[1, 0] = Multiply<T, double, T>(MatrixValues[1, 0], 1 / -GetDeterminant());
-        inverseArray[1, 1] = Multiply<T, double, T>(MatrixValues[0, 0], 1 / GetDeterminant());
+        inverseArray[0, 0] = UniversalNumericOperation.Multiply<T, double, T>(MatrixValues[1, 1], 1 / GetDeterminant());
+        inverseArray[0, 1] = UniversalNumericOperation.Multiply<T, double, T>(MatrixValues[0, 1], 1 / -GetDeterminant());
+        inverseArray[1, 0] = UniversalNumericOperation.Multiply<T, double, T>(MatrixValues[1, 0], 1 / -GetDeterminant());
+        inverseArray[1, 1] = UniversalNumericOperation.Multiply<T, double, T>(MatrixValues[0, 0], 1 / GetDeterminant());
 
         return new Matrix<T>(inverseArray);
       }
@@ -263,7 +240,7 @@ namespace Common.Math
 
       for (var i = 0; i < Columns; i++)
         for (var j = 0; j < Columns; j++)
-          cofactorMatrix.MatrixValues[i, j] = Multiply<T, double, T>(cofactorMatrix.MatrixValues[i, j], (1 / GetDeterminant()));
+          cofactorMatrix.MatrixValues[i, j] = UniversalNumericOperation.Multiply<T, double, T>(cofactorMatrix.MatrixValues[i, j], (1 / GetDeterminant()));
 
       return cofactorMatrix;
     }

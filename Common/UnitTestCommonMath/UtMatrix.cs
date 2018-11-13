@@ -1,6 +1,7 @@
 ﻿using System;
 using UnitTestConstants;
 using System.Collections;
+using Common.Math.Matricies;
 using Common.Math.Tests.Data;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
