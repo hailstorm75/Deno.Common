@@ -2,7 +2,7 @@
 
 namespace Common.Data.Tests.Data
 {
-  internal class DataDfaMinimizer
+  internal static class DataDfaMinimizer
   {
     internal static IEnumerable<object[]> GetTrieData()
     {

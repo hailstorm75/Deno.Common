@@ -20,6 +20,7 @@ namespace Common.Data.Tests
       // Act
       var result = finder.FindPattern();
 
+      // Assert
       var count = data.Count(x => Regex.IsMatch(x, result));
       Assert.AreEqual(data.Count, count);
     }

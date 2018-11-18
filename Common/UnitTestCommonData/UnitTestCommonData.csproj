@@ -52,6 +52,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Data\DataDfaMinimizer.cs" />
+    <Compile Include="Data\DataPatternFinder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UtDfaMinimizer.cs" />
     <Compile Include="UtPatternFinder.cs" />
