@@ -43,28 +43,6 @@ namespace Common.Data.Tests
       Assert.IsTrue(testData.SequenceEqual(result));
     }
 
-    //[TestMethod]
-    //public void JsonSerialize()
-    //{
-    //  var json = testData.SerializeJson();
-    //  var result = Serialization.DeserializeJson<List<Tuple<string, int, bool>>>(json);
-    //  Assert.IsTrue(testData.SequenceEqual(result));
-    //}
-
-    //[TestMethod]
-    //public void JsonSerialize2()
-    //{
-    //  var json = testData.SerializeJson2();
-    //  var result = Serialization.DeserializeJson2<List<Tuple<string, int, bool>>>(json);
-    //  Assert.IsTrue(testData.SequenceEqual(result));
-    //}
-
-    //[TestMethod]
-    //public void XMLSerialize()
-    //{
-
-    //}
-
     [ClassCleanup]
     public static void Cleanup()
     {

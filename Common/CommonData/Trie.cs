@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Common.Data
@@ -6,16 +7,26 @@ namespace Common.Data
   /// <summary>
   /// Digital tree
   /// </summary>
+  [Serializable]
   public class Trie : Dfa<char>
   {
-    public override IEnumerable<int> FinateStates => m_finateStates.Select(x => x);
+    #region Fields
 
     private int m_stateCount;
+
+    #endregion
+
+    #region Properties
+
+    public override IEnumerable<int> FinateStates => m_finateStates.Select(x => x);
+
     public override int StateCount => m_stateCount;
 
     public override int TransitionCount => m_stateCount - 1;
 
     public int WordCount => m_finateStates.Count;
+
+    #endregion
 
     /// <summary>
     /// Default constructor

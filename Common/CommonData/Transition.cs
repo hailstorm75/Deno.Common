@@ -1,10 +1,17 @@
-﻿namespace Common.Data
+﻿using System;
+
+namespace Common.Data
 {
+  [Serializable]
   public sealed class Transition<T>
   {
-    public int From { get; }
-    public int To { get; }
-    public T OnInput { get; }
+    #region Properties
+
+    public int From { get; set; }
+    public int To { get; set; }
+    public T OnInput { get; set; }
+
+    #endregion
 
     public Transition(int from, int to, T onInput)
     {
