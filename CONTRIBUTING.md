@@ -1,8 +1,19 @@
+# Contents
+- [Coding guidelines](#coding-guidelines)
+    - [Tabs](#tabs)
+    - [Brackets](#brackets)
+    - [Banned keywords](#banned-keywords)
+    - [Properties](#properties)
+    - [Fields](#fields)
+- [Commits](#commits)
+    - [Before working](#before-making-any-changes)
+    - [Commiting a change](#how-to-commit-a-change)
+
 ## Coding guidelines
 ### Tabs
 - **Size**: 2
 - **Type**: Space
-## Brackets
+### Brackets
 
 **Acceptable**:
 
@@ -24,7 +35,7 @@ public void Foo() {
 ### Banned keywords
 - `goto`
     
-## Properties
+### Properties
 - Name with camel case
     - Example: `MyProperty`
 - Must not execute large amounts of code or query data
