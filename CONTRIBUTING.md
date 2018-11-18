@@ -95,12 +95,12 @@ internal static class DataMyClass
         {
             123,    // Will be received by the first argument, inputValue
             321     // Will be received by the second argument, expected
-        },
+        };
         yield return new object[]   // Second dataset
         {
             456,
             654
-        }
+        };
     }
 }
 ```
