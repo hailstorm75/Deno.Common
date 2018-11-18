@@ -5,6 +5,7 @@
     - [Banned keywords](#banned-keywords)
     - [Properties](#properties)
     - [Fields](#fields)
+- [Unit Tests](#unit-tests)
 - [Commits](#commits)
     - [Before working](#before-making-any-changes)
     - [Commiting a change](#how-to-commit-a-change)
@@ -47,6 +48,60 @@ public void Foo() {
 - If the field is a constant name with all caps and pascal case
     - Example: `MY_CONSTANT'
 - Properties must be **private**
+
+## Unit Tests
+- Every class should have its own dedicated unit test suit
+- Tests for a class in a library called 'A' must be in a test library called 'UnitTestA' and located in the Tests folder of the solution
+
+### How to write unit tests
+- A test class for a class called 'MyClass' must be called 'UtMyClass'
+- Every test method must be categorized
+    - Use the constants provided in UnitTestConstants library
+
+**Example**:
+```csharp
+[TestMethod, TestCategory(Constants.METHOD)]
+public void TestMyMethod()
+{
+    // TODO
+}
+```
+- If something needs to be tested for multiple values utilize [data-driven testing](#data-driven-unit-testing)
+
+#### Data-driven Unit Tests
+1. Create a new Data class for your tested class if it doesn't exist
+    - It must be located in the Data folder of the test library
+    - It must be called Data + the name of the class you are testing
+        - Example: DataMyClass
+    - It must be `static` and `internal`
+2. Add a DynamicData attribute to your test method and add arguments to your method which accept the retrieved data:
+```csharp
+[TestMethod, TestCategory(Constants.METHOD)]
+[DyanmicData(nameof(DataMyClass.GetTestData), typeof(DataMyClass), DyanamicDataSourceType.Method)]
+public void TestMyMethod(int inputValue, int expected)
+{
+    // TODO
+}
+```
+3. Add a method to your Data class which will provide the test data:
+```csharp
+internal static class DataMyClass
+{
+    internal static IEnumerable<object[]> GetTestData()
+    {
+        yield return new object[]   // First dataset
+        {
+            123,    // Will be received by the first argument, inputValue
+            321     // Will be received by the second argument, expected
+        },
+        yield return new object[]   // Second dataset
+        {
+            456,
+            654
+        }
+    }
+}
+```
 
 ## Commits
 ### Before making any changes
