@@ -9,4 +9,4 @@ build_job:
   - 'echo restoring nuget...'
   - 'nuget restore Common/Common.sln'
   - 'echo building...'
-  - 'MONO_IOMAP=case xbuild /t:Build /p:Configuration=Debug /p:Platform="Any CPU" Common/Common.sln'
+  - 'MONO_IOMAP=case msbuild /t:Build /p:Configuration=Debug /p:Platform="Any CPU" Common/Common.sln'
