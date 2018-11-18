@@ -77,44 +77,62 @@ namespace Common.Data
       }
     }
 
+    /// <summary>
+    /// Base class for regular expression parts
+    /// </summary>
     private abstract class RegexExpression
     {
       #region Properties
 
-      protected abstract int Precedence { get; }
+      /// <summary>
+      /// Number of elements in regular expression
+      /// </summary>
       public abstract int Length { get; }
+      /// <summary>
+      /// True if equation solved
+      /// </summary>
       public virtual bool Solved { get; set; }
 
       #endregion
 
       #region Methods
 
-      public abstract string ToString(string flags);
-
-      public abstract bool Solve(int to, RegexExpression solution);
+      /// <summary>
+      /// Substitutes equation
+      /// </summary>
+      /// <param name="from">Number of state</param>
+      /// <param name="substitution">Substitution <paramref name="from"/> state</param>
+      /// <returns>True if the state was <paramref name="from"/> searched state</returns>
+      public abstract bool Substitue(int @from, RegexExpression substitution);
 
       #endregion
     }
 
+    /// <summary>
+    /// Represents an alternation of regular expression parts
+    /// </summary>
     private class Alternation : RegexExpression
     {
       #region Fields
 
-      private List<RegexExpression> m_options;
+      /// <summary>
+      /// Parts of alternation
+      /// </summary>
+      private readonly List<RegexExpression> m_parts;
 
       #endregion
 
       #region Properties
 
-      protected override int Precedence => 1;
+      /// <inheritdoc />
+      public override int Length => m_parts.Count;
 
-      public override int Length => m_options.Count;
-
+      /// <inheritdoc />
       public override bool Solved
       {
         get
         {
-          foreach (var option in m_options)
+          foreach (var option in m_parts)
             if (!option.Solved) return false;
 
           return true;
@@ -123,69 +141,90 @@ namespace Common.Data
 
       #endregion
 
-      public Alternation(IEnumerable<RegexExpression> options) => m_options = Flatten(options).OrderBy(x => x.Length).ToList();
+      /// <summary>
+      /// Default constructor
+      /// </summary>
+      /// <param name="parts">Parts to alternate between</param>
+      public Alternation(IEnumerable<RegexExpression> parts) => m_parts = Flatten(parts).OrderBy(x => x.Length).ToList();
 
       #region Methods
 
-      private static IEnumerable<RegexExpression> Flatten(IEnumerable<RegexExpression> options)
+      /// <summary>
+      /// Flattens nested Alternations
+      /// </summary>
+      /// <param name="parts">Parts to flatten</param>
+      /// <returns>Result</returns>
+      private static IEnumerable<RegexExpression> Flatten(IEnumerable<RegexExpression> parts)
       {
-        foreach (var option in options)
+        foreach (var part in parts)
         {
-          if (option is Alternation alt)
-            foreach (var subOption in Flatten(alt.m_options))
+          if (part is Alternation alt)
+            foreach (var subOption in Flatten(alt.m_parts))
               yield return subOption;
 
-          yield return option;
+          yield return part;
         }
       }
 
-      public override string ToString(string flags) => string.Join("|", m_options);
+      /// <inheritdoc />
+      public override string ToString() => string.Join("|", m_parts);
 
-      public override string ToString() => this.ToString(string.Empty);
-
-      public override bool Solve(int to, RegexExpression solution)
+      /// <inheritdoc />
+      public override bool Substitue(int @from, RegexExpression substitution)
       {
         var result = true;
-        foreach (var option in m_options)
-          result &= option.Solve(to, solution);
+        foreach (var option in m_parts)
+          result &= option.Substitue(@from, substitution);
         return result;
       }
 
       #endregion
     }
 
+    /// <summary>
+    /// Represents a literal
+    /// </summary>
     private class Literal : RegexExpression
     {
       #region Properties
 
+      /// <summary>
+      /// Literal
+      /// </summary>
       private string Value { get; set; }
 
+      /// <inheritdoc />
       public override int Length => Value.Length;
 
-      protected override int Precedence => 2;
-
+      /// <summary>
+      /// Variable to solve
+      /// </summary>
       public int From { private get; set; }
 
       #endregion
 
+      /// <summary>
+      /// Default constructor
+      /// </summary>
+      /// <param name="value">Literal value</param>
       public Literal(string value) => Value = value;
 
       #region Methods
 
-      public override string ToString(string flags) => Value;
+      /// <inheritdoc />
+      public override string ToString() => Value;
 
-      public override string ToString() => ToString(string.Empty);
-
-      public override bool Solve(int to, RegexExpression solution)
+      /// <inheritdoc />
+      public override bool Substitue(int @from, RegexExpression substitution)
       {
         if (Solved)
           return true;
-        if (to != From)
+        if (@from != From)
           return false;
-        if (solution is Alternation al && al.Length > 1)
-          Value = $"({solution}){Value}";
+        if (substitution is Alternation al && al.Length > 1)
+          Value = $"({substitution}){Value}";
         else
-          Value = $"{solution}{Value}";
+          Value = $"{substitution}{Value}";
 
         return Solved = true;
       }
@@ -195,16 +234,27 @@ namespace Common.Data
 
     #endregion
 
+    /// <summary>
+    /// Set of strings
+    /// </summary>
     private Trie Strings { get; }
 
     private IEnumerable<PatternPart> FoundPatterns { get; set; }
 
+    /// <summary>
+    /// Default constructor
+    /// </summary>
+    /// <param name="strings">Set of strings to analyze</param>
     public PatternFinder(IEnumerable<string> strings)
     {
       Strings = new Trie();
       Strings.AddRange(strings);
     }
 
+    /// <summary>
+    /// Finds pattern based on <see cref="Strings"/>
+    /// </summary>
+    /// <returns>RegEx</returns>
     public string FindPattern()
     {
       var minimized = DfaMinimizer<char>.Minimize(Strings);
@@ -218,11 +268,27 @@ namespace Common.Data
 
     #region Static Methods
 
+    /// <summary>
+    /// Generates regex from <paramref name="transitions"/> of a DFA
+    /// </summary>
+    /// <param name="transitions">List of transitions in the DFA</param>
+    /// <param name="initialState">The initial state of the DFA</param>
+    /// <param name="stateCount">Total number of states in the DFA</param>
+    /// <remarks>
+    /// The algorithm is based on the Brzozowski Algebraic method described here: https://qntm.org/algo/
+    /// </remarks>
+    /// <returns>RegEx</returns>
     private static string GenerateRegex(IEnumerable<Transition<char>> transitions, int initialState, int stateCount)
     {
-      var solved = new Dictionary<int, RegexExpression> { { initialState, new Literal(string.Empty) { Solved = true } } };
-      var solvedCount = 1;
-      var toSolve = transitions
+      // Latest substitutions eqautions
+      // Initialization note:
+      //    The initial state accepts Epsilon characters - string.Empty.
+      //    It is the initial state - no need to set the 'From' property
+      var substitutions = new Dictionary<int, RegexExpression> { { initialState, new Literal(string.Empty) { Solved = true } } };
+      // Total number of substituted equations, 1 because of initial state
+      var substitutionsCount = 1;
+      // Remaining equations to eliminate
+      var toEliminate = transitions
         .GroupBy(t => t.To)
         .ToDictionary<IGrouping<int, Transition<char>>, int, RegexExpression>(
           grouping => grouping.Key,
@@ -233,23 +299,31 @@ namespace Common.Data
           }))
         );
 
-      while (solvedCount != stateCount)
-      {
-        var resolved = new Dictionary<int, RegexExpression>();
-        foreach (var solution in solved)
-          resolved = toSolve.Where(x => x.Value.Solve(solution.Key, solution.Value)).ToDictionary(x=> x.Key, x=> x.Value);
+      /*
+       * Note: the keys of the dictionaries above are from the 'To' property of 'Transition'
+       * For example: 3 = 5a, where 3 is 'To', 5 is 'From' and 'a' is OnInput
+       * Refer to the link in the remarks section
+       */
 
-        if (resolved.Count > 0) solved.Clear();
-        foreach (var solution in resolved)
+      // Eliminate all equations
+      while (substitutionsCount != stateCount)
+      {
+        var substituted = new Dictionary<int, RegexExpression>();                                 // Stores newly substituted equations
+        foreach (var solution in substitutions)                                                   // Tries to eliminate equations using substituted equations
+          substituted = toEliminate.Where(x => x.Value.Substitue(solution.Key, solution.Value))   // Selects those which were solved completely
+                                   .ToDictionary(x=> x.Key, x=> x.Value);                         // Creates dictionary
+
+        if (substituted.Count > 0) substitutions.Clear();                  // Clears substitutions if they are obsolete
+        foreach (var solution in substituted)                              // Updates dictionaries
         {
-          solved.Add(solution.Key, solution.Value);
-          toSolve.Remove(solution.Key);
+          substitutions.Add(solution.Key, solution.Value);                 // Updates list of substitutions
+          toEliminate.Remove(solution.Key);                                // Eliminating equations
         }
 
-        solvedCount += resolved.Count;
+        substitutionsCount += substituted.Count;                           // Increases number of solved equations
       }
 
-      return solved.FirstOrDefault().Value.ToString();
+      return substitutions.FirstOrDefault().Value.ToString();              // The remaining equation holds the solution
     }
 
     #endregion
