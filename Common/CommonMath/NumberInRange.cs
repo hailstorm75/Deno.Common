@@ -62,7 +62,7 @@ namespace Common.Math
     #region Methods
 
     /// <summary>
-    /// Adjusts value to fit given <see cref="Min"/> and <see cref="Max"/>
+    /// Adjusts val to fit given <see cref="Min"/> and <see cref="Max"/>
     /// </summary>
     /// <param name="val">Value to adjust</param>
     /// <returns>Value in range</returns>
@@ -87,6 +87,27 @@ namespace Common.Math
       return Min.Subtract(Max);
     }
 
+    public static T AdjustValue(T val, T min, T max)
+    {
+      if (IsGreaterEqual(val, min) && IsLessEqual(val, max)) return val;
+
+      T remainder;
+      var rangeLen = Add<T, int, T>(Abs(Abs(min).Subtract(Abs(max))), 1);
+
+      if (IsGreater(val, min))
+      {
+        if (IsLess(min, 0)) return Abs(val.Subtract(min)).Modulo(rangeLen).Add(min);
+
+        remainder = val.Modulo(rangeLen);
+        return IsEqual(remainder, 0) ? min : remainder.Add(min);
+      }
+
+      if (!IsLess(val, min)) return min.Subtract(max);
+
+      remainder = Abs(val.Subtract(min)).Modulo(rangeLen);
+      return IsEqual(remainder, 0) ? min : rangeLen.Subtract(remainder).Add(min);
+    }
+
     /// <summary>
     /// Converts the <see cref="Value"/> of this instance to its equivalent string representation.
     /// </summary>
@@ -99,18 +120,20 @@ namespace Common.Math
 
     #region Addition
 
-    /// <param name="a">Left hand side value</param>
-    /// <param name="b">Right hand side value</param>
+    public static T Add(T a, T b, T min, T max) => new NumberInRange<T>(a, min, max) + b;
+
+    /// <param name="a">Left hand side val</param>
+    /// <param name="b">Right hand side val</param>
     /// <returns>Result</returns>
     public static T operator +(T a, NumberInRange<T> b) => a.Add(b.Value);
 
-    /// <param name="a">Left hand side value</param>
-    /// <param name="b">Right hand side value</param>
+    /// <param name="a">Left hand side val</param>
+    /// <param name="b">Right hand side val</param>
     /// <returns>Result</returns>
     public static T operator +(NumberInRange<T> a, T b) => a + new NumberInRange<T>(b, a.Min, a.Max);
 
-    /// <param name="a">Left hand side value</param>
-    /// <param name="b">Right hand side value</param>
+    /// <param name="a">Left hand side val</param>
+    /// <param name="b">Right hand side val</param>
     /// <returns>Result</returns>
     public static T operator +(NumberInRange<T> a, NumberInRange<T> b) => a.AdjustValue(a.Value.Add(a.AdjustValue(b.Value)));
 
@@ -118,18 +141,18 @@ namespace Common.Math
 
     #region Subtraction
 
-    /// <param name="a">Left hand side value</param>
-    /// <param name="b">Right hand side value</param>
+    /// <param name="a">Left hand side val</param>
+    /// <param name="b">Right hand side val</param>
     /// <returns>Result</returns>
     public static T operator -(T a, NumberInRange<T> b) => a.Subtract(b.Value);
 
-    /// <param name="a">Left hand side value</param>
-    /// <param name="b">Right hand side value</param>
+    /// <param name="a">Left hand side val</param>
+    /// <param name="b">Right hand side val</param>
     /// <returns></returns>
     public static T operator -(NumberInRange<T> a, T b) => a - new NumberInRange<T>(b, a.Min, a.Max);
 
-    /// <param name="a">Left hand side value</param>
-    /// <param name="b">Right hand side value</param>
+    /// <param name="a">Left hand side val</param>
+    /// <param name="b">Right hand side val</param>
     /// <returns>Result</returns>
     public static T operator -(NumberInRange<T> a, NumberInRange<T> b) => a.AdjustValue(a.Value.Subtract(a.AdjustValue(b.Value)));
 
@@ -137,18 +160,18 @@ namespace Common.Math
 
     #region Multiplication
 
-    /// <param name="a">Left hand side value</param>
-    /// <param name="b">Right hand side value</param>
+    /// <param name="a">Left hand side val</param>
+    /// <param name="b">Right hand side val</param>
     /// <returns>Result</returns>
     public static T operator *(T a, NumberInRange<T> b) => a.Multiply(b.Value);
 
-    /// <param name="a">Left hand side value</param>
-    /// <param name="b">Right hand side value</param>
+    /// <param name="a">Left hand side val</param>
+    /// <param name="b">Right hand side val</param>
     /// <returns>Result</returns>
     public static T operator *(NumberInRange<T> a, T b) => a * new NumberInRange<T>(b, a.Min, a.Max);
 
-    /// <param name="a">Left hand side value</param>
-    /// <param name="b">Right hand side value</param>
+    /// <param name="a">Left hand side val</param>
+    /// <param name="b">Right hand side val</param>
     /// <returns>Result</returns>
     public static T operator *(NumberInRange<T> a, NumberInRange<T> b) => a.AdjustValue(a.Value.Multiply(a.AdjustValue(b.Value)));
 
@@ -156,18 +179,18 @@ namespace Common.Math
 
     #region Division
 
-    /// <param name="a">Left hand side value</param>
-    /// <param name="b">Right hand side value</param>
+    /// <param name="a">Left hand side val</param>
+    /// <param name="b">Right hand side val</param>
     /// <returns>Result</returns>
     public static T operator /(T a, NumberInRange<T> b) => a.Divide(b.Value);
 
-    /// <param name="a">Left hand side value</param>
-    /// <param name="b">Right hand side value</param>
+    /// <param name="a">Left hand side val</param>
+    /// <param name="b">Right hand side val</param>
     /// <returns>Result</returns>
     public static T operator /(NumberInRange<T> a, T b) => a / new NumberInRange<T>(b, a.Min, a.Max);
 
-    /// <param name="a">Left hand side value</param>
-    /// <param name="b">Right hand side value</param>
+    /// <param name="a">Left hand side val</param>
+    /// <param name="b">Right hand side val</param>
     /// <returns>Result</returns>
     public static T operator /(NumberInRange<T> a, NumberInRange<T> b) => a.AdjustValue(a.Value.Divide(a.AdjustValue(b.Value)));
 

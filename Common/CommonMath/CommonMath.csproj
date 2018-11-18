@@ -20,6 +20,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <LangVersion>7.1</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -28,6 +29,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <LangVersion>7.1</LangVersion>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject />
@@ -43,10 +45,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="IMatrix.cs" />
+    <Compile Include="Matricies\BaseMatrix.cs" />
+    <Compile Include="Matricies\IMatrix.cs" />
     <Compile Include="INumberInRange.cs" />
     <Compile Include="LongestLong.cs" />
-    <Compile Include="Matrix.cs" />
+    <Compile Include="Matricies\Matrix.cs" />
+    <Compile Include="Matricies\ModuloMatrix.cs" />
     <Compile Include="NumberInRange.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UniversalNumericOperation.cs" />
