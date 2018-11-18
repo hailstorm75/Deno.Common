@@ -6,6 +6,8 @@
     - [Properties](#properties)
     - [Fields](#fields)
 - [Unit Tests](#unit-tests)
+    - [How to write UTs](#how-to-write-unit-tests)
+        - [Data-driven UTs](#data-driven-unit-tests)
 - [Commits](#commits)
     - [Before working](#before-making-any-changes)
     - [Commiting a change](#how-to-commit-a-change)
@@ -66,7 +68,7 @@ public void TestMyMethod()
     // TODO
 }
 ```
-- If something needs to be tested for multiple values utilize [data-driven testing](#data-driven-unit-testing)
+- If something needs to be tested for multiple values utilize [data-driven testing](#data-driven-unit-tests)
 
 #### Data-driven Unit Tests
 1. Create a new Data class for your tested class if it doesn't exist
