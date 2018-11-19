@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Common.Linq
@@ -15,5 +14,20 @@ namespace Common.Linq
         if (seenKeys.Add(keySelector(element)))
           yield return element;
     }
+
+    public static void ForEachDo<TSource>(this IEnumerable<TSource> source, Action<TSource> action)
+    {
+      foreach (var item in source)
+        action(item);
+    }
+
+    // TODO Implement
+    public static async Task ForEachDoAsync<TSource>(this IEnumerable<TSource> source, Action<TSource> action)
+    {
+      throw new NotImplementedException();
+      //  var tasks = source.Select();
+    }
+
+    public static IEnumerable<TOut> ForEachDo<TSource, TOut>(this IEnumerable<TSource> source, Func<TSource, TOut> func) => source.Select(func);
   }
 }
