@@ -25,7 +25,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>..\..\bin\Tests\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -34,7 +34,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>..\..\bin\Tests\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -52,6 +52,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Data\DataDfaMinimizer.cs" />
+    <Compile Include="Data\DataPatternFinder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UtDfaMinimizer.cs" />
     <Compile Include="UtPatternFinder.cs" />
@@ -68,6 +69,7 @@
     <ProjectReference Include="..\UnitTestConstants\UnitTestConstants.csproj">
       <Project>{B35933AD-3A2C-410F-A85D-F1FBD3BF5311}</Project>
       <Name>UnitTestConstants</Name>
+      <Private>False</Private>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />

@@ -21,8 +21,6 @@ namespace Common.Data.Tests
       var result = finder.FindPattern();
 
       // Assert
-      Assert.AreNotEqual(string.Empty, result);
-
       var count = data.Count(x => Regex.IsMatch(x, result));
       Assert.AreEqual(data.Count, count);
     }

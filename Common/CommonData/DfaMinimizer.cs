@@ -11,12 +11,12 @@ namespace Common.Data
 
     private class Transitions
     {
-      public struct Pair<X>
+      public struct Pair<TKey>
       {
-        public Func<int, X> Get { get; }
-        public Action<int, X> Set { get; }
+        public Func<int, TKey> Get { get; }
+        public Action<int, TKey> Set { get; }
 
-        public Pair(Func<int, X> get, Action<int, X> set)
+        public Pair(Func<int, TKey> get, Action<int, TKey> set)
         {
           Get = get;
           Set = set;
@@ -25,19 +25,20 @@ namespace Common.Data
 
       #region Fields
 
-      private IEnumerable<Transition<T>> m_transitions;
+      private readonly IEnumerable<Transition<T>> m_transitions;
 
       #endregion
 
-      public int Count { get; set; }
-
       #region Properties
 
+      public int Count { get; set; }
       public Pair<int> From { get; }
       public Pair<int> To { get; }
       public Pair<T> OnInput { get; }
 
       #endregion
+
+      #region Constructors
 
       public Transitions(int count, IEnumerable<Transition<T>> transitions)
       {
@@ -48,6 +49,8 @@ namespace Common.Data
         To = new Pair<int>(GetTo, SetTo);
         OnInput = new Pair<T>(GetOnInput, SetOnInput);
       }
+
+      #endregion
 
       #region Methods
 
@@ -70,9 +73,9 @@ namespace Common.Data
     {
       #region Properties
 
-      public int[] Elements { get; set; }
+      public int[] Elements { get; }
       public int[] Location { get; }
-      public int[] SetOf { get; set; }
+      public int[] SetOf { get; }
       public int[] First { get; }
       public int[] Past { get; }
       public int SetCount { get; set; }
@@ -166,20 +169,20 @@ namespace Common.Data
 
     #region Fields
 
+    private int m_touchedCount;
     private int[] m_marked;
     private List<int> m_touched;
-    private int m_touchedCount;
     private Partition m_blocks;
     private Partition m_cords;
-    private int m_stateCount; // number of states
-    private int m_finalStatesCount; // number of final states
-    private int m_initialState; // initial state
+    private readonly int m_initialState;
+    private readonly int m_stateCount;
+    private int m_finalStatesCount;
 
     private Transitions m_transitions;
 
-    private int[] m_adjacent;
-    private int[] m_offset;
-    private int m_reachableCount = 0;
+    private int m_reachableCount;
+    private readonly int[] m_adjacent;
+    private readonly int[] m_offset;
 
     #endregion
 
@@ -293,10 +296,7 @@ namespace Common.Data
       return this;
     }
 
-    public DfaMinimizer<T> Process()
-    {
-      return this.PartitionTransions().SplitBlocksAndCoords();
-    }
+    public DfaMinimizer<T> Process() => this.PartitionTransions().SplitBlocksAndCoords();
 
     public IEnumerable<Transition<T>> GetTransitions()
     {
@@ -307,7 +307,7 @@ namespace Common.Data
                                          m_transitions.OnInput.Get(i));
     }
 
-    public IEnumerable<int> GetAcceptingStates()
+    private IEnumerable<int> GetAcceptingStates()
     {
       for (var b = 0; b < m_blocks.SetCount; ++b)
         if (m_blocks.First[b] < m_finalStatesCount)
@@ -340,6 +340,10 @@ namespace Common.Data
                                            finalStateCount);
     }
 
+    /// <summary>
+    /// Generates string representation of DFA information and its transitions
+    /// </summary>
+    /// <returns></returns>
     public override string ToString()
     {
       var sb = new StringBuilder();
@@ -406,6 +410,11 @@ namespace Common.Data
       m_reachableCount = 0;
     }
 
+    /// <summary>
+    /// Minimizes given <paramref name="trie"/>
+    /// </summary>
+    /// <param name="trie">Trie to minimize</param>
+    /// <returns></returns>
     public static DfaMinimizer<char> Minimize(Trie trie)
     {
       var dfaMinimizer = new DfaMinimizer<char>(trie.StateCount, trie.TransitionCount, 0, trie.WordCount);
