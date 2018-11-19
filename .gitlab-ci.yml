@@ -10,8 +10,8 @@ build_job:
   stage: build
   script:
   - 'echo restoring nuget...'
-  - 'nuget restore $(PROJ_NAME)/$(PROJ_NAME).sln'
+  - 'nuget restore ${PROJ_NAME}/${PROJ_NAME}.sln'
   - 'echo building...'
-  - 'msbuild /t:Build /p:Configuration=Debug /p:Platform="Any CPU" $(PROJ_NAME)/$(PROJ_NAME).sln'
+  - 'msbuild /t:Build /p:Configuration=Debug /p:Platform="Any CPU" ${PROJ_NAME}/${PROJ_NAME}.sln'
   except:
   - tags
