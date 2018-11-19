@@ -25,6 +25,7 @@ test_job:
   - 'MONO_IOMAP=case msbuild /t:Build /p:Configuration=Debug /p:Platform="Any CPU" Common/Common.sln'
   - 'echo Executing tests for:'
   - 'ls bin/Tests/Debug/*.dll | egrep ^*/UnitTestCommon*'
-  - 'for i in $(ls bin/Tests/Debug/*.dll | egrep ^*/UnitTestCommon*); do MONO_IOMAP=all nunit-console $i; done'
+  - 'echo $(MTOOLS)'
+  - 'for i in $(ls bin/Tests/Debug/*.dll | egrep ^*/UnitTestCommon*); do MONO_IOMAP=all nunit3-console $i; done'
   except:
   - tags
