@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using UnitTestConstants;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Common.Math.Tests
@@ -10,27 +10,20 @@ namespace Common.Math.Tests
   {
     #region Initialization tests
 
-    [TestMethod, TestCategory("Constructor")]
+    [TestMethod, TestCategory(Constants.CONSTRUCTOR)]
     public void Initialize()
     {
-      try
-      {
-        var unused = new LongestLong();
-      }
-      catch (Exception e)
-      {
-        Assert.Fail(e.ToString());
-      }
+      var unused = new LongestLong();
     }
 
-    [TestMethod, TestCategory("Constructor")]
+    [TestMethod, TestCategory(Constants.CONSTRUCTOR)]
     [ExpectedException(typeof(ArgumentException))]
     public void InitializeInvalidList()
     {
       var unused = new LongestLong(new List<long> { -1, 5, -8, 0, 7, -5 });
     }
 
-    [TestMethod, TestCategory("Constructor")]
+    [TestMethod, TestCategory(Constants.CONSTRUCTOR)]
     [ExpectedException(typeof(ArgumentException))]
     public void InitializeInvalidVariadic()
     {

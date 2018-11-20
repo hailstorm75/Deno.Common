@@ -9,20 +9,14 @@ namespace Common.Math
   {
     #region Properties
 
-    /// <summary>
-    /// Value in range
-    /// </summary>
-    public T Value { get => value; protected set => this.value = AdjustValue(value); }
-    private T value;
+    /// <inheritdoc />
+    public T Value { get => m_value; protected set => this.m_value = AdjustValue(value); }
+    private T m_value;
 
-    /// <summary>
-    /// Range maximum
-    /// </summary>
+    /// <inheritdoc />
     public T Max { get; }
 
-    /// <summary>
-    /// Range minimum
-    /// </summary>
+    /// <inheritdoc />
     public T Min { get; }
 
     #endregion
@@ -32,7 +26,7 @@ namespace Common.Math
     /// <summary>
     /// Distance between <see cref="Min"/> and <see cref="Max"/>
     /// </summary>
-    private readonly T rangeLen;
+    private readonly T m_rangeLen;
 
     #endregion
 
@@ -53,7 +47,7 @@ namespace Common.Math
 
       Max = max;
       Min = min;
-      rangeLen = Add<T, int, T>(Abs(Abs(Min).Subtract(Abs(Max))), 1);
+      m_rangeLen = Add<T, int, T>(Abs(Abs(Min).Subtract(Abs(Max))), 1);
       Value = value;
     }
 
@@ -72,36 +66,38 @@ namespace Common.Math
 
       if (IsGreater(val, Min))
       {
-        if (IsLess(Min, 0)) return Abs(val.Subtract(Min)).Modulo(rangeLen).Add(Min);
+        if (IsLess(Min, 0)) return Abs(val.Subtract(Min)).Modulo(m_rangeLen).Add(Min);
 
-        var remainder = val.Modulo(rangeLen);
+        var remainder = val.Modulo(m_rangeLen);
         return IsEqual(remainder, 0) ? Min : remainder.Add(Min);
       }
 
-      if (IsLess(val, Min))
+      //if (IsLess(val, Min))
       {
-        var remainder = Abs(val.Subtract(Min)).Modulo(rangeLen);
-        return IsEqual(remainder, 0) ? Min : rangeLen.Subtract(remainder).Add(Min);
+        var remainder = Abs(val.Subtract(Min)).Modulo(m_rangeLen);
+        return IsEqual(remainder, 0) ? Min : m_rangeLen.Subtract(remainder).Add(Min);
       }
 
-      return Min.Subtract(Max);
+      //return Min.Subtract(Max);
     }
 
+    /// <summary>
+    /// Adjusts <paramref name="val"/> to fit given <paramref name="min"/> and <paramref name="max"/> range
+    /// </summary>
+    /// <param name="val">Value to adjust</param>
+    /// <param name="min">Range minimum</param>
+    /// <param name="max">Range maximum</param>
+    /// <returns>Adjusted value</returns>
     public static T AdjustValue(T val, T min, T max) => new NumberInRange<T>(val, min, max).Value;
 
-    /// <summary>
-    /// Converts the <see cref="Value"/> of this instance to its equivalent string representation.
-    /// </summary>
-    /// <returns></returns>
-    public override string ToString() => value.ToString(CultureInfo.InvariantCulture);
+    /// <inheritdoc cref="INumberInRange{T}" />
+    public override string ToString() => m_value.ToString(CultureInfo.InvariantCulture);
 
     #endregion
 
     #region Operators
 
     #region Addition
-
-    public static T Add(T a, T b, T min, T max) => new NumberInRange<T>(a, min, max) + b;
 
     /// <param name="a">Left hand side val</param>
     /// <param name="b">Right hand side val</param>
@@ -192,39 +188,39 @@ namespace Common.Math
 
     #region IConvertible implementation
 
-    public TypeCode GetTypeCode() => value.GetTypeCode();
+    public TypeCode GetTypeCode() => m_value.GetTypeCode();
 
-    public bool ToBoolean(IFormatProvider provider) => ((IConvertible)value).ToBoolean(provider);
+    public bool ToBoolean(IFormatProvider provider = null) => ((IConvertible)m_value).ToBoolean(provider);
 
-    public char ToChar(IFormatProvider provider) => ((IConvertible)value).ToChar(provider);
+    public char ToChar(IFormatProvider provider = null) => ((IConvertible)m_value).ToChar(provider);
 
-    public sbyte ToSByte(IFormatProvider provider) => ((IConvertible)value).ToSByte(provider);
+    public sbyte ToSByte(IFormatProvider provider = null) => ((IConvertible)m_value).ToSByte(provider);
 
-    public byte ToByte(IFormatProvider provider) => ((IConvertible)value).ToByte(provider);
+    public byte ToByte(IFormatProvider provider = null) => ((IConvertible)m_value).ToByte(provider);
 
-    public short ToInt16(IFormatProvider provider) => ((IConvertible)value).ToInt16(provider);
+    public short ToInt16(IFormatProvider provider = null) => ((IConvertible)m_value).ToInt16(provider);
 
-    public ushort ToUInt16(IFormatProvider provider) => ((IConvertible)value).ToUInt16(provider);
+    public ushort ToUInt16(IFormatProvider provider = null) => ((IConvertible)m_value).ToUInt16(provider);
 
-    public int ToInt32(IFormatProvider provider) => ((IConvertible)value).ToInt32(provider);
+    public int ToInt32(IFormatProvider provider = null) => ((IConvertible)m_value).ToInt32(provider);
 
-    public uint ToUInt32(IFormatProvider provider) => ((IConvertible)value).ToUInt32(provider);
+    public uint ToUInt32(IFormatProvider provider = null) => ((IConvertible)m_value).ToUInt32(provider);
 
-    public long ToInt64(IFormatProvider provider) => ((IConvertible)value).ToInt64(provider);
+    public long ToInt64(IFormatProvider provider = null) => ((IConvertible)m_value).ToInt64(provider);
 
-    public ulong ToUInt64(IFormatProvider provider) => ((IConvertible)value).ToUInt64(provider);
+    public ulong ToUInt64(IFormatProvider provider = null) => ((IConvertible)m_value).ToUInt64(provider);
 
-    public float ToSingle(IFormatProvider provider) => ((IConvertible)value).ToSingle(provider);
+    public float ToSingle(IFormatProvider provider = null) => ((IConvertible)m_value).ToSingle(provider);
 
-    public double ToDouble(IFormatProvider provider) => ((IConvertible)value).ToDouble(provider);
+    public double ToDouble(IFormatProvider provider = null) => ((IConvertible)m_value).ToDouble(provider);
 
-    public decimal ToDecimal(IFormatProvider provider) => ((IConvertible)value).ToDecimal(provider);
+    public decimal ToDecimal(IFormatProvider provider = null) => ((IConvertible)m_value).ToDecimal(provider);
 
-    public DateTime ToDateTime(IFormatProvider provider) => ((IConvertible)value).ToDateTime(provider);
+    public DateTime ToDateTime(IFormatProvider provider = null) => ((IConvertible)m_value).ToDateTime(provider);
 
-    public string ToString(IFormatProvider provider) => value.ToString(provider);
+    public string ToString(IFormatProvider provider) => m_value.ToString(provider);
 
-    public object ToType(Type conversionType, IFormatProvider provider) => ((IConvertible)value).ToType(conversionType, provider);
+    public object ToType(Type conversionType, IFormatProvider provider) => ((IConvertible)m_value).ToType(conversionType, provider);
 
     #endregion
 
