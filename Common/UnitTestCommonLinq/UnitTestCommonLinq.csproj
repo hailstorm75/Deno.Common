@@ -56,6 +56,11 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\CommonLinq\CommonLinq.csproj">
+      <Project>{32f7f676-b4bb-4656-9e3a-88191b0c2383}</Project>
+      <Name>CommonLinq</Name>
+      <Private>True</Private>
+    </ProjectReference>
     <ProjectReference Include="..\UnitTestConstants\UnitTestConstants.csproj">
       <Project>{B35933AD-3A2C-410F-A85D-F1FBD3BF5311}</Project>
       <Name>UnitTestConstants</Name>

@@ -87,26 +87,7 @@ namespace Common.Math
       return Min.Subtract(Max);
     }
 
-    public static T AdjustValue(T val, T min, T max)
-    {
-      if (IsGreaterEqual(val, min) && IsLessEqual(val, max)) return val;
-
-      T remainder;
-      var rangeLen = Add<T, int, T>(Abs(Abs(min).Subtract(Abs(max))), 1);
-
-      if (IsGreater(val, min))
-      {
-        if (IsLess(min, 0)) return Abs(val.Subtract(min)).Modulo(rangeLen).Add(min);
-
-        remainder = val.Modulo(rangeLen);
-        return IsEqual(remainder, 0) ? min : remainder.Add(min);
-      }
-
-      if (!IsLess(val, min)) return min.Subtract(max);
-
-      remainder = Abs(val.Subtract(min)).Modulo(rangeLen);
-      return IsEqual(remainder, 0) ? min : rangeLen.Subtract(remainder).Add(min);
-    }
+    public static T AdjustValue(T val, T min, T max) => new NumberInRange<T>(val, min, max).Value;
 
     /// <summary>
     /// Converts the <see cref="Value"/> of this instance to its equivalent string representation.
