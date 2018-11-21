@@ -12,14 +12,12 @@ namespace Common.Math.Tests.Data
     /// </remarks>
     public static IEnumerable<object[]> GetCtorAdjustRangeData()
     {
-      return new List<object[]>
-      {
-        new object[] { 5, 0, 4, 0 },
-        new object[] { -23, -8, -4, -8 },
-        new object[] { -24, -8, -4, -4 },
-        new object[] { -9, -7, -3, -4 },
-        new object[] { 9, -7, -3, -6 },
-      };
+      yield return new object[] { 5, 0, 4, 0 };
+      yield return new object[] { -23, -8, -4, -8 };
+      yield return new object[] { -24, -8, -4, -4 };
+      yield return new object[] { -9, -7, -3, -4 };
+      yield return new object[] { 9, -7, -3, -6 };
+      yield return new object[] { 0, 0, 4, 0 };
     }
 
     /// <remarks>
@@ -29,12 +27,9 @@ namespace Common.Math.Tests.Data
     /// </remarks>
     public static IEnumerable<object[]> GetCtorArgumentExceptionData()
     {
-      return new List<object[]>
-      {
-        new object[] { 0, 1, 0 },
-        new object[] { 0, 0, 0 },
-        new object[] { 0, int.MinValue, 0 }
-      };
+      yield return new object[] { 0, 1, 0 };
+      yield return new object[] { 0, 0, 0 };
+      yield return new object[] { 0, int.MinValue, 0 };
     }
   }
 }
