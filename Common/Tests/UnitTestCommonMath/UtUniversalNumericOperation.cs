@@ -1,13 +1,14 @@
 ﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using UnitTestConstants;
 
 namespace Common.Math.Tests
 {
-  [TestClass]
+  [TestFixture]
   public class UtUniversalNumericOperation
   {
-    [TestMethod, TestCategory(Constants.METHOD)]
+    [Test]
+    [Category(Constants.EXTENSION)]
     public void InvalidNumber()
     {
       Assert.IsFalse(new sbyte().IsNumber(), nameof(SByte));
@@ -17,7 +18,8 @@ namespace Common.Math.Tests
       Assert.IsFalse(' '.IsNumber(), nameof(Char));
     }
 
-    [TestMethod, TestCategory(Constants.METHOD)]
+    [Test]
+    [Category(Constants.EXTENSION)]
     public void InvalidInteger()
     {
       Assert.IsFalse(new sbyte().IsInteger(), nameof(SByte));
@@ -31,7 +33,8 @@ namespace Common.Math.Tests
       Assert.IsFalse(new decimal().IsInteger(), nameof(Decimal));
     }
 
-    [TestMethod, TestCategory(Constants.METHOD)]
+    [Test]
+    [Category(Constants.EXTENSION)]
     public void InvalidSignedInteger()
     {
       Assert.IsFalse(new sbyte().IsSignedInteger(), nameof(SByte));
@@ -49,7 +52,8 @@ namespace Common.Math.Tests
       Assert.IsFalse(new decimal().IsSignedInteger(), nameof(Decimal));
     }
 
-    [TestMethod, TestCategory(Constants.METHOD)]
+    [Test]
+    [Category(Constants.EXTENSION)]
     public void InvalidUnsignedInteger()
     {
       Assert.IsFalse(new sbyte().IsUnsignedInteger(), nameof(SByte));
@@ -67,7 +71,8 @@ namespace Common.Math.Tests
       Assert.IsFalse(new decimal().IsUnsignedInteger(), nameof(Decimal));
     }
 
-    [TestMethod, TestCategory(Constants.METHOD)]
+    [Test]
+    [Category(Constants.EXTENSION)]
     public void InvalidDecimal()
     {
       Assert.IsFalse(new sbyte().IsDecimal(), nameof(SByte));

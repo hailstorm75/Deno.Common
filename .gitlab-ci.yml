@@ -1,5 +1,11 @@
 image: mono:latest
 
+variables:
+  PROJ_NAME: 'Common'
+  UT_PREFIX: 'UnitTestCommon'
+  TEST_RUNNER: 'NUnit.ConsoleRunner'
+  TEST_RUNNER_W_VER: 'NUnit.ConsoleRunner.3.9.0'
+
 stages:
   - build
   - test
@@ -7,25 +13,28 @@ stages:
 build_job:
   stage: build
   script:
-  - 'echo BUILDING'
   - 'echo restoring nuget...'
-  - 'nuget restore Common/Common.sln'
+  - 'nuget restore ${PROJ_NAME}/${PROJ_NAME}.sln'
   - 'echo building...'
-  - 'MONO_IOMAP=case msbuild /t:Build /p:Configuration=Debug /p:Platform="Any CPU" Common/Common.sln'
+  - 'MONO_IOMAP=case msbuild /t:Build /p:Configuration=Debug /p:Platform="Any CPU" ${PROJ_NAME}/${PROJ_NAME}.sln'
   except:
   - tags
 
 test_job:
   stage: test
   script:
-  - 'echo TESTING'
+  - 'echo Updating and installing unzip'
+  - 'apt-get -qq update -y'
+  - 'apt-get -qq install unzip'
+  - 'nuget install ${TEST_RUNNER}'
+  - 'unzip ${TEST_RUNNER_W_VER}/${TEST_RUNNER_W_VER}.nupkg'
+  - 'chmod -R 777 tools'
+  # Remove - utilize caching
   - 'echo restoring nuget...'
-  - 'nuget restore Common/Common.sln'
+  - 'nuget restore ${PROJ_NAME}/${PROJ_NAME}.sln'
   - 'echo building...'
-  - 'MONO_IOMAP=case msbuild /t:Build /p:Configuration=Debug /p:Platform="Any CPU" Common/Common.sln'
-  - 'echo Executing tests for:'
-  - 'ls bin/Tests/Debug/*.dll | egrep ^*/UnitTestCommon*'
-  - 'echo $(MTOOLS)'
-  - 'for i in $(ls bin/Tests/Debug/*.dll | egrep ^*/UnitTestCommon*); do MONO_IOMAP=all nunit3-console $i; done'
+  - 'MONO_IOMAP=case msbuild /t:Build /p:Configuration=Debug /p:Platform="Any CPU" ${PROJ_NAME}/${PROJ_NAME}.sln'
+  # End remove
+  - 'for i in $(ls bin/Tests/Debug/*.dll | egrep ^*/UnitTestCommon*); do mono tools/nunit3-console.exe $i; done'
   except:
   - tags

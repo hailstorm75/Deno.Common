@@ -1,38 +1,44 @@
 ﻿using System;
 using Common.Math.Tests.Data;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using UnitTestConstants;
 
 namespace Common.Math.Tests
 {
-  [TestClass]
+  [TestFixture]
   public class UtNumberInRange
   {
     #region Initialization tests
 
-    [TestMethod, TestCategory(Constants.CONSTRUCTOR)]
+    [Test]
+    [Category(Constants.CONSTRUCTOR)]
     public void Initialize()
     {
       var unsued = new NumberInRange<int>(0, 5, 10);
     }
 
-    [TestMethod, TestCategory(Constants.CONSTRUCTOR)]
-    [ExpectedException(typeof(NotSupportedException))]
+    [Test]
+    [Category(Constants.CONSTRUCTOR)]
     public void InitializeUnsupportedException()
     {
-      var unused = new NumberInRange<float>(0, 0, 5);
+      Assert.Throws<NotSupportedException>(() =>
+      {
+        var unused = new NumberInRange<float>(0, 0, 5);
+      });
     }
 
-    [TestMethod, TestCategory(Constants.CONSTRUCTOR)]
-    [ExpectedException(typeof(ArgumentException))]
-    [DynamicData(nameof(DataNumberInRange.GetCtorArgumentExceptionData), typeof(DataNumberInRange), DynamicDataSourceType.Method)]
+    [Test, TestCaseSource(typeof(DataNumberInRange), nameof(DataNumberInRange.GetCtorArgumentExceptionData))]
+    [Category(Constants.CONSTRUCTOR)]
     public void InitializeArgumentException(int value, int min, int max)
     {
-      var unused = new NumberInRange<int>(value, min, max);
+      Assert.Throws<ArgumentException>(() =>
+      {
+        var unused = new NumberInRange<int>(value, min, max);
+      });
     }
 
-    [TestMethod, TestCategory(Constants.CONSTRUCTOR)]
-    [DynamicData(nameof(DataNumberInRange.GetCtorAdjustRangeData), typeof(DataNumberInRange), DynamicDataSourceType.Method)]
+    [Test, TestCaseSource(typeof(DataNumberInRange), nameof(DataNumberInRange.GetCtorAdjustRangeData))]
+    [Category(Constants.CONSTRUCTOR)]
     public void InitializeAdjustToRange(int value, int min, int max, int expected)
     {
       var numberInRange = new NumberInRange<int>(value, min, max);
@@ -45,7 +51,8 @@ namespace Common.Math.Tests
 
     #region Additionthrow
 
-    [TestMethod, TestCategory(Constants.OPERATOR)]
+    [Test]
+    [Category(Constants.OPERATOR)]
     public void AdditionIntClass()
     {
       var numberInRange = new NumberInRange<int>(6, 0, 4);
@@ -53,7 +60,8 @@ namespace Common.Math.Tests
       Assert.AreEqual(7, result);
     }
 
-    [TestMethod, TestCategory(Constants.OPERATOR)]
+    [Test]
+    [Category(Constants.OPERATOR)]
     public void AdditionClassInt()
     {
       var numberInRange = new NumberInRange<int>(5, 0, 4);
@@ -61,7 +69,8 @@ namespace Common.Math.Tests
       Assert.AreEqual(1, result);
     }
 
-    [TestMethod, TestCategory(Constants.OPERATOR)]
+    [Test]
+    [Category(Constants.OPERATOR)]
     public void AdditionClassClass()
     {
       var numberInRangeA = new NumberInRange<int>(5, 0, 4);
@@ -74,7 +83,8 @@ namespace Common.Math.Tests
 
     #region Subtraction
 
-    [TestMethod, TestCategory(Constants.OPERATOR)]
+    [Test]
+    [Category(Constants.OPERATOR)]
     public void SubtractionIntClass()
     {
       var numberInRange = new NumberInRange<int>(6, 0, 4);
@@ -82,7 +92,8 @@ namespace Common.Math.Tests
       Assert.AreEqual(5, result);
     }
 
-    [TestMethod, TestCategory(Constants.OPERATOR)]
+    [Test]
+    [Category(Constants.OPERATOR)]
     public void SubtractionClassInt()
     {
       var numberInRange = new NumberInRange<int>(5, 0, 4);
@@ -90,7 +101,8 @@ namespace Common.Math.Tests
       Assert.AreEqual(4, result);
     }
 
-    [TestMethod, TestCategory(Constants.OPERATOR)]
+    [Test]
+    [Category(Constants.OPERATOR)]
     public void SubtractionClassClass()
     {
       var numberInRangeA = new NumberInRange<int>(5, 0, 4);
@@ -103,7 +115,8 @@ namespace Common.Math.Tests
 
     #region Multiplication
 
-    [TestMethod, TestCategory(Constants.OPERATOR)]
+    [Test]
+    [Category(Constants.OPERATOR)]
     public void MultiplicationIntClass()
     {
       var numberInRange = new NumberInRange<int>(6, 0, 4);
@@ -111,7 +124,8 @@ namespace Common.Math.Tests
       Assert.AreEqual(6, result);
     }
 
-    [TestMethod, TestCategory(Constants.OPERATOR)]
+    [Test]
+    [Category(Constants.OPERATOR)]
     public void MultiplicationClassInt()
     {
       var numberInRange = new NumberInRange<int>(9, 0, 4);
@@ -119,7 +133,8 @@ namespace Common.Math.Tests
       Assert.AreEqual(3, result);
     }
 
-    [TestMethod, TestCategory(Constants.OPERATOR)]
+    [Test]
+    [Category(Constants.OPERATOR)]
     public void MultiplicationClassClass()
     {
       var numberInRangeA = new NumberInRange<int>(9, 0, 4);
@@ -132,7 +147,8 @@ namespace Common.Math.Tests
 
     #region Division
 
-    [TestMethod, TestCategory(Constants.OPERATOR)]
+    [Test]
+    [Category(Constants.OPERATOR)]
     public void DivisonIntClass()
     {
       var numberInRange = new NumberInRange<int>(7, 0, 4);
@@ -140,7 +156,8 @@ namespace Common.Math.Tests
       Assert.AreEqual(3, result);
     }
 
-    [TestMethod, TestCategory(Constants.OPERATOR)]
+    [Test]
+    [Category(Constants.OPERATOR)]
     public void DivisionClassInt()
     {
       var numberInRange = new NumberInRange<int>(9, 0, 4);
@@ -148,7 +165,8 @@ namespace Common.Math.Tests
       Assert.AreEqual(2, result);
     }
 
-    [TestMethod, TestCategory(Constants.OPERATOR)]
+    [Test]
+    [Category(Constants.OPERATOR)]
     public void DivisionClassClass()
     {
       var numberInRangeA = new NumberInRange<int>(9, 0, 4);
