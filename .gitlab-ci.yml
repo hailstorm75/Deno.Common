@@ -1,11 +1,13 @@
 image: mono:latest
 
 variables:
+  BUILD_CONF: 'Debug'
   PROJ_NAME: 'Common'
   UT_PREFIX: 'UnitTestCommon'
   TEST_RUNNER: 'NUnit.ConsoleRunner'
-  TEST_RUNNER_W_VER: 'NUnit.ConsoleRunner.3.9.0'
-  BUILD_CONF: 'Debug'
+
+  TEST_RUNNER_W_VER: '${TEST_RUNNER}.3.9.0'
+  PATH_TO_TESTS: 'bin/Tests/${BUILD_CONF}/'
 
 stages:
   - build
@@ -15,11 +17,12 @@ build_job:
   stage: build
   script:
   - 'nuget restore ${PROJ_NAME}/${PROJ_NAME}.sln'
-  - 'MONO_IOMAP=case msbuild /t:Build /p:Configuration=Debug /p:Platform="Any CPU" ${PROJ_NAME}/${PROJ_NAME}.sln'
+  - 'MONO_IOMAP=case msbuild /t:Build /p:Configuration=${BUILD_CONF} /p:Platform="Any CPU" ${PROJ_NAME}/${PROJ_NAME}.sln'
   cache:
     key: binaries
     paths:
-    - 'bin/Tests/Debug/'
+    - '${PATH_TO_TESTS}'
+    policy: push
   except:
   - tags
 
@@ -28,7 +31,7 @@ test_job:
   cache:
     key: binaries
     paths:
-    - 'bin/Tests/Debug'
+    - '${PATH_TO_TESTS}'
     policy: pull
   script:
   - 'apt-get -qq update -y'
@@ -36,7 +39,11 @@ test_job:
   - 'nuget install ${TEST_RUNNER}'
   - 'unzip ${TEST_RUNNER_W_VER}/${TEST_RUNNER_W_VER}.nupkg'
   - 'chmod -R 777 tools'
-
-  - 'for i in $(ls bin/Tests/Debug/*.dll | egrep ^*/UnitTestCommon*); do mono tools/nunit3-console.exe $i; done'
+  - 'touch TestResults.txt'
+  - 'for i in $(ls ${PATH_TO_TESTS}*.dll | egrep ^*/${UT_PREFIX}*); do mono tools/nunit3-console.exe $i >> ../TestResults.txt; done'
+  artifacts:
+    paths:
+    - 'TestResults.txt'
+    expire_in: 1 day
   except:
   - tags
