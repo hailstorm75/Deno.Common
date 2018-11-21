@@ -2,16 +2,19 @@ image: mono:latest
 
 variables:
   BUILD_CONF: 'Debug'
+  RELEASE_CONF: 'Release'
   PROJ_NAME: 'Common'
   UT_PREFIX: 'UnitTestCommon'
   TEST_RUNNER: 'NUnit.ConsoleRunner'
 
   TEST_RUNNER_W_VER: '${TEST_RUNNER}.3.9.0'
   PATH_TO_TESTS: 'bin/Tests/${BUILD_CONF}/'
+  PATH_TO_RELEASE: 'bin/Libraries/${RELEASE_CONF}/'
 
 stages:
   - build
   - test
+  - release
 
 build_job:
   stage: build
@@ -40,10 +43,22 @@ test_job:
   - 'unzip ${TEST_RUNNER_W_VER}/${TEST_RUNNER_W_VER}.nupkg'
   - 'chmod -R 777 tools'
   - 'touch TestResults.txt'
-  - 'for i in $(ls ${PATH_TO_TESTS}*.dll | egrep ^*/${UT_PREFIX}*); do mono tools/nunit3-console.exe $i >> ../TestResults.txt; done'
+  - 'for i in $(ls ${PATH_TO_TESTS}*.dll | egrep ^*/${UT_PREFIX}*); do mono tools/nunit3-console.exe $i >> TestResults.txt; done'
   artifacts:
     paths:
     - 'TestResults.txt'
     expire_in: 1 day
   except:
   - tags
+
+release_job:
+ stage: release
+ script:
+  - 'nuget restore ${PROJ_NAME}/${PROJ_NAME}.sln'
+  - 'MONO_IOMAP=case msbuild /t:Build /p:Configuration=${RELEASE_CONF} /p:Platform="Any CPU" ${PROJ_NAME}/${PROJ_NAME}.sln'
+  - 'rm ${PATH_TO_RELEASE}*.pdb'
+ artifacts:
+   paths:
+   - '${PATH_TO_RELEASE}'
+   expire_in: 1 week
+ when: manual
