@@ -1,4 +1,9 @@
 # Contents
+- [Issue](#issues)
+    - [Reporting a bug](#reporting-a-bug)
+        - [Issue description](#issue-description)
+        - [Steps to reproduce](#str)
+    - [Requesting an enhancement](#requesting-an-enhancement)
 - [Coding guidelines](#coding-guidelines)
     - [Tabs](#tabs)
     - [Brackets](#brackets)
@@ -11,6 +16,33 @@
 - [Commits](#commits)
     - [Before working](#before-making-any-changes)
     - [Commiting a change](#how-to-commit-a-change)
+
+## Issues
+- Guidelines for submitting issues
+
+### Reporting a bug
+- A bug report must have at least two parts:
+    - [Description](#issue-description)
+    - [Steps to reproduce (STR)](#str)
+- Additional information, screenshots are not mandatory but are very welcom
+
+#### Issue description
+- Describe the issue effects and conditions
+    - Example: During the download operation the progress bar percentage value started decreasing and went under 0
+- Suggest, if possible, what you think may be the cause if the issue
+    - Example: Probably the percentage calculation function isn't working properly
+
+#### STR
+- Describe the steps required to reproduce the bug
+    - Example:
+        1. Open MyProgram
+        2. Click Download
+        3. The progress bar doesn't work as intended
+- Include reproducibility
+    - Examples: always, once, random
+
+### Requesting an enhancement
+- **TODO**
 
 ## Coding guidelines
 ### Tabs
