@@ -42,8 +42,15 @@ test_job:
   - 'nuget install ${TEST_RUNNER}'
   - 'unzip ${TEST_RUNNER_W_VER}/${TEST_RUNNER_W_VER}.nupkg'
   - 'chmod -R 777 tools'
+
+  # Black magic.png
+  # 1. Runs testing for each .dll file
+  # 2. Removes output header information
+  # 3. Removes output run settings information
+  # 4. Removes footer
+  # 5. Writes to file
   - 'touch TestResults.txt'
-  - 'for i in $(ls ${PATH_TO_TESTS}*.dll | egrep ^*/${UT_PREFIX}*); do mono tools/nunit3-console.exe $i >> TestResults.txt; done'
+  - for i in $(ls ${PATH_TO_TESTS}*.dll | egrep ^*/${UT_PREFIX}*); do mono tools/nunit3-console.exe $i | awk '/Test Files/'{f=1}f{print} | awk -v regex="Run Settings" -v count="8"  '$0 ~ regex { skip=count; next } --skip >= 0 { next } 1' | head -n -1 >> TestResults.txt; done
   artifacts:
     paths:
     - 'TestResults.txt'

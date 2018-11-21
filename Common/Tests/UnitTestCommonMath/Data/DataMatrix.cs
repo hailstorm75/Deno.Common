@@ -146,30 +146,30 @@ namespace Common.Math.Tests.Data
     internal static IEnumerable<object[]> GetMultiplicationClassClassData()
     {
       // TODO Validate whether this test is correct
-      //yield return new object[]
-      //{
-      //  new double[,]
-      //  {
-      //    { -4, 5, 4, 3 },
-      //    { -2, 3, -1, 0 },
-      //    { 1, 2, 6, 7 },
-      //    { 8, 9, 10, 11 }
-      //  },
-      //  new double[,]
-      //  {
-      //    { 12, 5, 13, 3 },
-      //    { 14, 15, 4, 16 },
-      //    { -4, -2, 1, 6 },
-      //    { -3, 0, 7, -1 }
-      //  },
-      //  new double[,]
-      //  {
-      //    { -3, 47, -7, 89 },
-      //    { -62, -53, -39, -60 },
-      //    { -5, 23, 76, 64 },
-      //    { 149, 155, 227, 217 }
-      //  }
-      //};
+      yield return new object[]
+      {
+        new double[,]
+        {
+          { -4, 5, 4, 3 },
+          { -2, 3, -1, 0 },
+          { 1, 2, 6, 7 },
+          { 8, 9, 10, 11 }
+        },
+        new double[,]
+        {
+          { 12, 5, 13, 3 },
+          { 14, 15, 4, 16 },
+          { -4, -2, 1, 6 },
+          { -3, 0, 7, -1 }
+        },
+        new double[,]
+        {
+          { -3, 47, -7, 89 },
+          { -62, -53, -39, -60 },
+          { -5, 23, 76, 64 },
+          { 149, 155, 227, 217 }
+        }
+      };
       yield return new object[]
       {
         new double[,]
