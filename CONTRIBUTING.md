@@ -21,6 +21,8 @@
 - Guidelines for submitting issues
 
 ### Reporting a bug
+> [Bug report template](https://gitlab.com/hailstorm75/Common/snippets/1781777)  
+
 - A bug report must have at least two parts:
     - [Description](#issue-description)
     - [Steps to reproduce (STR)](#str)
@@ -94,10 +96,11 @@ public void Foo() {
 
 **Example**:
 ```csharp
-[TestMethod, TestCategory(Constants.METHOD)]
+[Test]
+[Category(Constants.METHOD)]
 public void TestMyMethod()
 {
-    // TODO
+  // TODO
 }
 ```
 - If something needs to be tested for multiple values utilize [data-driven testing](#data-driven-unit-tests)
@@ -108,32 +111,35 @@ public void TestMyMethod()
     - It must be called Data + the name of the class you are testing
         - Example: DataMyClass
     - It must be `static` and `internal`
+		- Class methods must be `static` and can either be `internal` or `public`
+    - Class methods must return `IEnumerable<object[]>`
 2. Add a DynamicData attribute to your test method and add arguments to your method which accept the retrieved data:
 ```csharp
-[TestMethod, TestCategory(Constants.METHOD)]
-[DyanmicData(nameof(DataMyClass.GetTestData), typeof(DataMyClass), DyanamicDataSourceType.Method)]
+[Test]
+[Category(Constants.METHOD)]
+[TestCaseSource(typeof(DataMyClass), nameof(DataMyClass.GetTestData))]
 public void TestMyMethod(int inputValue, int expected)
 {
-    // TODO
+  // TODO
 }
 ```
 3. Add a method to your Data class which will provide the test data:
 ```csharp
 internal static class DataMyClass
 {
-    internal static IEnumerable<object[]> GetTestData()
+  internal static IEnumerable<object[]> GetTestData()
+  {
+    return new object[]   // First dataset
     {
-        yield return new object[]   // First dataset
-        {
-            123,    // Will be received by the first argument, inputValue
-            321     // Will be received by the second argument, expected
-        };
-        yield return new object[]   // Second dataset
-        {
-            456,
-            654
-        };
-    }
+      123,    // Will be received by the first argument, inputValue
+      321     // Will be received by the second argument, expected
+    };
+    yield return new object[]   // Second dataset
+    {
+      456,
+      654
+    };
+  }
 }
 ```
 
@@ -156,5 +162,4 @@ internal static class DataMyClass
     - Keep the message short and descriptive
     - Write the message in imperative mood
         - Examples: "Add file", "Fix issue", "Resolve conflicts"
-    
     
