@@ -5,8 +5,6 @@ VisualStudioVersion = 15.0.27703.2047
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommonMath", "CommonMath\CommonMath.csproj", "{0947D327-7152-4F35-B4BF-33ED73905BF3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommonAsync", "CommonAsync\CommonAsync.csproj", "{7A20ABEB-ACF6-4138-A980-CF6A7CC01FC0}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommonData", "CommonData\CommonData.csproj", "{81093710-85F5-4D6D-BE15-A9A23EF20A2A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTestConstants", "UnitTestConstants\UnitTestConstants.csproj", "{B35933AD-3A2C-410F-A85D-F1FBD3BF5311}"
@@ -31,10 +29,6 @@ Global
 		{0947D327-7152-4F35-B4BF-33ED73905BF3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0947D327-7152-4F35-B4BF-33ED73905BF3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0947D327-7152-4F35-B4BF-33ED73905BF3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7A20ABEB-ACF6-4138-A980-CF6A7CC01FC0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7A20ABEB-ACF6-4138-A980-CF6A7CC01FC0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7A20ABEB-ACF6-4138-A980-CF6A7CC01FC0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7A20ABEB-ACF6-4138-A980-CF6A7CC01FC0}.Release|Any CPU.Build.0 = Release|Any CPU
 		{81093710-85F5-4D6D-BE15-A9A23EF20A2A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{81093710-85F5-4D6D-BE15-A9A23EF20A2A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{81093710-85F5-4D6D-BE15-A9A23EF20A2A}.Release|Any CPU.ActiveCfg = Release|Any CPU
