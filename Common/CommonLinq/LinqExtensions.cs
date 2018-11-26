@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace Common.Linq
 {
@@ -15,5 +13,7 @@ namespace Common.Linq
         if (seenKeys.Add(keySelector(element)))
           yield return element;
     }
+
+    public static IEnumerable<TOut> ForEachDo<TSource, TOut>(this IEnumerable<TSource> source, Func<TSource, TOut> func) => source.Select(func);
   }
 }
