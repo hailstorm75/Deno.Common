@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <RootNamespace>Common.Math</RootNamespace>
+    <SignAssembly>false</SignAssembly>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>C:\Users\Denis\Source\Repos\Common\CommonCore\CommonMath\CommonMath.xml</DocumentationFile>
+    <OutputPath>..\..\binCore\Libraries\Debug</OutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <OutputPath>..\..\Libraries\Release</OutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="CommonMath.xml" />
+  </ItemGroup>
+
+</Project>

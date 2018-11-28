@@ -1,0 +1,418 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>CommonMath</name>
+    </assembly>
+    <members>
+        <member name="P:Common.Math.INumberInRange`1.Max">
+            <summary>
+            Range maximum
+            </summary>
+        </member>
+        <member name="P:Common.Math.INumberInRange`1.Min">
+            <summary>
+            Range minimum
+            </summary>
+        </member>
+        <member name="P:Common.Math.INumberInRange`1.Value">
+            <summary>
+            Value in range
+            </summary>
+        </member>
+        <member name="M:Common.Math.INumberInRange`1.ToString">
+            <summary>
+            Converts the <see cref="P:Common.Math.INumberInRange`1.Value"/> of this instance to its equivalent string representation.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="P:Common.Math.LongestLong.Values">
+            <summary>
+            Number container
+            </summary>
+        </member>
+        <member name="M:Common.Math.LongestLong.#ctor">
+            <summary>
+            Default constructor
+            </summary>
+        </member>
+        <member name="M:Common.Math.LongestLong.#ctor(System.Int64[])">
+            <summary>
+            Variadic constructor
+            </summary>
+            <param name="list">Value to initialize with</param>
+        </member>
+        <member name="M:Common.Math.LongestLong.#ctor(System.Collections.Generic.List{System.Int64})">
+            <summary>
+            Constructor
+            </summary>
+            <param name="list">List of values to initialize from</param>
+        </member>
+        <member name="M:Common.Math.LongestLong.Add(Common.Math.LongestLong,Common.Math.LongestLong)">
+            <summary>
+            Recurvely adds list <paramref name="x"/> with list <paramref name="y"/>
+            </summary>
+            <param name="x">Left hand side argument</param>
+            <param name="y">Right hand side argument</param>
+            <param name="result">Operation result</param>
+            <param name="index">Recursion iteration index</param>
+            <param name="carryover">Calculation carryover</param>
+        </member>
+        <member name="T:Common.Math.Matricies.BaseMatrix`1">
+            <summary>
+            Base class for all matrix classes
+            </summary>
+            <typeparam name="T">Type of values which of the matrix</typeparam>
+        </member>
+        <member name="T:Common.Math.Matricies.BaseMatrix`1.Type">
+            <summary>
+            Matrix properties
+            </summary>
+        </member>
+        <member name="F:Common.Math.Matricies.BaseMatrix`1.Type.NonInvertable">
+            <summary>
+            N-by-M Matrix
+            </summary>
+        </member>
+        <member name="F:Common.Math.Matricies.BaseMatrix`1.Type.Invertable">
+            <summary>
+            N-by-N Matrix
+            </summary>
+        </member>
+        <member name="F:Common.Math.Matricies.BaseMatrix`1.Type.Identity">
+            <summary>
+            Matrix with ones on the main diagonal and zeros elsewhere
+            </summary>
+        </member>
+        <member name="F:Common.Math.Matricies.BaseMatrix`1.m_determinant">
+            <summary>
+            Determinant of the matrix.
+            </summary>
+        </member>
+        <member name="F:Common.Math.Matricies.BaseMatrix`1.m_inverse">
+            <summary>
+            Inverse of the matrix
+            </summary>
+        </member>
+        <member name="F:Common.Math.Matricies.BaseMatrix`1.m_matrixValues">
+            <summary>
+            Matrix data
+            </summary>
+        </member>
+        <member name="P:Common.Math.Matricies.BaseMatrix`1.MatrixType">
+            <summary>
+            Matrix type
+            </summary>
+        </member>
+        <member name="P:Common.Math.Matricies.BaseMatrix`1.Columns">
+            <inheritdoc />
+        </member>
+        <member name="P:Common.Math.Matricies.BaseMatrix`1.Rows">
+            <inheritdoc />
+        </member>
+        <member name="P:Common.Math.Matricies.BaseMatrix`1.MatrixValues">
+            <inheritdoc />
+        </member>
+        <member name="M:Common.Math.Matricies.BaseMatrix`1.Recalculate">
+            <summary>
+            Requests the <see cref="F:Common.Math.Matricies.BaseMatrix`1.m_determinant"/> and <seealso cref="F:Common.Math.Matricies.BaseMatrix`1.m_inverse"/> to be recalculated
+            </summary>
+        </member>
+        <member name="M:Common.Math.Matricies.BaseMatrix`1.GetMatrixType(`0[0:,0:])">
+            <summary>
+            Getter for the matrix type property
+            </summary>
+            <param name="matrix"></param>
+            <returns>Matrix type</returns>
+        </member>
+        <member name="M:Common.Math.Matricies.BaseMatrix`1.IsIdentity(`0[0:,0:])">
+            <summary>
+            Validates whether given <paramref name="matrix"/> is an identity matrix
+            </summary>
+            <param name="matrix">Matrix to validate</param>
+            <returns>True if <paramref name="matrix"/> is an identity matrix</returns>
+        </member>
+        <member name="M:Common.Math.Matricies.BaseMatrix`1.CalculateDeterminant(`0[0:,0:])">
+            <summary>
+            Finds the determinant of the matrix
+            </summary>
+            <exception cref="T:Common.Math.Matricies.BaseMatrix`1.InvertableMatrixOperationException"></exception>
+            <returns>Determinant value</returns>
+        </member>
+        <member name="M:Common.Math.Matricies.BaseMatrix`1.GetDeterminant">
+            <inheritdoc />
+        </member>
+        <member name="M:Common.Math.Matricies.BaseMatrix`1.CalculateInverse">
+            <summary>
+            Find the inverse of the matrix
+            </summary>
+            <returns>Instance of the inversed matrix</returns>
+        </member>
+        <member name="M:Common.Math.Matricies.BaseMatrix`1.GetInverse">
+            <inheritdoc />
+        </member>
+        <member name="M:Common.Math.Matricies.BaseMatrix`1.MatrixOfCofactors">
+            <inheritdoc />
+        </member>
+        <member name="M:Common.Math.Matricies.BaseMatrix`1.Transpose">
+            <inheritdoc />
+        </member>
+        <member name="P:Common.Math.Matricies.IMatrix`1.Rows">
+            <summary>
+            Matrix height
+            </summary>
+        </member>
+        <member name="P:Common.Math.Matricies.IMatrix`1.Columns">
+            <summary>
+            Matrix length
+            </summary>
+        </member>
+        <member name="P:Common.Math.Matricies.IMatrix`1.MatrixValues">
+            <summary>
+            Matrix data
+            </summary>
+        </member>
+        <member name="M:Common.Math.Matricies.IMatrix`1.GetDeterminant">
+            <summary>
+            Getter for the determinant property
+            </summary>
+            <returns>Value of the determinant</returns>
+        </member>
+        <member name="M:Common.Math.Matricies.IMatrix`1.GetInverse">
+            <summary>
+            Getter for the inverse property
+            </summary>
+            <returns>Instance of the inversed matrix</returns>
+        </member>
+        <member name="M:Common.Math.Matricies.IMatrix`1.Transpose">
+            <summary>
+            Transposes the matrix
+            </summary>
+            <returns>Instance of the transposed matrix</returns>
+        </member>
+        <member name="M:Common.Math.Matricies.IMatrix`1.MatrixOfCofactors">
+            <summary>
+            Calculates the matrix of cofactors
+            </summary>
+            <returns>Instance of matrix of cofactors</returns>
+        </member>
+        <member name="T:Common.Math.Matricies.Matrix`1">
+            <summary>
+            Class representing a mathematical matrix
+            </summary>
+            <typeparam name="T">Type can only be numeric</typeparam>
+        </member>
+        <member name="P:Common.Math.Matricies.Matrix`1.MatrixType">
+            <inheritdoc />
+        </member>
+        <member name="P:Common.Math.Matricies.Matrix`1.MatrixValues">
+            <inheritdoc />
+        </member>
+        <member name="M:Common.Math.Matricies.Matrix`1.#ctor(`0[0:,0:])">
+            <summary>
+            Constructor
+            </summary>
+            <param name="values">2D Array of values</param>
+            <exception cref="T:System.ArgumentException"></exception>
+            <exception cref="T:System.NotSupportedException"></exception>
+        </member>
+        <member name="M:Common.Math.Matricies.Matrix`1.#ctor(System.Int32,System.Boolean)">
+            <summary>
+            Constructor for square matrix
+            </summary>
+            <param name="size">Value for both the <see cref="P:Common.Math.Matricies.BaseMatrix`1.Rows"/> and <see cref="P:Common.Math.Matricies.BaseMatrix`1.Columns"/> properties</param>
+            <param name="identity">Set to True to create an identity matrix</param>
+            <exception cref="T:System.ArgumentException"></exception>
+            <exception cref="T:System.NotSupportedException"></exception>
+        </member>
+        <member name="M:Common.Math.Matricies.Matrix`1.#ctor(System.Int32,System.Int32)">
+            <summary>
+            Default Constructor
+            <para>Matrix values are initialized to 0</para>
+            </summary>
+            <param name="length">Length of matrix</param>
+            <param name="height">Height of matrix</param>
+            <exception cref="T:System.ArgumentException"></exception>
+            <exception cref="T:System.NotSupportedException"></exception>
+        </member>
+        <member name="M:Common.Math.Matricies.Matrix`1.GetDeterminant">
+            <inheritdoc />
+        </member>
+        <member name="M:Common.Math.Matricies.Matrix`1.GetInverse">
+            <inheritdoc />
+        </member>
+        <member name="M:Common.Math.Matricies.Matrix`1.Transpose">
+            <inheritdoc />
+        </member>
+        <member name="M:Common.Math.Matricies.Matrix`1.MatrixOfCofactors">
+            <inheritdoc />
+        </member>
+        <member name="M:Common.Math.Matricies.Matrix`1.CalculateInverse">
+            <inheritdoc />
+        </member>
+        <member name="T:Common.Math.Matricies.ModuloMatrix`1">
+            <summary>
+            Class representing a mathematical matrix with modulo values
+            </summary>
+            <typeparam name="T">Type can only be numeric and non-negative</typeparam>
+        </member>
+        <member name="P:Common.Math.Matricies.ModuloMatrix`1.MatrixType">
+            <inheritdoc />
+        </member>
+        <member name="P:Common.Math.Matricies.ModuloMatrix`1.MatrixValues">
+            <inheritdoc />
+        </member>
+        <member name="M:Common.Math.Matricies.ModuloMatrix`1.#ctor(`0[0:,0:],System.UInt32)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="values">2D Array of values</param>
+            <param name="modulo">ModuloValue of matrix</param>
+            <exception cref="T:System.ArgumentException"></exception>
+            <exception cref="T:System.NotSupportedException"></exception>
+        </member>
+        <member name="M:Common.Math.Matricies.ModuloMatrix`1.#ctor(System.Int32,System.UInt32,System.Boolean)">
+            <summary>
+            Constructor for square matrix
+            </summary>
+            <param name="size">Value for both the <see cref="P:Common.Math.Matricies.BaseMatrix`1.Rows"/> and <see cref="P:Common.Math.Matricies.BaseMatrix`1.Columns"/> properties</param>
+            <param name="modulo">ModuloValue of matrix</param>
+            <param name="identity">Set to True to create an identity matrix</param>
+            <exception cref="T:System.ArgumentException"></exception>
+            <exception cref="T:System.NotSupportedException"></exception>
+        </member>
+        <member name="M:Common.Math.Matricies.ModuloMatrix`1.#ctor(System.Int32,System.Int32,System.UInt32)">
+            <summary>
+            Default Constructor
+            <para>Matrix values are initialized to 0</para>
+            </summary>
+            <param name="length">Length of matrix</param>
+            <param name="height">Height of matrix</param>
+            <param name="modulo">ModuloValue of matrix</param>
+            <exception cref="T:System.ArgumentException"></exception>
+            <exception cref="T:System.NotSupportedException"></exception>
+        </member>
+        <member name="M:Common.Math.Matricies.ModuloMatrix`1.GetDeterminant">
+            <inheritdoc />
+        </member>
+        <member name="M:Common.Math.Matricies.ModuloMatrix`1.GetInverse">
+            <inheritdoc />
+        </member>
+        <member name="M:Common.Math.Matricies.ModuloMatrix`1.Transpose">
+            <inheritdoc />
+        </member>
+        <member name="M:Common.Math.Matricies.ModuloMatrix`1.MatrixOfCofactors">
+            <inheritdoc />
+        </member>
+        <member name="M:Common.Math.Matricies.ModuloMatrix`1.CalculateInverse">
+            <inheritdoc />
+        </member>
+        <member name="M:Common.Math.Matricies.ModuloMatrix`1.AdjustValue(`0)">
+            <summary>
+            Adjusts given <paramref name="value"/> to modulo range
+            </summary>
+            <param name="value">Value to adjust</param>
+            <returns>Adjusted value</returns>
+        </member>
+        <member name="P:Common.Math.NumberInRange`1.Value">
+            <inheritdoc />
+        </member>
+        <member name="P:Common.Math.NumberInRange`1.Max">
+            <inheritdoc />
+        </member>
+        <member name="P:Common.Math.NumberInRange`1.Min">
+            <inheritdoc />
+        </member>
+        <member name="F:Common.Math.NumberInRange`1.m_rangeLen">
+            <summary>
+            Distance between <see cref="P:Common.Math.NumberInRange`1.Min"/> and <see cref="P:Common.Math.NumberInRange`1.Max"/>
+            </summary>
+        </member>
+        <member name="M:Common.Math.NumberInRange`1.#ctor(`0,`0,`0)">
+            <summary>
+            Default constructor
+            </summary>
+            <param name="value">Value to hold</param>
+            <param name="min">Range minimum</param>
+            <param name="max">Range maximum</param>
+        </member>
+        <member name="M:Common.Math.NumberInRange`1.AdjustValue(`0)">
+            <summary>
+            Adjusts val to fit given <see cref="P:Common.Math.NumberInRange`1.Min"/> and <see cref="P:Common.Math.NumberInRange`1.Max"/>
+            </summary>
+            <param name="val">Value to adjust</param>
+            <returns>Value in range</returns>
+        </member>
+        <member name="M:Common.Math.NumberInRange`1.AdjustValue(`0,`0,`0)">
+            <summary>
+            Adjusts <paramref name="val"/> to fit given <paramref name="min"/> and <paramref name="max"/> range
+            </summary>
+            <param name="val">Value to adjust</param>
+            <param name="min">Range minimum</param>
+            <param name="max">Range maximum</param>
+            <returns>Adjusted value</returns>
+        </member>
+        <member name="M:Common.Math.NumberInRange`1.ToString">
+            <inheritdoc cref="T:Common.Math.INumberInRange`1" />
+        </member>
+        <member name="M:Common.Math.NumberInRange`1.op_Addition(`0,Common.Math.NumberInRange{`0})">
+            <param name="a">Left hand side val</param>
+            <param name="b">Right hand side val</param>
+            <returns>Result</returns>
+        </member>
+        <member name="M:Common.Math.NumberInRange`1.op_Addition(Common.Math.NumberInRange{`0},`0)">
+            <param name="a">Left hand side val</param>
+            <param name="b">Right hand side val</param>
+            <returns>Result</returns>
+        </member>
+        <member name="M:Common.Math.NumberInRange`1.op_Addition(Common.Math.NumberInRange{`0},Common.Math.NumberInRange{`0})">
+            <param name="a">Left hand side val</param>
+            <param name="b">Right hand side val</param>
+            <returns>Result</returns>
+        </member>
+        <member name="M:Common.Math.NumberInRange`1.op_Subtraction(`0,Common.Math.NumberInRange{`0})">
+            <param name="a">Left hand side val</param>
+            <param name="b">Right hand side val</param>
+            <returns>Result</returns>
+        </member>
+        <member name="M:Common.Math.NumberInRange`1.op_Subtraction(Common.Math.NumberInRange{`0},`0)">
+            <param name="a">Left hand side val</param>
+            <param name="b">Right hand side val</param>
+            <returns></returns>
+        </member>
+        <member name="M:Common.Math.NumberInRange`1.op_Subtraction(Common.Math.NumberInRange{`0},Common.Math.NumberInRange{`0})">
+            <param name="a">Left hand side val</param>
+            <param name="b">Right hand side val</param>
+            <returns>Result</returns>
+        </member>
+        <member name="M:Common.Math.NumberInRange`1.op_Multiply(`0,Common.Math.NumberInRange{`0})">
+            <param name="a">Left hand side val</param>
+            <param name="b">Right hand side val</param>
+            <returns>Result</returns>
+        </member>
+        <member name="M:Common.Math.NumberInRange`1.op_Multiply(Common.Math.NumberInRange{`0},`0)">
+            <param name="a">Left hand side val</param>
+            <param name="b">Right hand side val</param>
+            <returns>Result</returns>
+        </member>
+        <member name="M:Common.Math.NumberInRange`1.op_Multiply(Common.Math.NumberInRange{`0},Common.Math.NumberInRange{`0})">
+            <param name="a">Left hand side val</param>
+            <param name="b">Right hand side val</param>
+            <returns>Result</returns>
+        </member>
+        <member name="M:Common.Math.NumberInRange`1.op_Division(`0,Common.Math.NumberInRange{`0})">
+            <param name="a">Left hand side val</param>
+            <param name="b">Right hand side val</param>
+            <returns>Result</returns>
+        </member>
+        <member name="M:Common.Math.NumberInRange`1.op_Division(Common.Math.NumberInRange{`0},`0)">
+            <param name="a">Left hand side val</param>
+            <param name="b">Right hand side val</param>
+            <returns>Result</returns>
+        </member>
+        <member name="M:Common.Math.NumberInRange`1.op_Division(Common.Math.NumberInRange{`0},Common.Math.NumberInRange{`0})">
+            <param name="a">Left hand side val</param>
+            <param name="b">Right hand side val</param>
+            <returns>Result</returns>
+        </member>
+    </members>
+</doc>
