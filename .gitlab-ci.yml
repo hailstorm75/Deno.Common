@@ -2,7 +2,7 @@ image: mono:latest
 
 variables:
   PROJ_NAME: 'Common'
-  PROJ_CORE_NAME: '${PROJ_NAME}Core'
+  PROJ_CORE_NAME: 'CommonCore'
   BUILD_CONF: 'Debug'
   RELEASE_CONF: 'Release'
 
