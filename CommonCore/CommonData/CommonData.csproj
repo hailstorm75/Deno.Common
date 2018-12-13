@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <RootNamespace>Common.Data</RootNamespace>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputPath>..\..\binCore\Libraries\Debug</OutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <OutputPath>..\..\binCore\Libraries\Release</OutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\..\Common\CommonData\DFA.cs" Link="DFA.cs" />
+    <Compile Include="..\..\Common\CommonData\DfaMinimizer.cs" Link="DfaMinimizer.cs" />
+    <Compile Include="..\..\Common\CommonData\FileMan.cs" Link="FileMan.cs" />
+    <Compile Include="..\..\Common\CommonData\PatternFinder.cs" Link="PatternFinder.cs" />
+    <Compile Include="..\..\Common\CommonData\Serialization\BinarySerialization.cs" Link="Serialization\BinarySerialization.cs" />
+    <Compile Include="..\..\Common\CommonData\Serialization\Extensions\BinarySerializationExt.cs" Link="Serialization\Extensions\BinarySerializationExt.cs" />
+    <Compile Include="..\..\Common\CommonData\Serialization\Extensions\XMLSerializationExt.cs" Link="Serialization\Extensions\XMLSerializationExt.cs" />
+    <Compile Include="..\..\Common\CommonData\Serialization\XMLSerialization.cs" Link="Serialization\XMLSerialization.cs" />
+    <Compile Include="..\..\Common\CommonData\Transition.cs" Link="Transition.cs" />
+    <Compile Include="..\..\Common\CommonData\Trie.cs" Link="Trie.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Serialization\Extensions\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CommonLinq\CommonLinq.csproj" />
+  </ItemGroup>
+
+</Project>

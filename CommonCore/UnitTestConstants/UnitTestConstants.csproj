@@ -9,4 +9,8 @@
     <OutputPath>..\..\..\binCore\Tests\Debug</OutputPath>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Include="..\..\Common\UnitTestConstants\Constants.cs" Link="Constants.cs" />
+  </ItemGroup>
+
 </Project>

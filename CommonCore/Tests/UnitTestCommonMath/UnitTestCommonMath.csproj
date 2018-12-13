@@ -13,6 +13,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="..\..\..\Common\Tests\UnitTestCommonMath\Data\DataMatrix.cs" Link="Data\DataMatrix.cs" />
+    <Compile Include="..\..\..\Common\Tests\UnitTestCommonMath\Data\DataNumberInRange.cs" Link="Data\DataNumberInRange.cs" />
+    <Compile Include="..\..\..\Common\Tests\UnitTestCommonMath\UtLongestLong.cs" Link="UtLongestLong.cs" />
+    <Compile Include="..\..\..\Common\Tests\UnitTestCommonMath\UtMatrix.cs" Link="UtMatrix.cs" />
+    <Compile Include="..\..\..\Common\Tests\UnitTestCommonMath\UtNumberInRange.cs" Link="UtNumberInRange.cs" />
+    <Compile Include="..\..\..\Common\Tests\UnitTestCommonMath\UtUniversalNumericOperation.cs" Link="UtUniversalNumericOperation.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="nunit" Version="3.10.1" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.10.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.8.0" />
@@ -23,6 +32,10 @@
     <ProjectReference Include="..\..\UnitTestConstants\UnitTestConstants.csproj">
       <Private>false</Private>
     </ProjectReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Data\" />
   </ItemGroup>
 
 </Project>
