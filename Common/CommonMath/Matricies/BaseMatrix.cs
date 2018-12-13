@@ -6,7 +6,7 @@ namespace Common.Math.Matricies
   /// <summary>
   /// Base class for all matrix classes
   /// </summary>
-  /// <typeparam name="T">Type of values which of the matrix</typeparam>
+  /// <inheritdoc />
   [Serializable]
   public abstract class BaseMatrix<T> : IMatrix<T>
   {

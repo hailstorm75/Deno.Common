@@ -5,9 +5,62 @@ namespace Common.Math.Matricies
   /// <summary>
   /// Class representing a mathematical matrix
   /// </summary>
-  /// <typeparam name="T">Type can only be numeric</typeparam>
+  /// <example>
+  /// Suppoerted generic types for parameter <typeparamref name="T"/>
+  /// <list type="bullet">
+  ///   <item>
+  ///     <description>
+  ///       Int16
+  ///     </description>
+  ///   </item>
+  ///   <item>
+  ///     <description>
+  ///       Int32
+  ///     </description>
+  ///   </item>
+  ///   <item>
+  ///     <description>
+  ///       Int64
+  ///     </description>
+  ///   </item>
+  ///   <item>
+  ///     <description>
+  ///       UInt16
+  ///     </description>
+  ///   </item>
+  ///   <item>
+  ///     <description>
+  ///       UInt32
+  ///     </description>
+  ///   </item>
+  ///   <item>
+  ///     <description>
+  ///       UInt64
+  ///     </description>
+  ///   </item>
+  ///   <item>
+  ///     <description>
+  ///       Single
+  ///     </description>
+  ///   </item>
+  ///   <item>
+  ///     <description>
+  ///       Double
+  ///     </description>
+  ///   </item>
+  ///   <item>
+  ///     <description>
+  ///       Decimal
+  ///     </description>
+  ///   </item>
+  /// </list>
+  /// </example>
+  /// <typeparam name="T">Type of matrix values.<para/>Type can only be numeric</typeparam>
+  /// <inheritdoc />
   [Serializable]
-  public sealed class Matrix<T> : BaseMatrix<T> where T : struct, IComparable, IFormattable, IConvertible, IComparable<T>, IEquatable<T>
+  public sealed class Matrix<T>
+    : BaseMatrix<T> where T
+      : struct, IComparable, IFormattable, IConvertible, IComparable<T>, IEquatable<T>
   {
     #region Properties
 
@@ -35,6 +88,13 @@ namespace Common.Math.Matricies
     /// <param name="values">2D Array of values</param>
     /// <exception cref="ArgumentException"></exception>
     /// <exception cref="NotSupportedException"></exception>
+    /// <example>
+    /// How to initialize an instance of <see cref="Matrix{T}"/>
+    /// <code>
+    /// var arrayOfValues = { { 1, 2, 3 }, { 1, 4, 7 } };
+    /// var matrix = Matrix&lt;double&gt;(arrayOfValues);
+    /// </code>
+    /// </example>
     public Matrix(T[,] values)
     {
       if (!default(T).IsNumber()) throw new NotSupportedException($"T cannot be of type {typeof(T).Name}");
@@ -52,6 +112,12 @@ namespace Common.Math.Matricies
     /// <param name="identity">Set to True to create an identity matrix</param>
     /// <exception cref="ArgumentException"></exception>
     /// <exception cref="NotSupportedException"></exception>
+    /// <example>
+    /// How to initialize an instance of <see cref="Matrix{T}"/> with 1's on the matrix diagonal
+    /// <code>
+    /// var matrix = Matrix&lt;double&gt;(4, true);
+    /// </code>
+    /// </example>
     public Matrix(int size, bool identity)
     {
       if (!default(T).IsNumber()) throw new NotSupportedException($"T cannot be of type {typeof(T).Name}");
@@ -75,6 +141,12 @@ namespace Common.Math.Matricies
     /// <param name="height">Height of matrix</param>
     /// <exception cref="ArgumentException"></exception>
     /// <exception cref="NotSupportedException"></exception>
+    /// <example>
+    /// How to initialize an instance of <see cref="Matrix{T}"/>
+    /// <code>
+    /// var matrix = Matrix&lt;double&gt;(4, 3);
+    /// </code>
+    /// </example>
     public Matrix(int length, int height)
     {
       if (!default(T).IsNumber()) throw new NotSupportedException($"T cannot be of type {typeof(T).Name}");

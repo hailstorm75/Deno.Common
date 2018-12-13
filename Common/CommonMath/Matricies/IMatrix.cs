@@ -1,5 +1,9 @@
 ﻿namespace Common.Math.Matricies
 {
+  /// <summary>
+  /// Interface for all matrix classes
+  /// </summary>
+  /// <typeparam name="T">Type of values of the matrix</typeparam>
   public interface IMatrix<T>
   {
     /// <summary>
