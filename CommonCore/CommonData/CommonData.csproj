@@ -15,10 +15,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\..\Common\CommonData\DFA.cs" Link="DFA.cs" />
+    <Compile Include="..\..\Common\CommonData\BaseDfa.cs" Link="BaseDfa.cs" />
     <Compile Include="..\..\Common\CommonData\DfaMinimizer.cs" Link="DfaMinimizer.cs" />
     <Compile Include="..\..\Common\CommonData\FileMan.cs" Link="FileMan.cs" />
-    <Compile Include="..\..\Common\CommonData\PatternFinder.cs" Link="PatternFinder.cs" />
+    <Compile Include="..\..\Common\CommonData\IGraph.cs" Link="IGraph.cs" />
+    <Compile Include="..\..\Common\CommonData\PatternGenerator.cs" Link="PatternGenerator.cs" />
     <Compile Include="..\..\Common\CommonData\Serialization\BinarySerialization.cs" Link="Serialization\BinarySerialization.cs" />
     <Compile Include="..\..\Common\CommonData\Serialization\Extensions\BinarySerializationExt.cs" Link="Serialization\Extensions\BinarySerializationExt.cs" />
     <Compile Include="..\..\Common\CommonData\Serialization\Extensions\XMLSerializationExt.cs" Link="Serialization\Extensions\XMLSerializationExt.cs" />
