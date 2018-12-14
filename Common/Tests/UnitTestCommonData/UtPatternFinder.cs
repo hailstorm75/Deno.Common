@@ -15,7 +15,7 @@ namespace Common.Data.Tests
     {
       // Arrange
       var data = new List<string> { "234", "2301", "501", "01" };
-      var finder = new PatternFinder(data);
+      var finder = new PatternGenerator(data);
 
       // Act
       var result = finder.FindPattern();

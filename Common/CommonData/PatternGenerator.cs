@@ -1,11 +1,12 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Collections.Generic;
-using Common.Linq;
 
 namespace Common.Data
 {
-  public class PatternFinder
+  /// <summary>
+  /// Generator of patterns for a set of strings
+  /// </summary>
+  public class PatternGenerator
   {
     #region Subclasses
 
@@ -245,7 +246,7 @@ namespace Common.Data
     /// Default constructor
     /// </summary>
     /// <param name="strings">Set of strings to analyze</param>
-    public PatternFinder(IEnumerable<string> strings)
+    public PatternGenerator(IEnumerable<string> strings)
     {
       Strings = new Trie();
       Strings.AddRange(strings);
@@ -311,7 +312,7 @@ namespace Common.Data
         var substituted = new Dictionary<int, RegexExpression>();                                 // Stores newly substituted equations
         foreach (var solution in substitutions)                                                   // Tries to eliminate equations using substituted equations
           substituted = toEliminate.Where(x => x.Value.Substitue(solution.Key, solution.Value))   // Selects those which were solved completely
-                                   .ToDictionary(x=> x.Key, x=> x.Value);                         // Creates dictionary
+                                   .ToDictionary(x => x.Key, x => x.Value);                         // Creates dictionary
 
         if (substituted.Count > 0) substitutions.Clear();                  // Clears substitutions if they are obsolete
         foreach (var solution in substituted)                              // Updates dictionaries

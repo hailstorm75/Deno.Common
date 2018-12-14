@@ -47,7 +47,7 @@ namespace Common.Math.Matricies
     /// </summary>
     protected T[,] m_matrixValues;
 
-    #endregion   
+    #endregion
 
     #region Properties
 
@@ -193,6 +193,7 @@ namespace Common.Math.Matricies
     /// <inheritdoc />
     public abstract IMatrix<T> Transpose();
 
+    /// <inheritdoc cref="IMatrix{T}.ToString" />
     public override string ToString()
     {
       var result = new StringBuilder();
@@ -211,11 +212,13 @@ namespace Common.Math.Matricies
 
     #region Exceptions
 
+    [Serializable]
     internal sealed class InvertableMatrixOperationException : Exception
     {
       public InvertableMatrixOperationException(string message) : base(message) { }
     }
 
+    [Serializable]
     internal sealed class MatrixDimensionException : Exception
     {
       public MatrixDimensionException(string message) : base(message) { }

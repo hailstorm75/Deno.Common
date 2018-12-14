@@ -5,7 +5,12 @@ using System.Text;
 
 namespace Common.Data
 {
-  public class DfaMinimizer<T> where T : IComparable, IComparable<T>, IEquatable<T>
+  /// <summary>
+  /// Minimizes <see cref="BaseDfa{T}"/> instances
+  /// </summary>
+  /// <typeparam name="T">Type of input symbols.<para/>Must match the type of <see cref="BaseDfa{T}"/></typeparam>
+  public class DfaMinimizer<T> where T
+    : IComparable, IComparable<T>, IEquatable<T>
   {
     #region Nested types
 
@@ -54,16 +59,22 @@ namespace Common.Data
 
       #region Methods
 
+      // TODO Optimize
       private int GetFrom(int i) => m_transitions.Select(x => x.From).ElementAt(i);
 
+      // TODO Optimize
       private void SetFrom(int i, int val) => m_transitions.ElementAt(i).From = val;
 
+      // TODO Optimize
       private int GetTo(int i) => m_transitions.Select(x => x.To).ElementAt(i);
 
+      // TODO Optimize
       private void SetTo(int i, int val) => m_transitions.ElementAt(i).To = val;
 
+      // TODO Optimize
       private T GetOnInput(int i) => m_transitions.Select(x => x.OnInput).ElementAt(i);
 
+      // TODO Optimize
       private void SetOnInput(int i, T val) => m_transitions.ElementAt(i).OnInput = val;
 
       #endregion
@@ -186,6 +197,14 @@ namespace Common.Data
 
     #endregion
 
+    // TODO Make private
+    /// <summary>
+    /// Default constructor
+    /// </summary>
+    /// <param name="stateCount"></param>
+    /// <param name="transitionCount"></param>
+    /// <param name="initialState"></param>
+    /// <param name="finalStatesCount"></param>
     public DfaMinimizer(int stateCount, int transitionCount, int initialState, int finalStatesCount)
     {
       m_stateCount = stateCount;
@@ -200,6 +219,7 @@ namespace Common.Data
 
     #region Methods
 
+    // TODO Make private
     public DfaMinimizer<T> LoadTransitions(List<Transition<T>> transitions)
     {
       m_transitions = new Transitions(transitions.Count, transitions);
@@ -210,8 +230,10 @@ namespace Common.Data
       return this;
     }
 
+    // TODO Make private
     public DfaMinimizer<T> SetFinalState(params int[] states) => SetFinalState(states.ToList());
 
+    // TODO Make private
     public DfaMinimizer<T> SetFinalState(IEnumerable<int> states)
     {
       foreach (var state in states)
@@ -242,12 +264,11 @@ namespace Common.Data
 
       if (m_transitions.Count == 0) return this;
 
-      //Array.Sort(m_cords.Elements, Compare);
       var e = m_cords.Elements.Select(x => m_transitions.OnInput.Get(x)).ToArray();
       Array.Sort(e, m_cords.Elements);
 
       m_cords.SetCount = m_marked[0] = 0;
-      // this code relies on the fact that cords.first[0] == 0 at this point for the first set to be correct
+
       var currentLabel = m_transitions.OnInput.Get(m_cords.Elements[0]);
 
       for (var i = 0; i < m_transitions.Count; ++i)
@@ -296,8 +317,13 @@ namespace Common.Data
       return this;
     }
 
-    public DfaMinimizer<T> Process() => this.PartitionTransions().SplitBlocksAndCoords();
+    // TODO Make private
+    public DfaMinimizer<T> Process() => PartitionTransions().SplitBlocksAndCoords();
 
+    /// <summary>
+    /// Retrieve minimized transitions
+    /// </summary>
+    /// <returns>Transitions</returns>
     public IEnumerable<Transition<T>> GetTransitions()
     {
       for (var i = 0; i < m_transitions.Count; ++i)
@@ -315,12 +341,33 @@ namespace Common.Data
     }
 
     /// <summary>
-    /// 1. State count
-    /// 2. Transition count
-    /// 3. Initial state
-    /// 4. Final state count
+    /// Retrieves information about the minimized automata
     /// </summary>
-    /// <returns></returns>
+    /// <remarks>
+    /// <list type="number">
+    ///   <item>
+    ///     <description>
+    ///       State count
+    ///     </description>
+    ///   </item>
+    ///   <item>
+    ///     <description>
+    ///       Transition count
+    ///     </description>
+    ///   </item>
+    ///   <item>
+    ///     <description>
+    ///       Initial state
+    ///     </description>
+    ///   </item>
+    ///   <item>
+    ///     <description>
+    ///       Final state count
+    ///     </description>
+    ///   </item>
+    /// </list>
+    /// </remarks>
+    /// <returns>Information</returns>
     public Tuple<int, int, int, int> GetAutomataInfo()
     {
       var transitionCount = 0;
@@ -418,8 +465,8 @@ namespace Common.Data
     public static DfaMinimizer<char> Minimize(Trie trie)
     {
       var dfaMinimizer = new DfaMinimizer<char>(trie.StateCount, trie.TransitionCount, 0, trie.WordCount);
-      return dfaMinimizer.LoadTransitions(trie.Transitions().ToList())
-        .SetFinalState(trie.FinateStates)
+      return dfaMinimizer.LoadTransitions(trie.GetTransitions().ToList())
+        .SetFinalState(trie.FiniteStates)
         .Process();
     }
 

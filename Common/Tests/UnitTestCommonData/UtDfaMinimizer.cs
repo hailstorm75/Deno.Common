@@ -16,8 +16,8 @@ namespace Common.Data.Tests
       trie.AddRange(strings);
 
       var min = new DfaMinimizer<char>(trie.StateCount, trie.TransitionCount, 0, trie.WordCount);
-      min.LoadTransitions(trie.Transitions().ToList())
-        .SetFinalState(trie.FinateStates)
+      min.LoadTransitions(trie.GetTransitions().ToList())
+        .SetFinalState(trie.FiniteStates)
         .Process();
 
       var result = min.ToString();
