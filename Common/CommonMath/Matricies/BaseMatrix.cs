@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 using System.Text;
 
 namespace Common.Math.Matricies
@@ -215,13 +216,25 @@ namespace Common.Math.Matricies
     [Serializable]
     internal sealed class InvertableMatrixOperationException : Exception
     {
+      public InvertableMatrixOperationException() { }
+
       public InvertableMatrixOperationException(string message) : base(message) { }
+
+      public InvertableMatrixOperationException(string message, Exception innerException) : base(message, innerException) { }
+
+      private InvertableMatrixOperationException(SerializationInfo info, StreamingContext context) : base(info, context) { }
     }
 
     [Serializable]
     internal sealed class MatrixDimensionException : Exception
     {
+      public MatrixDimensionException() { }
+
       public MatrixDimensionException(string message) : base(message) { }
+
+      public MatrixDimensionException(string message, Exception innerException) : base(message, innerException) { }
+
+      private MatrixDimensionException(SerializationInfo info, StreamingContext context) : base(info, context) { }
     }
 
     #endregion

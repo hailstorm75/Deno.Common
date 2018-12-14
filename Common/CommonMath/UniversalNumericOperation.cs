@@ -156,7 +156,7 @@
         case "Int64": return (T)(dynamic) long.MaxValue;
         case "Single": return (T)(dynamic) float.MaxValue;
         case "Double": return (T)(dynamic) double.MaxValue;
-        default: return default(T);
+        default: return default;
       }
     }
 
@@ -170,7 +170,7 @@
         case "Int64": return (T)(dynamic) long.MinValue;
         case "Single": return (T)(dynamic) float.MinValue;
         case "Double": return (T)(dynamic) double.MinValue;
-        default: return default(T);
+        default: return default;
       }
     }
 

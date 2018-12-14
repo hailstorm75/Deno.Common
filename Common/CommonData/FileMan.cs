@@ -1,11 +1,7 @@
-﻿using System;
-using System.Text.RegularExpressions;
-using System.Collections.Generic;
+﻿using System.Text.RegularExpressions;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Common.Data
 {
@@ -19,10 +15,11 @@ namespace Common.Data
     }
 
     /// <summary>
-    /// Searches for an entity of given <see cref="name"/> and <see cref="type"/> in a <see cref="rootDirectory"/>
+    /// Searches for an entity of given <paramref name="name"/> and <paramref name="type"/> in a <paramref name="rootDirectory"/>
     /// </summary>
     /// <param name="name">Entity name</param>
     /// <param name="rootDirectory">Directory to search in</param>
+    /// <param name="ct">Cancellation token</param>
     /// <param name="type">Type of searched entity</param>
     /// <param name="hint">Possible directory name containing given entity</param>
     public static void SearchInDirectory(string name, string rootDirectory, CancellationToken ct, EntityType type = EntityType.Unknown, string hint = "")
