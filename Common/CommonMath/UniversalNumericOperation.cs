@@ -1,4 +1,11 @@
-﻿namespace Common.Math
+﻿
+#if CORE
+
+﻿using System.Runtime.CompilerServices;
+[assembly: InternalsVisibleTo("UnitTestCommonMath")]
+
+#endif
+namespace Common.Math
 {
   internal static class UniversalNumericOperation
   {

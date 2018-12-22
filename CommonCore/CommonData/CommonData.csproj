@@ -8,10 +8,12 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>CORE</DefineConstants>
     <OutputPath>..\..\binCore\Libraries\Debug</OutputPath>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DefineConstants>CORE</DefineConstants>
     <OutputPath>..\..\binCore\Libraries\Release</OutputPath>
   </PropertyGroup>
 

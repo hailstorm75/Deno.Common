@@ -9,11 +9,13 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>CORE</DefineConstants>
     <DocumentationFile></DocumentationFile>
     <OutputPath>..\..\binCore\Libraries\Debug</OutputPath>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DefineConstants>CORE</DefineConstants>
     <OutputPath>..\..\Libraries\Release</OutputPath>
   </PropertyGroup>
 

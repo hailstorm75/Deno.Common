@@ -58,7 +58,6 @@ namespace Common.Math.Matricies
   /// <typeparam name="T">Type of matrix values.<para/>Type can only be numeric</typeparam>
   /// <inheritdoc />
   [Serializable]
-  [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1814:PreferJaggedArraysOverMultidimensional")]
   public sealed class Matrix<T>
     : BaseMatrix<T> where T
       : struct, IComparable, IFormattable, IConvertible, IComparable<T>, IEquatable<T>

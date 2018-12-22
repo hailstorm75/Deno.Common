@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>..\..\..\binCore\Tests\Debug</OutputPath>
+    <OutputPath>..\..\binCore\Tests\Debug</OutputPath>
   </PropertyGroup>
 
   <ItemGroup>
