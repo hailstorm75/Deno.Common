@@ -1,5 +1,4 @@
 
-
 variables:
   PROJ_NAME: 'Common'
   PROJ_CORE_NAME: 'CommonCore'
@@ -119,5 +118,7 @@ test_job_cpp:
   image: frolvlad/alpine-gxx
   stage: test
   script:
+  - 'apt-get -qq update -y'
+  - 'apt-get install -y cmake'
   - 'cd ${PATH_TO_CPP_TESTS}'
   - 'for i in $(ls -d */); do cmake $i; make -C $i; ./$i$(ls | egrep ^UnitTestCommon[A-Z][a-z]*[^\.]$); done'
