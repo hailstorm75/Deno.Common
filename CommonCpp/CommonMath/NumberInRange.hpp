@@ -130,7 +130,7 @@ namespace Common
       }
 
     private:
-      T AdjustValue(const T & value)
+      T AdjustValue(const T & value) noexcept
       {
         if (value >= m_min && value <= m_max)
           return value;
