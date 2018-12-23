@@ -1,8 +1,9 @@
-image: mono:latest
+
 
 variables:
   PROJ_NAME: 'Common'
   PROJ_CORE_NAME: 'CommonCore'
+  PROJ_CPP_NAME: 'CommonCpp'
   BUILD_CONF: 'Debug'
   RELEASE_CONF: 'Release'
 
@@ -20,6 +21,8 @@ variables:
   PATH_TO_CORE_SOLUTION: '${PROJ_CORE_NAME}/${PROJ_CORE_NAME}.sln'
   PATH_TO_CORE_RELEASE: 'binCore/Libraries/${RELEASE_CONF}/'
   PATH_TO_CORE_TESTS: 'binCore/Tests/${BUILD_CONF}/'
+  # CommonCpp
+  PATH_TO_CPP_TESTS: '${PROJ_CPP_NAME}/Tests'
 
 stages:
   - build
@@ -27,6 +30,7 @@ stages:
   - release
 
 build_job:
+  image: mono:latest
   stage: build
   script:
   - 'nuget restore ${PATH_TO_SOLUTION}'
@@ -40,6 +44,7 @@ build_job:
   - tags
 
 test_job:
+  image: mono:latest
   stage: test
   cache:
     key: binaries
@@ -71,6 +76,7 @@ test_job:
   - tags
 
 release_job:
+ image: mono:latest
  stage: release
  script:
   - 'nuget restore ${PATH_TO_SOLUTION}'
@@ -83,6 +89,7 @@ release_job:
  when: manual
 
 build_job_core:
+  image: mono:latest
   stage: build
   script:
   - 'nuget restore ${PATH_TO_CORE_SOLUTION}'
@@ -95,37 +102,8 @@ build_job_core:
   except:
   - tags
 
-# test_job_core:
-#   stage: test
-#   cache:
-#     key: binaries
-#     paths:
-#     - '${PATH_TO_CORE_TESTS}'
-#     policy: pull
-#   script:
-#   - 'apt-get -qq update -y'
-#   - 'apt-get -qq install unzip'
-#   - 'nuget install ${TEST_RUNNER}'
-#   - 'unzip ${TEST_RUNNER_W_VER}/${TEST_RUNNER_W_VER}.nupkg'
-#   - 'chmod -R 777 tools'
-#   # Black magic.png
-#   # 1. Runs testing for each .dll file
-#   # 2. Removes output header information
-#   # 3. Removes output run settings information
-#   # 4. Removes footer
-#   # 5. Writes to file
-#   - 'touch ${TEST_REPORT}'
-#   - for i in $(ls ${PATH_TO_CORE_TESTS}*.dll | egrep ^*/${UT_PREFIX}*); do mono tools/nunit3-console.exe $i | awk '/Test Files/'{f=1}f{print} | awk -v regex="Run Settings" -v count="8"  '$0 ~ regex { skip=count; next } --skip >= 0 { next } 1' | head -n -1 >> ${TEST_REPORT}; done
-#   - cat ${TEST_REPORT}
-#   artifacts:
-#     paths:
-#     - '${TEST_REPORT}'
-#     expire_in: 1 day
-#     when: always
-#   except:
-#   - tags
-
 release_job_core:
+ image: mono:latest
  stage: release
  script:
   - 'nuget restore ${PATH_TO_CORE_SOLUTION}'
@@ -136,3 +114,10 @@ release_job_core:
    - '${PATH_TO_CORE_RELEASE}'
    expire_in: 1 week
  when: manual
+ 
+test_job_cpp:
+  image: frolvlad/alpine-gxx
+  stage: test
+  script:
+  - 'cd ${PATH_TO_CPP_TESTS}'
+  - 'for i in $(ls -d */); do cmake $i; make -C $i; ./$i$(ls | egrep ^UnitTestCommon[A-Z][a-z]*[^\.]$); done'
