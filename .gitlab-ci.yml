@@ -114,8 +114,10 @@ release_job_core:
  when: manual
  
 test_job_cpp:
-  image: madduci/docker-linux-cpp
+  image: frolvlad/alpine-gxx
   stage: test
   script:
+  - 'apk update'
+  - 'apk add cmake'
   - 'cd ${PATH_TO_CPP_TESTS}'
   - 'for i in $(ls -d */); do cmake $i; make -C $i; ./$i$(ls | egrep ^UnitTestCommon[A-Z][a-z]*[^\.]$); done'
