@@ -39,6 +39,14 @@ namespace Common::Math
       return value * -1;
     }
 
+    static T CalcRangeLen(const T & min, const T & max)
+    {
+      const T a = Abs(min);
+      const T b = Abs(max);
+
+      return (a > b ? a - b : b - a) + 1;
+    }
+
   public:
     /**
      * \brief Default constructor
@@ -47,7 +55,7 @@ namespace Common::Math
      * \param max Range maximum
      */
     NumberInRange(const T & value, const T & min, const T & max)
-      : m_min(min), m_max(max), m_rangeLen(Abs(Abs(m_min) - Abs(m_max)) + 1), m_value(AdjustValue(value))
+      : m_min(min), m_max(max), m_rangeLen(CalcRangeLen(min, max)), m_value(AdjustValue(value))
     {
       static_assert(!std::is_same<T, double>::value && !std::is_same<T, float>::value, "NumberInRange: T cannot be of a floating point type.");
       if (min == max) throw std::invalid_argument("Argument " + NAMEOF(min) + " cannot be equal to argument " + NAMEOF(max) + ".");
