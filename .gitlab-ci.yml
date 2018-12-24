@@ -109,7 +109,7 @@ test_job_core:
     - '${PATH_TO_CORE_TESTS}'
     policy: pull
   script:
-  - for i in $(ls ${PATH_TO_TESTS}*.dll | egrep ^*/${UT_PREFIX}*); do dotnet test $i; done
+  - for i in $(ls ${PATH_TO_CORE_TESTS}*.dll | egrep ^*/${UT_PREFIX}*); do dotnet test $i; done
 
 release_job_core:
  image: mono:latest
@@ -136,4 +136,4 @@ test_job_cpp:
   - 'apt install g++-7 -y'
   - 'update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 60 --slave /usr/bin/g++ g++ /usr/bin/g++-7'
   - 'cd ${PATH_TO_CPP_TESTS}'
-  - 'for i in $(ls -d */); do cd $i; cmake .; make; ./$(ls | egrep ^UnitTestCommon[A-Z][a-z]*[^\.]$); cd ..; done'
+  - 'for i in $(ls -d */); do cd $i; cmake .; make; ./$(ls | egrep ^${UT_PREFIX}[A-Z][a-z]*[^\.]$); cd ..; done'
