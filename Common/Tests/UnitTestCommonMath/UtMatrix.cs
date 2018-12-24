@@ -161,16 +161,16 @@ namespace Common.Math.Tests
 
     [Test, TestCaseSource(typeof(DataMatrix), nameof(DataMatrix.GetInvertData))]
     [Category(Constants.METHOD)]
-    public void Invert(double[,] from, double[,] to)
+    public void Invert(Tuple<double[,], double[,]> data)
     {
       // Arrange
-      var matrix = new Matrix<double>(from);
+      var matrix = new Matrix<double>(data.Item1);
 
       // Act
       var result = matrix.GetInverse();
 
       // Assert
-      CollectionAssert.AreEqual(to, result.MatrixValues, new DoubleComparer());
+      CollectionAssert.AreEqual(data.Item2, result.MatrixValues, new DoubleComparer());
     }
 
     [Test]
@@ -189,10 +189,10 @@ namespace Common.Math.Tests
 
     [Test, TestCaseSource(typeof(DataMatrix), nameof(DataMatrix.GetNonIdentityMatrixData))]
     [Category(Constants.METHOD)]
-    public void DeterminantException(double[,] from)
+    public void DeterminantException(Tuple<double[,]> data)
     {
       // Arrange
-      var matrix = new Matrix<double>(from);
+      var matrix = new Matrix<double>(data.Item1);
 
       // Act
       Assert.Throws<Matrix<double>.InvertableMatrixOperationException>(() =>
@@ -223,11 +223,11 @@ namespace Common.Math.Tests
 
     [Test, TestCaseSource(typeof(DataMatrix), nameof(DataMatrix.GetAdditionInvalidClassClassData))]
     [Category(Constants.OPERATOR)]
-    public void AdditionInvalidClassClass(double[,] lhs, double[,] rhs)
+    public void AdditionInvalidClassClass(Tuple<double[,], double[,]> data)
     {
       // Arrange
-      var matrixA = new Matrix<double>(lhs);
-      var matrixB = new Matrix<double>(rhs);
+      var matrixA = new Matrix<double>(data.Item1);
+      var matrixB = new Matrix<double>(data.Item2);
 
       // Act
       Assert.Throws<Matrix<double>.MatrixDimensionException>(() =>
@@ -238,17 +238,17 @@ namespace Common.Math.Tests
 
     [Test, TestCaseSource(typeof(DataMatrix), nameof(DataMatrix.GetAdditionClassClassData))]
     [Category(Constants.OPERATOR)]
-    public void AdditionClassClass(double[,] lhs, double[,] rhs, double[,] expected)
+    public void AdditionClassClass(Tuple<double[,], double[,], double[,]> data)
     {
       // Arrange
-      var matrixA = new Matrix<double>(lhs);
-      var matrixB = new Matrix<double>(rhs);
+      var matrixA = new Matrix<double>(data.Item1);
+      var matrixB = new Matrix<double>(data.Item2);
 
       // Act
       var result = matrixA + matrixB;
 
       // Assert
-      CollectionAssert.AreEqual(expected, result.MatrixValues, new DoubleComparer());
+      CollectionAssert.AreEqual(data.Item3, result.MatrixValues, new DoubleComparer());
     }
 
     #endregion
@@ -257,11 +257,11 @@ namespace Common.Math.Tests
 
     [Test, TestCaseSource(typeof(DataMatrix), nameof(DataMatrix.GetSubtractionInvalidClassClassData))]
     [Category(Constants.OPERATOR)]
-    public void SubtractionInvalidClassClass(double[,] lhs, double[,] rhs)
+    public void SubtractionInvalidClassClass(Tuple<double[,], double[,]> data)
     {
       // Arrange
-      var matrixA = new Matrix<double>(lhs);
-      var matrixB = new Matrix<double>(rhs);
+      var matrixA = new Matrix<double>(data.Item1);
+      var matrixB = new Matrix<double>(data.Item2);
 
       // Act
       Assert.Throws<Matrix<double>.MatrixDimensionException>(() =>
@@ -272,17 +272,17 @@ namespace Common.Math.Tests
 
     [Test, TestCaseSource(typeof(DataMatrix), nameof(DataMatrix.GetSubtractionClassClassData))]
     [Category(Constants.OPERATOR)]
-    public void SubtractionClassClass(double[,] lhs, double[,] rhs, double[,] expected)
+    public void SubtractionClassClass(Tuple<double[,], double[,], double[,]> data)
     {
       // Arrange
-      var matrixA = new Matrix<double>(lhs);
-      var matrixB = new Matrix<double>(rhs);
+      var matrixA = new Matrix<double>(data.Item1);
+      var matrixB = new Matrix<double>(data.Item2);
 
       // Act
       var result = matrixA - matrixB;
 
       // Assert
-      CollectionAssert.AreEqual(expected, result.MatrixValues, new DoubleComparer());
+      CollectionAssert.AreEqual(data.Item3, result.MatrixValues, new DoubleComparer());
     }
 
     #endregion
@@ -291,40 +291,40 @@ namespace Common.Math.Tests
 
     [Test, TestCaseSource(typeof(DataMatrix), nameof(DataMatrix.GetMultiplicationValueClassData))]
     [Category(Constants.OPERATOR)]
-    public void MultiplicationValueClass(double lhs, double[,] rhs, double[,] expected)
+    public void MultiplicationValueClass(Tuple<double, double[,], double[,]> data)
     {
       // Arrange
-      var matrix = new Matrix<double>(rhs);
+      var matrix = new Matrix<double>(data.Item2);
 
       // Act
-      var result = lhs * matrix;
+      var result = data.Item1 * matrix;
 
       // Assert
-      CollectionAssert.AreEqual(expected, result.MatrixValues, new DoubleComparer());
+      CollectionAssert.AreEqual(data.Item3, result.MatrixValues, new DoubleComparer());
     }
 
     [Test, TestCaseSource(typeof(DataMatrix), nameof(DataMatrix.GetMultiplicationClassClassData))]
     [Category(Constants.OPERATOR)]
-    public void MultiplicationClassClass(double[,] lhs, double[,] rhs, double[,] expected)
+    public void MultiplicationClassClass(Tuple<double[,], double[,], double[,]> data)
     {
       // Arrange
-      var matrixA = new Matrix<double>(lhs);
-      var matrixB = new Matrix<double>(rhs);
+      var matrixA = new Matrix<double>(data.Item1);
+      var matrixB = new Matrix<double>(data.Item2);
 
       // Act
       var result = matrixA * matrixB;
 
       // Assert
-      CollectionAssert.AreEqual(expected, result.MatrixValues, new DoubleComparer());
+      CollectionAssert.AreEqual(data.Item3, result.MatrixValues, new DoubleComparer());
     }
 
     [Test, TestCaseSource(typeof(DataMatrix), nameof(DataMatrix.GetMultiplicationInvalidClassClassData))]
     [Category(Constants.OPERATOR)]
-    public void MultiplicationInvalidClassClass(double[,] lhs, double[,] rhs)
+    public void MultiplicationInvalidClassClass(Tuple<double[,], double[,]> data)
     {
       // Arrange
-      var matrixA = new Matrix<double>(lhs);
-      var matrixB = new Matrix<double>(rhs);
+      var matrixA = new Matrix<double>(data.Item1);
+      var matrixB = new Matrix<double>(data.Item2);
 
       // Act
       Assert.Throws<Matrix<double>.MatrixDimensionException>(() =>
@@ -339,16 +339,16 @@ namespace Common.Math.Tests
 
     [Test, TestCaseSource(typeof(DataMatrix), nameof(DataMatrix.GetDivisionClassValueData))]
     [Category(Constants.OPERATOR)]
-    public void DivisionClassValue(double[,] lhs, double rhs, double[,] expected)
+    public void DivisionClassValue(Tuple<double[,], double, double[,]> data)
     {
       // Arrange
-      var matrix = new Matrix<double>(lhs);
+      var matrix = new Matrix<double>(data.Item1);
 
       // Act
-      var result = matrix / rhs;
+      var result = matrix / data.Item2;
 
       // Assert
-      CollectionAssert.AreEqual(expected, result.MatrixValues, new DoubleComparer());
+      CollectionAssert.AreEqual(data.Item3, result.MatrixValues, new DoubleComparer());
     }
 
     #endregion
