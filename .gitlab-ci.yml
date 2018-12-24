@@ -99,7 +99,7 @@ test_job_core:
   image: microsoft/dotnet
   stage: test
   script:
-  - for i in $(ls ${PROJECT_CORE_NAME}/Tests/*/${UT_PREFIX}*); do dotnet test $i; done
+  - for i in $(ls ${PROJ_CORE_NAME}/Tests/*/${UT_PREFIX}*); do dotnet test $i; done
 
 release_job_core:
  image: mono:latest
