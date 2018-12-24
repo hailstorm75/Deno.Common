@@ -1,5 +1,3 @@
-
-
 variables:
   PROJ_NAME: 'Common'
   PROJ_CORE_NAME: 'CommonCore'
@@ -102,6 +100,17 @@ build_job_core:
   except:
   - tags
 
+test_job_core:
+  image: microsoft/dotnet
+  stage: test
+  cache:
+    key: binaries
+    paths:
+    - '${PATH_TO_CORE_TESTS}'
+    policy: pull
+  script:
+  - for i in $(ls ${PATH_TO_TESTS}*.dll | egrep ^*/${UT_PREFIX}*); do dotnet test $i; done
+
 release_job_core:
  image: mono:latest
  stage: release
@@ -114,7 +123,7 @@ release_job_core:
    - '${PATH_TO_CORE_RELEASE}'
    expire_in: 1 week
  when: manual
- 
+
 test_job_cpp:
   image: frolvlad/alpine-gxx
   stage: test
