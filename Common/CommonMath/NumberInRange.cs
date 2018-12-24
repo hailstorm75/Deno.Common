@@ -55,9 +55,12 @@ namespace Common.Math
       if (IsEqual(min, max)) throw new ArgumentException($"Argument {nameof(min)} cannot be equal to argument {nameof(max)}.");
       if (IsGreater(min, max)) throw new ArgumentException($"Argument {nameof(min)} cannot be greater than argument {nameof(max)}.");
 
+      var a = Abs(min);
+      var b = Abs(max);
+      m_rangeLen = Add<T, int, T>(IsGreater(a ,b) ? Subtract<T, T>(a, b) : Subtract<T, T>(b, a), 1);
+
       Max = max;
       Min = min;
-      m_rangeLen = Add<T, int, T>(Abs(Abs(Min).Subtract(Abs(Max))), 1);
       Value = value;
     }
 
