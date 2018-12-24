@@ -9,16 +9,23 @@ namespace Common::Math::Tests
   class DataNumberInRange
   {
   public:
+    static std::vector<std::tuple<T, T, T>> GetCtorArgumentExceptionData()
+    {
+      return
+      {
+        std::make_tuple(0, 1, 0),
+        std::make_tuple(0, 0, 0),
+      };
+    }
+
     static std::vector<std::tuple<T, T, T, T>> GetCtorAdjustRangeData()
     {
-      std::vector<std::tuple<T, T, T, T>> x =
+      return
       {
         std::make_tuple(5, 0, 4, 0),
         std::make_tuple(0, 0, 4, 0),
         std::make_tuple(-23, -8, -4, -8)
       };
-
-      return x;
     }
   };
 }

@@ -12,14 +12,20 @@ TEMPLATE_TEST_CASE("Class be initialized", "[Constructor][Template]", unsigned s
   REQUIRE_NOTHROW(NumberInRange<TestType>(0, 1, 2));
 }
 
-TEST_CASE("Initialize with invalid arguments", "[Constructor]")
+TEMPLATE_TEST_CASE("Initialize with invalid arguments", "[Constructor]", unsigned short, unsigned, unsigned long, short, int, long)
 {
-  REQUIRE_THROWS_AS(NumberInRange<int>(0, 5, 1), std::invalid_argument);
+  for (const auto &[value, min, max] : DataNumberInRange<TestType>::GetCtorArgumentExceptionData())
+  {
+    SECTION("Initialize with Value: " + std::to_string(value) + ", Min: " + std::to_string(min) + ", Max: " + std::to_string(max))
+    {
+      REQUIRE_THROWS_AS(NumberInRange<TestType>(value, min, max), std::invalid_argument);
+    }
+  }
 }
 
 TEMPLATE_TEST_CASE("Value is adjusted to range", "[Constructor][Template]", short, int, long)
 {
-  for (const auto & [value, min, max, expected] : DataNumberInRange<TestType>::GetCtorAdjustRangeData())
+  for (const auto &[value, min, max, expected] : DataNumberInRange<TestType>::GetCtorAdjustRangeData())
   {
     SECTION("Initialize with Value: " + std::to_string(value) + ", Min: " + std::to_string(min) + ", Max: " + std::to_string(max))
     {
