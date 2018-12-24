@@ -92,24 +92,14 @@ build_job_core:
   script:
   - 'nuget restore ${PATH_TO_CORE_SOLUTION}'
   - 'MONO_IOMAP=case msbuild /t:Build /p:Configuration=${BUILD_CONF} /p:Platform="Any CPU" ${PATH_TO_CORE_SOLUTION}'
-  cache:
-    key: binaries
-    paths:
-    - '${PATH_TO_CORE_TESTS}'
-    policy: push
   except:
   - tags
 
 test_job_core:
   image: microsoft/dotnet
   stage: test
-  cache:
-    key: binaries
-    paths:
-    - '${PATH_TO_CORE_TESTS}'
-    policy: pull
   script:
-  - for i in $(ls ${PATH_TO_TESTS}*.dll | egrep ^*/${UT_PREFIX}*); do dotnet test $i; done
+  - for i in $(ls ${PROJ_CORE_NAME}/Tests/*/${UT_PREFIX}*); do dotnet test $i; done
 
 release_job_core:
  image: mono:latest
@@ -136,4 +126,4 @@ test_job_cpp:
   - 'apt install g++-7 -y'
   - 'update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 60 --slave /usr/bin/g++ g++ /usr/bin/g++-7'
   - 'cd ${PATH_TO_CPP_TESTS}'
-  - 'for i in $(ls -d */); do cd $i; cmake .; make; ./$(ls | egrep ^UnitTestCommon[A-Z][a-z]*[^\.]$); cd ..; done'
+  - 'for i in $(ls -d */); do cd $i; cmake .; make; ./$(ls | egrep ^${UT_PREFIX}[A-Z][a-z]*[^\.]$); cd ..; done'
