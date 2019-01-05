@@ -28,31 +28,40 @@ namespace Common.Data.Tests.Data
           "testn"
         }
       };
-      // TODO
-      //yield return new object[]
-      //{
-      //  new []
-      //  {
-      //    "atest",
-      //    "btest",
-      //    "ctest",
-      //    "ftest",
-      //    "ctest",
-      //    "ntest"
-      //  }
-      //};
-      //yield return new object[]
-      //{
-      //  new []
-      //  {
-      //    "1. testA",
-      //    "2. testB",
-      //    "3. testC",
-      //    "4. testD",
-      //    "5. testE",
-      //    "6. testF"
-      //  }
-      //};
+      yield return new object[]
+      {
+        new []
+        {
+          "atest",
+          "btest",
+          "ctest",
+          "ftest",
+          "ctest",
+          "ntest"
+        }
+      };
+      yield return new object[]
+      {
+        new []
+        {
+          "test1.txt",
+          "test2.txt",
+          "test3.txt",
+          "test4.txt"
+        }
+      };
+      yield return new object[]
+      {
+        new []
+        {
+          "1. testA",
+          "2. testB",
+          "3. testC",
+          "4. testD",
+          "5. testE",
+          "6. testF"
+        }
+      };
     }
   }
 }
