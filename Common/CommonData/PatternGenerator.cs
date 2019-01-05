@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Collections.Generic;
+using System.Text;
 
 namespace Common.Data
 {
@@ -109,36 +110,98 @@ namespace Common.Data
       #endregion
     }
 
-    /// <summary>
-    /// Represents an alternation of regular expression parts
-    /// </summary>
-    private class Alternation : RegexExpression
+    private class Conjunction : RegexExpression
     {
-      #region Fields
-
-      /// <summary>
-      /// Parts of alternation
-      /// </summary>
-      private readonly List<RegexExpression> m_parts;
-
-      #endregion
-
       #region Properties
 
       /// <inheritdoc />
-      public override int Length => m_parts.Count;
+      public override int Length => Parts.Count;
 
       /// <inheritdoc />
       public override bool Solved
       {
         get
         {
-          foreach (var option in m_parts)
+          foreach (var option in Parts)
             if (!option.Solved) return false;
 
           return true;
         }
       }
+
+      public List<RegexExpression> Parts { get; }
+
+      #endregion
+
+      public Conjunction(IEnumerable<RegexExpression> parts) => Parts = parts.ToList();
+
+      #region Methods
+
+      public override bool Substitue(int from, RegexExpression substitution)
+      {
+        var result = true;
+        foreach (var option in Parts)
+          result &= option.Substitue(from, substitution);
+        return result;
+      }
+
+      public override string ToString()
+      {
+        switch (Parts.Count)
+        {
+          case 0: return string.Empty;
+          case 1: return Parts.First().ToString();
+          default:
+            {
+              var sb = new StringBuilder();
+              foreach (var part in Parts)
+              {
+                switch (part)
+                {
+                  case Literal _:
+                    sb.Append(part);
+                    break;
+                  case Alternation alternation:
+                    var result = alternation.Simplify();
+                    sb.Append(result is Alternation ? $"({result})" : $"{result}");
+                    break;
+                  default:
+                    sb.Append($"({part})");
+                    break;
+                }
+              }
+
+              return sb.ToString();
+            }
+        }
+      }
+
+      #endregion
+    }
+
+    /// <summary>
+    /// Represents an alternation of regular expression parts
+    /// </summary>
+    private class Alternation : RegexExpression
+    {
+      #region Properties
+
+      /// <inheritdoc />
+      public override int Length => Parts.Count;
+
+      /// <inheritdoc />
+      public override bool Solved
+      {
+        get
+        {
+          foreach (var option in Parts)
+            if (!option.Solved) return false;
+
+          return true;
+        }
+      }
+
+      public List<RegexExpression> Parts { get; }
 
       #endregion
 
@@ -146,7 +209,7 @@ namespace Common.Data
       /// Default constructor
       /// </summary>
       /// <param name="parts">Parts to alternate between</param>
-      public Alternation(IEnumerable<RegexExpression> parts) => m_parts = Flatten(parts).OrderBy(x => x.Length).ToList();
+      public Alternation(IEnumerable<RegexExpression> parts) => Parts = Flatten(parts).OrderBy(x => x.Length).ToList();
 
       #region Methods
 
@@ -160,7 +223,7 @@ namespace Common.Data
         foreach (var part in parts)
         {
           if (part is Alternation alt)
-            foreach (var subOption in Flatten(alt.m_parts))
+            foreach (var subOption in Flatten(alt.Parts))
               yield return subOption;
 
           yield return part;
@@ -168,15 +231,57 @@ namespace Common.Data
       }
 
       /// <inheritdoc />
-      public override string ToString() => string.Join("|", m_parts);
+      public override string ToString() => string.Join("|", Parts);
 
       /// <inheritdoc />
-      public override bool Substitue(int @from, RegexExpression substitution)
+      public override bool Substitue(int from, RegexExpression substitution)
       {
         var result = true;
-        foreach (var option in m_parts)
-          result &= option.Substitue(@from, substitution);
+        for (var i = 0; i < Parts.Count; i++)
+        {
+          var option = Parts[i];
+          if (option.Solved)
+            continue;
+
+          if (option is Literal lit && from != lit.From)
+            result = false;
+
+          if (substitution is Literal literal
+            || (substitution is Alternation alternation && alternation.Length < 2)
+            || (substitution is Conjunction conjunction && conjunction.Parts.Last() is Literal))
+            result &= Parts[i].Substitue(from, substitution);
+          else
+            Parts[i] = new Conjunction(new[] { substitution, option });
+        }
+
         return result;
+      }
+
+      public RegexExpression Simplify()
+      {
+        var items = new List<RegexExpression>();
+        var prefix = Trie.FindCommonSubString(Parts.Select(x => x.ToString()).ToList());
+        var suffix = Trie.FindCommonSubString(Parts.Select(x => new string(x.ToString().Reverse().ToArray())).ToList());
+        var root = Parts.Select(x => x.ToString());
+
+        if (prefix != string.Empty)
+        {
+          root = root.Select(x => x.ToString()).Select(x => x.Substring(prefix.Length));
+          items.Add(new Literal(prefix));
+        }
+
+        if (suffix != string.Empty)
+        {
+          root = root.Select(x => x.ToString()).Select(x => x.Substring(0, x.Length - suffix.Length));
+          items.Add(new Alternation(root.Select(x => new Literal(x))));
+          items.Add(new Literal(suffix));
+        }
+        else
+          items.Add(new Alternation(root.Select(x => new Literal(x))));
+
+        return items.Count == 1
+          ? items.First()             // Returning alternation
+          : new Conjunction(items);
       }
 
       #endregion
@@ -200,7 +305,7 @@ namespace Common.Data
       /// <summary>
       /// Variable to solve
       /// </summary>
-      public int From { private get; set; }
+      public int From { get; set; }
 
       #endregion
 
@@ -216,16 +321,14 @@ namespace Common.Data
       public override string ToString() => Value;
 
       /// <inheritdoc />
-      public override bool Substitue(int @from, RegexExpression substitution)
+      public override bool Substitue(int from, RegexExpression substitution)
       {
         if (Solved)
           return true;
-        if (@from != From)
+        if (from != From)
           return false;
-        if (substitution is Alternation al && al.Length > 1)
-          Value = $"({substitution}){Value}";
-        else
-          Value = $"{substitution}{Value}";
+
+        Value = $"{substitution}{Value}";
 
         return Solved = true;
       }
@@ -324,7 +427,8 @@ namespace Common.Data
         substitutionsCount += substituted.Count;                           // Increases number of solved equations
       }
 
-      return substitutions.FirstOrDefault().Value.ToString();              // The remaining equation holds the solution
+      // The remaining equation holds the solution
+      return (substitutions.FirstOrDefault().Value as Alternation)?.Simplify().ToString();
     }
 
     #endregion

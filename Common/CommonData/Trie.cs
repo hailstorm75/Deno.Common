@@ -45,6 +45,25 @@ namespace Common.Data
 
     #region Methods
 
+    public static string FindCommonSubString(IReadOnlyCollection<string> strings)
+    {
+      if (strings.Count < 2)
+        return string.Empty;
+
+      var trie = new Trie();
+      trie.AddRange(strings);
+
+      string GetNext(State state)
+      {
+        if (state.Neighbours.Count != 1)
+          return string.Empty;
+
+        return state.Neighbours.First().Key + GetNext(state.Neighbours.First().Value);
+      }
+
+      return GetNext(trie.m_root);
+    }
+
     /// <summary>
     /// Determines whether the <see cref="Trie"/> contains a specific <paramref name="word"/>
     /// </summary>
