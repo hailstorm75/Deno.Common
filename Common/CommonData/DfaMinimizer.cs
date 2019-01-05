@@ -30,7 +30,7 @@ namespace Common.Data
 
       #region Fields
 
-      private readonly IEnumerable<Transition<T>> m_transitions;
+      private readonly List<Transition<T>> m_transitions;
 
       #endregion
 
@@ -48,7 +48,7 @@ namespace Common.Data
       public Transitions(int count, IEnumerable<Transition<T>> transitions)
       {
         Count = count;
-        m_transitions = transitions;
+        m_transitions = transitions.ToList();
 
         From = new Pair<int>(GetFrom, SetFrom);
         To = new Pair<int>(GetTo, SetTo);
@@ -60,22 +60,22 @@ namespace Common.Data
       #region Methods
 
       // TODO Optimize
-      private int GetFrom(int i) => m_transitions.Select(x => x.From).ElementAt(i);
+      private int GetFrom(int i) => m_transitions[i].From;
 
       // TODO Optimize
-      private void SetFrom(int i, int val) => m_transitions.ElementAt(i).From = val;
+      private void SetFrom(int i, int val) => m_transitions[i].From = val;
 
       // TODO Optimize
-      private int GetTo(int i) => m_transitions.Select(x => x.To).ElementAt(i);
+      private int GetTo(int i) => m_transitions[i].To;
 
       // TODO Optimize
-      private void SetTo(int i, int val) => m_transitions.ElementAt(i).To = val;
+      private void SetTo(int i, int val) => m_transitions[i].To = val;
 
       // TODO Optimize
-      private T GetOnInput(int i) => m_transitions.Select(x => x.OnInput).ElementAt(i);
+      private T GetOnInput(int i) => m_transitions[i].OnInput;
 
       // TODO Optimize
-      private void SetOnInput(int i, T val) => m_transitions.ElementAt(i).OnInput = val;
+      private void SetOnInput(int i, T val) => m_transitions[i].OnInput = val;
 
       #endregion
     }
