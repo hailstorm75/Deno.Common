@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 
 namespace Common.Data.RegEx
 {
-  internal class Conjunction : RegularExpression, IReduceable
+  internal class Conjunction : RegularExpression, IReduceable, ICanSimplify
   {
     #region Properties
 
@@ -39,6 +40,23 @@ namespace Common.Data.RegEx
 
     #region Methods
 
+    public RegularExpression Simplify()
+    {
+      if (Parts.First() == Parts.Last() && Parts.First() is Alternation alt)
+        return alt.Simplify();
+      if (Parts.First() is ICanSimplify conjL)
+        Parts[0] = conjL.Simplify();
+
+      if (Parts.Last() is ICanSimplify conjR)
+        Parts[1] = conjR.Simplify();
+
+      if (Parts[0] == null || Parts[0] is Literal litL && litL.Length == 0)
+        return Parts[1];
+      if (Parts[1] == null || Parts[1] is Literal litR && litR.Length == 0)
+        return Parts[0];
+      return this;
+    }
+
     public RegularExpression ReduceLeft(string prefix)
     {
       switch (Parts.First())
@@ -53,10 +71,52 @@ namespace Common.Data.RegEx
         case Literal literal:
           {
             literal.ReduceLeft(prefix);
+            if (literal.Length == 0)
+              return Parts.Last();
             return this;
           }
         default:
           return this;
+      }
+    }
+
+    public Tuple<RegularExpression, RegularExpression> ReduceMiddle(string root)
+    {
+      return ReduceMiddle(root, 1);
+    }
+
+    private Tuple<RegularExpression, RegularExpression> ReduceMiddle(string root, int index)
+    {
+      switch (Parts[index])
+      {
+        case Conjunction conj:
+          {
+            var temp = conj.ReduceMiddle(root, index == 1 ? 0 : 1);
+            if (index == 1)
+            {
+              var left = temp.Item1.Length > 0 ? new Conjunction(Parts[0], temp.Item1) : Parts[0];
+              return new Tuple<RegularExpression, RegularExpression>(left, temp.Item2);
+            }
+
+            var right = temp.Item2.Length > 0 ? new Conjunction(temp.Item2, Parts[1]) : Parts[1];
+            return new Tuple<RegularExpression, RegularExpression>(temp.Item1, right);
+          }
+        case Alternation _:
+          throw new Exception("Part is an alternation.");
+        case Literal literal:
+          {
+            var temp = literal.ReduceMiddle(root);
+            if (index == 1)
+            {
+              var left = temp.Item1.Length > 0 ? new Conjunction(Parts[0], temp.Item1) : Parts[0];
+              return new Tuple<RegularExpression, RegularExpression>(left, temp.Item2);
+            }
+
+            var right = temp.Item2.Length > 0 ? new Conjunction(temp.Item2, Parts[1]) : Parts[1];
+            return new Tuple<RegularExpression, RegularExpression>(temp.Item1, right);
+          }
+        default:
+          return null;
       }
     }
 
@@ -74,6 +134,10 @@ namespace Common.Data.RegEx
         case Literal literal:
           {
             literal.ReduceLeft(suffix);
+            if (literal.Length == 0)
+            {
+              return Parts.First();
+            }
             return this;
           }
         default:
@@ -107,25 +171,31 @@ namespace Common.Data.RegEx
     public override string ToString()
     {
       var sb = new StringBuilder();
-      foreach (var part in Parts)
+
+      switch (Parts.First())
       {
-        switch (part)
-        {
-          case Literal _:
-            sb.Append(part);
-            break;
-          case Conjunction conjunction:
-            {
-              if (conjunction.Parts[0] is Literal)
-                sb.Append(part);
-              else
-                sb.Append($"({part})");
-              break;
-            }
-          default:
-            sb.Append($"({part})");
-            break;
-        }
+        case Literal _:
+          sb.Append(Parts.First());
+          break;
+        case Conjunction conjunction:
+          sb.Append($"{Parts.First()}");
+          break;
+        case Alternation alternation:
+          sb.Append(alternation.Length > 1 ? $"({Parts.First()})" : $"{Parts.First()}");
+          break;
+      }
+      switch (Parts.Last())
+      {
+        case Literal _:
+          sb.Append(Parts.Last());
+          break;
+        case Conjunction conjunction:
+          sb.Append($"{Parts.Last()}");
+          break;
+        case Alternation alternation:
+          sb.Append(alternation.Length > 1 ? $"({Parts.Last()})" : $"{Parts.Last()}");
+          break;
+
       }
 
       return sb.ToString();

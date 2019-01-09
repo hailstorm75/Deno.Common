@@ -7,7 +7,7 @@ namespace Common.Data.RegEx
   /// <summary>
   /// Represents an alternation of regular expression parts
   /// </summary>
-  internal class Alternation : RegularExpression
+  internal class Alternation : RegularExpression, ICanSimplify
   {
     #region Properties
 
@@ -34,7 +34,7 @@ namespace Common.Data.RegEx
     /// Default constructor
     /// </summary>
     /// <param name="parts">Parts to alternate between</param>
-    public Alternation(IEnumerable<RegularExpression> parts) => Parts = Flatten(parts).OrderBy(x => x.Length).ToList();
+    public Alternation(IEnumerable<RegularExpression> parts) => Parts = Flatten(parts).OrderBy(x => x.Length).Distinct().ToList();
 
     #region Methods
 
@@ -50,8 +50,8 @@ namespace Common.Data.RegEx
         if (part is Alternation alt)
           foreach (var subOption in Flatten(alt.Parts))
             yield return subOption;
-
-        yield return part;
+        else
+          yield return part;
       }
     }
 
@@ -96,28 +96,59 @@ namespace Common.Data.RegEx
       return result;
     }
 
-    public static bool HasLiteral(RegularExpression regular, bool left)
+    public enum Side
+    {
+      Left,
+      Right,
+      MiddleR,
+      MiddleL
+    }
+
+    private static bool HasLiteral(RegularExpression regular, Side side)
     {
       switch (regular)
       {
         case Literal _:
           return true;
         case Conjunction conjunction:
-          return HasLiteral(left ? conjunction.Parts.First() : conjunction.Parts.Last(), left);
-        case Alternation _:
+          switch (side)
+          {
+            case Side.Left:
+              return HasLiteral(conjunction.Parts.First(), side);
+            case Side.Right:
+              return HasLiteral(conjunction.Parts.Last(), side);
+            case Side.MiddleR:
+              return HasLiteral(conjunction.Parts.Last(), Side.MiddleL);
+            case Side.MiddleL:
+              return HasLiteral(conjunction.Parts.First(), Side.MiddleR);
+            default:
+              throw new ArgumentOutOfRangeException(nameof(side), side, null);
+          }
         default:
           return false;
       }
     }
 
-    public static Literal GetLiteral(RegularExpression regular, bool left)
+    private static Literal GetLiteral(RegularExpression regular, Side side)
     {
       switch (regular)
       {
         case Literal literal:
           return literal;
         case Conjunction conjunction:
-          return GetLiteral(left ? conjunction.Parts.First() : conjunction.Parts.Last(), left);
+          switch (side)
+          {
+            case Side.Left:
+              return GetLiteral(conjunction.Parts.First(), side);
+            case Side.Right:
+              return GetLiteral(conjunction.Parts.Last(), side);
+            case Side.MiddleR:
+              return GetLiteral(conjunction.Parts.Last(), Side.MiddleL);
+            case Side.MiddleL:
+              return GetLiteral(conjunction.Parts.First(), Side.MiddleR);
+            default:
+              throw new ArgumentOutOfRangeException(nameof(side), side, null);
+          }
         default:
           return null;
       }
@@ -125,12 +156,12 @@ namespace Common.Data.RegEx
 
     private static RegularExpression ReduceLeft(Alternation part)
     {
-      var regExp = part.Parts.GroupBy(x => HasLiteral(x, true)).ToList();
+      var regExp = part.Parts.GroupBy(x => HasLiteral(x, Side.Left)).ToList();
       var withLiterals = regExp.Where(x => x.Key).SelectMany(x => x).ToList();
-      if (withLiterals.Count <= 1) return ReduceRight(part);
-      var prefix = Trie.FindCommonSubString(withLiterals.Select(x => GetLiteral(x, true).Value).ToList());
+      if (withLiterals.Count <= 1) return ReduceMiddle(part);
+      var prefix = Trie.FindCommonSubString(withLiterals.Select(x => GetLiteral(x, Side.Left).Value).ToList());
 
-      if (prefix == string.Empty) return ReduceRight(part);
+      if (prefix == string.Empty) return ReduceMiddle(part);
 
       for (var i = 0; i < withLiterals.Count; ++i)
       {
@@ -140,20 +171,25 @@ namespace Common.Data.RegEx
           throw new Exception("Invalid type.");
       }
 
-      var reduction = new List<RegularExpression> { new Conjunction(new Literal(prefix), ReduceLeft(new Alternation(withLiterals))) };
+      var reduction = new List<RegularExpression> { new Conjunction(new Literal(prefix), new Alternation(withLiterals).Simplify()) };
       reduction.AddRange(regExp.Where(x => !x.Key).SelectMany(x => x));
 
-      return new Alternation(reduction);
+      return new Alternation(reduction).Simplify();
+    }
+
+    private static string ReverseString(string s)
+    {
+      return new string(s.Reverse().ToArray());
     }
 
     private static RegularExpression ReduceRight(Alternation part)
     {
-      var regExp = part.Parts.GroupBy(x => HasLiteral(x, false)).ToList();
+      var regExp = part.Parts.GroupBy(x => HasLiteral(x, Side.Right)).ToList();
       var withLiterals = regExp.Where(x => x.Key).SelectMany(x => x).ToList();
-      if (withLiterals.Count <= 1) return ReduceMiddle(part);
-      var suffix = Trie.FindCommonSubString(withLiterals.Select(x => GetLiteral(x, false).Value).ToList());
+      if (withLiterals.Count <= 1) return part;
+      var suffix = ReverseString(Trie.FindCommonSubString(withLiterals.Select(x => ReverseString(GetLiteral(x, Side.Right).Value)).ToList()));
 
-      if (suffix == string.Empty) return ReduceMiddle(part);
+      if (suffix == string.Empty) return part;
 
       for (var i = 0; i < withLiterals.Count; ++i)
       {
@@ -163,10 +199,10 @@ namespace Common.Data.RegEx
           throw new Exception("Invalid type.");
       }
 
-      var reduction = new List<RegularExpression> { new Conjunction(ReduceLeft(new Alternation(withLiterals)), new Literal(suffix)) };
+      var reduction = new List<RegularExpression> { new Conjunction(new Alternation(withLiterals).Simplify(), new Literal(suffix)) };
       reduction.AddRange(regExp.Where(x => !x.Key).SelectMany(x => x));
 
-      return new Alternation(reduction);
+      return new Alternation(reduction).Simplify();
     }
 
     private static RegularExpression ReduceMiddle(Alternation part)
@@ -182,7 +218,7 @@ namespace Common.Data.RegEx
 
         for (var i = 0; i < len; i++)
         {
-          for (var j = 1; j < len; j++)
+          for (var j = 1; j + i < len; j++)
           {
             var stem = s.Substring(i, j);
             var k = 1;
@@ -206,35 +242,34 @@ namespace Common.Data.RegEx
         return result;
       }
 
-      RegularExpression SplitByRoot(string rootString, IEnumerable<Literal> strings)
+      var regExp = part.Parts.GroupBy(x => HasLiteral(x, Side.MiddleR)).ToList();
+      var withLiterals = regExp.Where(x => x.Key).SelectMany(x => x).ToList();
+      if (withLiterals.Count <= 1) return ReduceRight(part);
+      var root = FindRoot(withLiterals.Select(x => GetLiteral(x, Side.MiddleR).Value).ToList());
+      if (root == string.Empty) return ReduceRight(part);
+
+      var leftSplit = new List<RegularExpression>();
+      var rightSplit = new List<RegularExpression>();
+      foreach (var literal in withLiterals)
       {
-        var left = new List<Literal>();
-        var right = new List<Literal>();
-
-        foreach (var @string in strings)
+        if (literal is IReduceable reduceable)
         {
-          var split = @string.Value.Split(new[] { rootString }, 2, StringSplitOptions.None);
-          left.Add(new Literal(split.First()));
-          right.Add(new Literal(split.Last()));
+          var temp = reduceable.ReduceMiddle(root);
+          leftSplit.Add(temp.Item1);
+          rightSplit.Add(temp.Item2);
         }
-
-        return new Conjunction(new Alternation(left), new Conjunction(new Literal(rootString), new Alternation(right)));
+        else
+          throw new Exception("Invalid type.");
       }
 
-      var regExp = part.Parts;
-      var literalValues = regExp.OfType<Literal>().ToList();
-      if (literalValues.Count <= 1) return part;
-      var root = FindRoot(literalValues.Select(x => x.Value).ToList());
-      if (root == string.Empty) return part;
-
-      return SplitByRoot(root, literalValues);
+      return new Conjunction(new Alternation(leftSplit).Simplify(), new Conjunction(new Literal(root), new Alternation(rightSplit).Simplify()));
     }
 
-    public RegularExpression Reduce()
+    public RegularExpression Simplify()
     {
       for (var i = 0; i < Parts.Count; i++)
-        if (Parts[i] is Alternation alt)
-          Parts[i] = alt.Reduce();
+        if (Parts[i] is ICanSimplify alt)
+          Parts[i] = alt.Simplify();
       return ReduceLeft(this);
     }
 

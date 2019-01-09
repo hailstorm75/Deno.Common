@@ -1,9 +1,12 @@
-﻿namespace Common.Data.RegEx
+﻿using System;
+using System.Linq;
+
+namespace Common.Data.RegEx
 {
   /// <summary>
   /// Represents a literal
   /// </summary>
-  internal class Literal : RegularExpression, IReduceable
+  internal class Literal : RegularExpression, IReduceable, IEquatable<RegularExpression>
   {
     #region Properties
 
@@ -71,10 +74,42 @@
       return this;
     }
 
+    public Tuple<RegularExpression, RegularExpression> ReduceMiddle(string root)
+    {
+      var split = Value.Split(new[] {root}, 2, StringSplitOptions.None);
+      return new Tuple<RegularExpression, RegularExpression>(new Literal(split.FirstOrDefault()), new Literal(split.LastOrDefault()));
+    }
+
     public RegularExpression ReduceRight(string suffix)
     {
       Value = Value.Substring(0, Value.Length - suffix.Length);
       return this;
+    }
+
+    protected bool Equals(Literal other)
+    {
+      return string.Equals(Value, other.Value) && Solved == other.Solved && (Solved || From == other.From);
+    }
+
+    public override bool Equals(object obj)
+    {
+      if (ReferenceEquals(null, obj)) return false;
+      if (ReferenceEquals(this, obj)) return true;
+      if (obj.GetType() != this.GetType()) return false;
+      return Equals((Literal) obj);
+    }
+
+    public override int GetHashCode()
+    {
+      unchecked
+      {
+        return ((Value != null ? Value.GetHashCode() : 0) * 397) ^ (Solved ? 0 : From);
+      }
+    }
+
+    public bool Equals(RegularExpression other)
+    {
+      return Equals(other as Literal);
     }
   }
 }

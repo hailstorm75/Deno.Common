@@ -181,7 +181,7 @@ namespace Common.Data
         if (substituted.Count > 0) substitutions.Clear();                  // Clears substitutions if they are obsolete
         foreach (var solution in substituted)                              // Updates dictionaries
         {
-          substitutions.Add(solution.Key, solution.Value);                 // Updates list of substitutions
+          substitutions.Add(solution.Key, solution.Value);                  // Updates list of substitutions
           toEliminate.Remove(solution.Key);                                // Eliminating equations
         }
 
@@ -192,7 +192,9 @@ namespace Common.Data
       switch (substitutions.FirstOrDefault().Value)
       {
         case Alternation alternation:
-          return alternation.Reduce();
+          return alternation.Simplify();
+        case Conjunction conjunction:
+          return conjunction.Simplify();
         default:
           return substitutions.FirstOrDefault().Value;
       }
