@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <IsPackable>false</IsPackable>
+
+    <RootNamespace>Common.Data.Tests</RootNamespace>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputPath>..\..\..\binCore\Tests\Debug</OutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\..\..\Common\Tests\UnitTestCommonData\Data\DataDfaMinimizer.cs" Link="Data\DataDfaMinimizer.cs" />
+    <Compile Include="..\..\..\Common\Tests\UnitTestCommonData\Data\DataPatternFinder.cs" Link="Data\DataPatternFinder.cs" />
+    <Compile Include="..\..\..\Common\Tests\UnitTestCommonData\UtDfaMinimizer.cs" Link="UtDfaMinimizer.cs" />
+    <Compile Include="..\..\..\Common\Tests\UnitTestCommonData\UtPatternFinder.cs" Link="UtPatternFinder.cs" />
+    <Compile Include="..\..\..\Common\Tests\UnitTestCommonData\UtSerialization.cs" Link="UtSerialization.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="nunit" Version="3.10.1" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.10.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.8.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Data\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\CommonData\CommonData.csproj" />
+    <ProjectReference Include="..\..\UnitTestConstants\UnitTestConstants.csproj">
+      <Private>false</Private>
+    </ProjectReference>
+  </ItemGroup>
+
+</Project>

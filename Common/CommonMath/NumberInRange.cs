@@ -4,6 +4,10 @@ using static Common.Math.UniversalNumericOperation;
 
 namespace Common.Math
 {
+  /// <summary>
+  /// Keeps an integer value in a given range
+  /// </summary>
+  /// <typeparam name="T">Type of value.<para/>Anything but integer types are prohibited.</typeparam>
   [Serializable]
   public class NumberInRange<T> : INumberInRange<T> where T : struct, IComparable, IFormattable, IConvertible, IComparable<T>, IEquatable<T>
   {
@@ -38,6 +42,12 @@ namespace Common.Math
     /// <param name="value">Value to hold</param>
     /// <param name="min">Range minimum</param>
     /// <param name="max">Range maximum</param>
+    /// <example>
+    /// How to create an instance of <see cref="NumberInRange{T}"/>.
+    /// <code>
+    /// var nim = new NumberInRange&lt;int&gt;(10, 0, 5);
+    /// </code>
+    /// </example>
     public NumberInRange(T value, T min, T max)
     {
       if (!default(T).IsSignedInteger()) throw new NotSupportedException($"T cannot be of type {typeof(T).Name}");
@@ -45,9 +55,12 @@ namespace Common.Math
       if (IsEqual(min, max)) throw new ArgumentException($"Argument {nameof(min)} cannot be equal to argument {nameof(max)}.");
       if (IsGreater(min, max)) throw new ArgumentException($"Argument {nameof(min)} cannot be greater than argument {nameof(max)}.");
 
+      var a = Abs(min);
+      var b = Abs(max);
+      m_rangeLen = Add<T, int, T>(IsGreater(a ,b) ? Subtract<T, T>(a, b) : Subtract<T, T>(b, a), 1);
+
       Max = max;
       Min = min;
-      m_rangeLen = Add<T, int, T>(Abs(Abs(Min).Subtract(Abs(Max))), 1);
       Value = value;
     }
 
@@ -88,6 +101,13 @@ namespace Common.Math
     /// <param name="min">Range minimum</param>
     /// <param name="max">Range maximum</param>
     /// <returns>Adjusted value</returns>
+    /// <example>
+    /// How to adjust a value to a specific range
+    /// <code>
+    /// var x = 5;
+    /// var result = NumberInRange&lt;int&gt;.AdjustValue(x, -1, 2);
+    /// </code>
+    /// </example>
     public static T AdjustValue(T val, T min, T max) => new NumberInRange<T>(val, min, max).Value;
 
     /// <inheritdoc cref="INumberInRange{T}" />

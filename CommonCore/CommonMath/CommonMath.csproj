@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <RootNamespace>Common.Math</RootNamespace>
+    <SignAssembly>false</SignAssembly>
+    <LangVersion>7.1</LangVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>CORE</DefineConstants>
+    <DocumentationFile></DocumentationFile>
+    <OutputPath>..\..\binCore\Libraries\Debug</OutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DefineConstants>CORE</DefineConstants>
+    <OutputPath>..\..\Libraries\Release</OutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="CommonMath.xml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\..\Common\CommonMath\INumberInRange.cs" Link="INumberInRange.cs" />
+    <Compile Include="..\..\Common\CommonMath\LongestLong.cs" Link="LongestLong.cs" />
+    <Compile Include="..\..\Common\CommonMath\Matricies\BaseMatrix.cs" Link="Matricies\BaseMatrix.cs" />
+    <Compile Include="..\..\Common\CommonMath\Matricies\IMatrix.cs" Link="Matricies\IMatrix.cs" />
+    <Compile Include="..\..\Common\CommonMath\Matricies\Matrix.cs" Link="Matricies\Matrix.cs" />
+    <Compile Include="..\..\Common\CommonMath\Matricies\ModuloMatrix.cs" Link="Matricies\ModuloMatrix.cs" />
+    <Compile Include="..\..\Common\CommonMath\NumberInRange.cs" Link="NumberInRange.cs" />
+    <Compile Include="..\..\Common\CommonMath\UniversalNumericOperation.cs" Link="UniversalNumericOperation.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Matricies\" />
+  </ItemGroup>
+
+</Project>

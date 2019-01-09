@@ -179,13 +179,7 @@ namespace Common.Math
     /// </summary>
     /// <param name="x">Left hand side argument</param>
     /// <param name="y">Right hand side argument</param>
-    /// <param name="result">Operation result</param>
-    /// <param name="index">Recursion iteration index</param>
-    /// <param name="carryover">Calculation carryover</param>
-    private static void Add(LongestLong x, LongestLong y)
-    {
-      LeftArgLargest(ref x, ref y);
-    }
+    private static void Add(LongestLong x, LongestLong y) => LeftArgLargest(ref x, ref y);
 
     private List<long> Multiply(List<long> x, List<long> y)
     {
