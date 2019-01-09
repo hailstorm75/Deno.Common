@@ -45,10 +45,10 @@ namespace Common.Data
 
       #region Constructors
 
-      public Transitions(int count, IEnumerable<Transition<T>> transitions)
+      public Transitions(IEnumerable<Transition<T>> transitions)
       {
-        Count = count;
         m_transitions = transitions.ToList();
+        Count = m_transitions.Count;
 
         From = new Pair<int>(GetFrom, SetFrom);
         To = new Pair<int>(GetTo, SetTo);
@@ -59,22 +59,13 @@ namespace Common.Data
 
       #region Methods
 
-      // TODO Optimize
       private int GetFrom(int i) => m_transitions[i].From;
-
-      // TODO Optimize
       private void SetFrom(int i, int val) => m_transitions[i].From = val;
 
-      // TODO Optimize
       private int GetTo(int i) => m_transitions[i].To;
-
-      // TODO Optimize
       private void SetTo(int i, int val) => m_transitions[i].To = val;
 
-      // TODO Optimize
       private T GetOnInput(int i) => m_transitions[i].OnInput;
-
-      // TODO Optimize
       private void SetOnInput(int i, T val) => m_transitions[i].OnInput = val;
 
       #endregion
@@ -197,7 +188,6 @@ namespace Common.Data
 
     #endregion
 
-    // TODO Make private
     /// <summary>
     /// Default constructor
     /// </summary>
@@ -205,7 +195,7 @@ namespace Common.Data
     /// <param name="transitionCount"></param>
     /// <param name="initialState"></param>
     /// <param name="finalStatesCount"></param>
-    public DfaMinimizer(int stateCount, int transitionCount, int initialState, int finalStatesCount)
+    private DfaMinimizer(int stateCount, int transitionCount, int initialState, int finalStatesCount)
     {
       m_stateCount = stateCount;
       m_finalStatesCount = finalStatesCount;
@@ -219,10 +209,9 @@ namespace Common.Data
 
     #region Methods
 
-    // TODO Make private
-    public DfaMinimizer<T> LoadTransitions(List<Transition<T>> transitions)
+    private DfaMinimizer<T> LoadTransitions(IEnumerable<Transition<T>> transitions)
     {
-      m_transitions = new Transitions(transitions.Count, transitions);
+      m_transitions = new Transitions(transitions);
 
       Reach(m_initialState);
       RemoveUnreachable(m_transitions.From, m_transitions.To);
@@ -230,11 +219,7 @@ namespace Common.Data
       return this;
     }
 
-    // TODO Make private
-    public DfaMinimizer<T> SetFinalState(params int[] states) => SetFinalState(states.ToList());
-
-    // TODO Make private
-    public DfaMinimizer<T> SetFinalState(IEnumerable<int> states)
+    private DfaMinimizer<T> SetFinalState(IEnumerable<int> states)
     {
       foreach (var state in states)
         if (m_blocks.Location[state] < m_blocks.Past[0])
@@ -264,8 +249,8 @@ namespace Common.Data
 
       if (m_transitions.Count == 0) return this;
 
-      var e = m_cords.Elements.Select(x => m_transitions.OnInput.Get(x)).ToArray();
-      Array.Sort(e, m_cords.Elements);
+      var sortKeys = m_cords.Elements.Select(x => m_transitions.OnInput.Get(x)).ToArray();
+      Array.Sort(sortKeys, m_cords.Elements);
 
       m_cords.SetCount = m_marked[0] = 0;
 
@@ -317,8 +302,7 @@ namespace Common.Data
       return this;
     }
 
-    // TODO Make private
-    public DfaMinimizer<T> Process() => PartitionTransions().SplitBlocksAndCoords();
+    private DfaMinimizer<T> Process() => PartitionTransions().SplitBlocksAndCoords();
 
     /// <summary>
     /// Retrieve minimized transitions
@@ -407,8 +391,7 @@ namespace Common.Data
 
     private void MakeAdjacent(Transitions.Pair<int> states)
     {
-      for (var state = 0; state <= m_stateCount; ++state)
-        m_offset[state] = 0;
+      Array.Clear(m_offset, 0, m_offset.Length);
 
       for (var transition = 0; transition < m_transitions.Count; ++transition)
         ++m_offset[states.Get(transition)];
@@ -465,7 +448,7 @@ namespace Common.Data
     public static DfaMinimizer<char> Minimize(Trie trie)
     {
       var dfaMinimizer = new DfaMinimizer<char>(trie.StateCount, trie.TransitionCount, 0, trie.WordCount);
-      return dfaMinimizer.LoadTransitions(trie.GetTransitions().ToList())
+      return dfaMinimizer.LoadTransitions(trie.GetTransitions())
         .SetFinalState(trie.FiniteStates)
         .Process();
     }

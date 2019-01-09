@@ -140,7 +140,7 @@ namespace Common.Data
     /// Retrieves collection of transitions between all nodes
     /// </summary>
     /// <returns>Transitions between nodes</returns>
-    public IEnumerable<Transition<char>> GetTransitions() => GenerateTransitions(m_root);
+    public IEnumerable<Transition<char>> GetTransitions() => GetTransitions(m_root);
 
     #endregion
   }

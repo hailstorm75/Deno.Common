@@ -97,13 +97,13 @@ namespace Common.Data
     /// </summary>
     /// <param name="state">Root state</param>
     /// <returns>Transtions</returns>
-    protected static IEnumerable<Transition<T>> GenerateTransitions(State state)
+    protected static IEnumerable<Transition<T>> GetTransitions(State state)
     {
       foreach (var child in state.Neighbours)
       {
         yield return new Transition<T>(state.Id, child.Value.Id, child.Key);
 
-        foreach (var transition in GenerateTransitions(child.Value))
+        foreach (var transition in GetTransitions(child.Value))
           yield return transition;
       }
     }
