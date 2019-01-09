@@ -494,3 +494,7 @@ ASALocalRun/
 /Common/doc/html
 /Common/doc/rtf
 /builds/
+/CommonCpp/Tests/*/CMakeFiles
+/CommonCpp/Tests/*/cmake_install.cmake
+/CommonCpp/Tests/*/CMakeCache.txt
+/CommonCpp/Tests/*/Makefile

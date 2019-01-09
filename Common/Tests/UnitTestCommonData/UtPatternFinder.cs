@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
+using Common.Data.Tests.Data;
 using NUnit.Framework;
 using UnitTestConstants;
 
@@ -9,20 +11,19 @@ namespace Common.Data.Tests
   [TestFixture]
   public class UtPatternFinder
   {
-    [Test]
+    [Test, MaxTime(2000), TestCaseSource(typeof(DataPatternFinder), nameof(DataPatternFinder.GetDataToSearchPatternFor))]
     [Category(Constants.METHOD)]
-    public void FindPattern()
+    public void FindPattern(string[] data)
     {
       // Arrange
-      var data = new List<string> { "234", "2301", "501", "01" };
-      var finder = new PatternFinder(data);
+      var finder = new PatternGenerator(data);
 
       // Act
       var result = finder.FindPattern();
 
       // Assert
       var count = data.Count(x => Regex.IsMatch(x, result));
-      Assert.AreEqual(data.Count, count);
+      Assert.AreEqual(data.Length, count, result);
     }
   }
 }

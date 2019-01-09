@@ -1,7 +1,7 @@
-image: mono:latest
-
 variables:
   PROJ_NAME: 'Common'
+  PROJ_CORE_NAME: 'CommonCore'
+  PROJ_CPP_NAME: 'CommonCpp'
   BUILD_CONF: 'Debug'
   RELEASE_CONF: 'Release'
 
@@ -10,9 +10,17 @@ variables:
   TEST_RUNNER: 'NUnit.ConsoleRunner'
 
   TEST_RUNNER_W_VER: '${TEST_RUNNER}.3.9.0'
+
+  # Common
   PATH_TO_SOLUTION: '${PROJ_NAME}/${PROJ_NAME}.sln'
   PATH_TO_RELEASE: 'bin/Libraries/${RELEASE_CONF}/'
   PATH_TO_TESTS: 'bin/Tests/${BUILD_CONF}/'
+  # CommonCore
+  PATH_TO_CORE_SOLUTION: '${PROJ_CORE_NAME}/${PROJ_CORE_NAME}.sln'
+  PATH_TO_CORE_RELEASE: 'binCore/Libraries/${RELEASE_CONF}/'
+  PATH_TO_CORE_TESTS: 'binCore/Tests/${BUILD_CONF}/'
+  # CommonCpp
+  PATH_TO_CPP_TESTS: '${PROJ_CPP_NAME}/Tests'
 
 stages:
   - build
@@ -20,6 +28,7 @@ stages:
   - release
 
 build_job:
+  image: mono:latest
   stage: build
   script:
   - 'nuget restore ${PATH_TO_SOLUTION}'
@@ -33,6 +42,7 @@ build_job:
   - tags
 
 test_job:
+  image: mono:latest
   stage: test
   cache:
     key: binaries
@@ -64,6 +74,7 @@ test_job:
   - tags
 
 release_job:
+ image: mono:latest
  stage: release
  script:
   - 'nuget restore ${PATH_TO_SOLUTION}'
@@ -74,3 +85,45 @@ release_job:
    - '${PATH_TO_RELEASE}'
    expire_in: 1 week
  when: manual
+
+build_job_core:
+  image: mono:latest
+  stage: build
+  script:
+  - 'nuget restore ${PATH_TO_CORE_SOLUTION}'
+  - 'MONO_IOMAP=case msbuild /t:Build /p:Configuration=${BUILD_CONF} /p:Platform="Any CPU" ${PATH_TO_CORE_SOLUTION}'
+  except:
+  - tags
+
+test_job_core:
+  image: microsoft/dotnet
+  stage: test
+  script:
+  - for i in $(ls ${PROJ_CORE_NAME}/Tests/*/${UT_PREFIX}*); do dotnet test $i; done
+
+release_job_core:
+ image: mono:latest
+ stage: release
+ script:
+  - 'nuget restore ${PATH_TO_CORE_SOLUTION}'
+  - 'MONO_IOMAP=case msbuild /t:Build /p:Configuration=${RELEASE_CONF} /p:Platform="Any CPU" ${PATH_TO_CORE_SOLUTION}'
+  - 'rm ${PATH_TO_CORE_RELEASE}*.pdb'
+ artifacts:
+   paths:
+   - '${PATH_TO_CORE_RELEASE}'
+   expire_in: 1 week
+ when: manual
+
+test_job_cpp:
+  image: ubuntu
+  stage: test
+  script:
+  - 'apt-get update'
+  - 'apt-get install -y cmake'
+  - 'apt-get install -y software-properties-common'
+  - 'add-apt-repository ppa:ubuntu-toolchain-r/test'
+  - 'apt-get update'
+  - 'apt install g++-7 -y'
+  - 'update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 60 --slave /usr/bin/g++ g++ /usr/bin/g++-7'
+  - 'cd ${PATH_TO_CPP_TESTS}'
+  - 'for i in $(ls -d */); do cd $i; cmake .; make; ./$(ls | egrep ^${UT_PREFIX}[A-Z][a-z]*[^\.]$); cd ..; done'
