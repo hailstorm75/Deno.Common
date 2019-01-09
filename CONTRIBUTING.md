@@ -44,7 +44,10 @@
     - Examples: always, once, random
 
 ### Requesting an enhancement
-- **TODO**
+- Provide a name of the libary for which the enhancement should be made
+- If the given library doesn't yet exist, explain why it should be created and whether it should be merged with an existing library
+- Describe the enhancement
+- Provide use case example if possible
 
 ## Coding guidelines
 ### Tabs
@@ -68,9 +71,6 @@ public void Foo() {
 
 }
 ```
-
-### Banned keywords
-- `goto`
     
 ### Properties
 - Name with camel case
