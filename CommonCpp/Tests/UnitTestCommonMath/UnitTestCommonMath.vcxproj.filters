@@ -13,8 +13,8 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Source Files\Data">
-      <UniqueIdentifier>{4d7e588c-a650-4e23-a0a3-92b8e2388c38}</UniqueIdentifier>
+    <Filter Include="Header Files\Data">
+      <UniqueIdentifier>{0fc50dea-7a21-4e50-a7d5-fc66f96f3a9c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -24,8 +24,16 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DataNumberInRange.hpp">
-      <Filter>Header Files</Filter>
+    <ClCompile Include="UtMatrix.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="DataNumberInRange.hpp">
+      <Filter>Header Files\Data</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="DataMatrix.hpp">
+      <Filter>Header Files\Data</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

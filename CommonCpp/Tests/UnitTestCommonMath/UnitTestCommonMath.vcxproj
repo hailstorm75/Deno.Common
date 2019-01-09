@@ -120,7 +120,11 @@
   <ItemGroup>
     <ClCompile Include="DataNumberInRange.hpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="UtMatrix.cpp" />
     <ClCompile Include="UtNumberInRange.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="DataMatrix.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
