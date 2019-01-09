@@ -23,6 +23,11 @@
     <Compile Include="..\..\Common\CommonData\FileMan.cs" Link="FileMan.cs" />
     <Compile Include="..\..\Common\CommonData\IGraph.cs" Link="IGraph.cs" />
     <Compile Include="..\..\Common\CommonData\PatternGenerator.cs" Link="PatternGenerator.cs" />
+    <Compile Include="..\..\Common\CommonData\RegEx\Alternation.cs" Link="RegEx\Alternation.cs" />
+    <Compile Include="..\..\Common\CommonData\RegEx\Conjunction.cs" Link="RegEx\Conjunction.cs" />
+    <Compile Include="..\..\Common\CommonData\RegEx\IReduceable.cs" Link="RegEx\IReduceable.cs" />
+    <Compile Include="..\..\Common\CommonData\RegEx\Literal.cs" Link="RegEx\Literal.cs" />
+    <Compile Include="..\..\Common\CommonData\RegEx\RegularExpression.cs" Link="RegEx\RegularExpression.cs" />
     <Compile Include="..\..\Common\CommonData\Serialization\BinarySerialization.cs" Link="Serialization\BinarySerialization.cs" />
     <Compile Include="..\..\Common\CommonData\Serialization\Extensions\BinarySerializationExt.cs" Link="Serialization\Extensions\BinarySerializationExt.cs" />
     <Compile Include="..\..\Common\CommonData\Serialization\Extensions\XMLSerializationExt.cs" Link="Serialization\Extensions\XMLSerializationExt.cs" />
@@ -32,6 +37,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="RegEx\" />
     <Folder Include="Serialization\Extensions\" />
   </ItemGroup>
 
