@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices.ComTypes;
+using System.Text;
 
 namespace Common.Data
 {
@@ -45,14 +47,8 @@ namespace Common.Data
 
     #region Methods
 
-    public static string FindCommonSubString(IReadOnlyCollection<string> strings)
+    public string FindCommonPrefix()
     {
-      if (strings.Count < 2)
-        return string.Empty;
-
-      var trie = new Trie();
-      trie.AddRange(strings);
-
       string GetNext(State state)
       {
         if (state.Neighbours.Count != 1)
@@ -61,7 +57,26 @@ namespace Common.Data
         return state.Neighbours.First().Key + GetNext(state.Neighbours.First().Value);
       }
 
-      return GetNext(trie.m_root);
+      return GetNext(m_root);
+    }
+
+    public static string FindCommonPrefix(IReadOnlyList<string> strings)
+    {
+      var minLength = strings.Min(x => x.Length);
+      var prefix = new StringBuilder();
+
+      for (var i = 0; i < minLength; i++)
+      {
+        var current = strings[0][i];
+
+        for (var j = 1; j < strings.Count; j++)
+          if (strings[j][i] != current)
+            return prefix.ToString();
+
+        prefix.Append(current);
+      }
+
+      return prefix.ToString();
     }
 
     /// <summary>

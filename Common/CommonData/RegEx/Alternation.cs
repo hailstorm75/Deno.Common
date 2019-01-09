@@ -159,7 +159,7 @@ namespace Common.Data.RegEx
       var regExp = part.Parts.GroupBy(x => HasLiteral(x, Side.Left)).ToList();
       var withLiterals = regExp.Where(x => x.Key).SelectMany(x => x).ToList();
       if (withLiterals.Count <= 1) return ReduceMiddle(part);
-      var prefix = Trie.FindCommonSubString(withLiterals.Select(x => GetLiteral(x, Side.Left).Value).ToList());
+      var prefix = Trie.FindCommonPrefix(withLiterals.Select(x => GetLiteral(x, Side.Left).Value).ToList());
 
       if (prefix == string.Empty) return ReduceMiddle(part);
 
@@ -187,7 +187,7 @@ namespace Common.Data.RegEx
       var regExp = part.Parts.GroupBy(x => HasLiteral(x, Side.Right)).ToList();
       var withLiterals = regExp.Where(x => x.Key).SelectMany(x => x).ToList();
       if (withLiterals.Count <= 1) return part;
-      var suffix = ReverseString(Trie.FindCommonSubString(withLiterals.Select(x => ReverseString(GetLiteral(x, Side.Right).Value)).ToList()));
+      var suffix = ReverseString(Trie.FindCommonPrefix(withLiterals.Select(x => ReverseString(GetLiteral(x, Side.Right).Value)).ToList()));
 
       if (suffix == string.Empty) return part;
 
