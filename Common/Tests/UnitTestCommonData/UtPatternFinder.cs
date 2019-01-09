@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -11,9 +12,9 @@ namespace Common.Data.Tests
   [TestFixture]
   public class UtPatternFinder
   {
-    [Test, MaxTime(2000), TestCaseSource(typeof(DataPatternFinder), nameof(DataPatternFinder.GetDataToSearchPatternFor))]
+    [Test, TestCaseSource(typeof(DataPatternFinder), nameof(DataPatternFinder.GetDataToSearchPatternFor))]
     [Category(Constants.METHOD)]
-    public void FindPattern(string[] data)
+    public void FindPattern(IReadOnlyCollection<string> data)
     {
       // Arrange
       var finder = new PatternGenerator(data);
@@ -23,7 +24,7 @@ namespace Common.Data.Tests
 
       // Assert
       var count = data.Count(x => Regex.IsMatch(x, result));
-      Assert.AreEqual(data.Length, count, result);
+      Assert.AreEqual(data.Count, count, result);
     }
   }
 }

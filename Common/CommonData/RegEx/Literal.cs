@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace Common.Data.RegEx
 {
@@ -34,7 +35,7 @@ namespace Common.Data.RegEx
     #region Methods
 
     /// <inheritdoc />
-    public override string ToString() => Value;
+    public override string ToString() => Regex.Escape(Value);
 
     /// <inheritdoc />
     public override bool Substitute(int from, RegularExpression substitution)
@@ -44,7 +45,7 @@ namespace Common.Data.RegEx
       if (from != From)
         return false;
 
-      Value = $"{substitution}{Value}";
+      Value = $"{(substitution is Literal lit ? lit.Value : substitution.ToString())}{Value}";
 
       return Solved = true;
     }
@@ -55,15 +56,16 @@ namespace Common.Data.RegEx
 
       Solved = true;
 
-      if (substitution is Conjunction conjunction)
-        return conjunction.AppendRight(Value);
-      if (substitution is Literal literal)
+      switch (substitution)
       {
-        Value = $"{substitution}{Value}";
-        return this;
+        case Conjunction conjunction:
+          return conjunction.AppendRight(Value);
+        case Literal literal:
+          Value = $"{literal.Value}{Value}";
+          return this;
+        default:
+          return new Conjunction(substitution, this);
       }
-
-      return new Conjunction(substitution, this);
     }
 
     #endregion
@@ -76,7 +78,7 @@ namespace Common.Data.RegEx
 
     public Tuple<RegularExpression, RegularExpression> ReduceMiddle(string root)
     {
-      var split = Value.Split(new[] {root}, 2, StringSplitOptions.None);
+      var split = Value.Split(new[] { root }, 2, StringSplitOptions.None);
       return new Tuple<RegularExpression, RegularExpression>(new Literal(split.FirstOrDefault()), new Literal(split.LastOrDefault()));
     }
 
@@ -96,7 +98,7 @@ namespace Common.Data.RegEx
       if (ReferenceEquals(null, obj)) return false;
       if (ReferenceEquals(this, obj)) return true;
       if (obj.GetType() != this.GetType()) return false;
-      return Equals((Literal) obj);
+      return Equals((Literal)obj);
     }
 
     public override int GetHashCode()

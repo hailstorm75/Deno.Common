@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Common.Data.Tests.Data
 {
@@ -8,26 +10,26 @@ namespace Common.Data.Tests.Data
     {
       yield return new object[]
       {
-        new []
+        new List<string>
         {
           "1a5",
           "2a6",
           "3a7"
-        }
+        }.ToArray()
       };
       yield return new object[]
       {
-        new []
+        new List<string>
         {
           "234",
           "2301",
           "501",
           "01"
-        }
+        }.ToArray()
       };
       yield return new object[]
       {
-        new []
+        new List<string>
         {
           "testa",
           "testb",
@@ -35,11 +37,11 @@ namespace Common.Data.Tests.Data
           "testf",
           "testc",
           "testn"
-        }
+        }.ToArray()
       };
       yield return new object[]
       {
-        new []
+        new List<string>
         {
           "atest",
           "btest",
@@ -47,21 +49,21 @@ namespace Common.Data.Tests.Data
           "ftest",
           "ctest",
           "ntest"
-        }
+        }.ToArray()
       };
       yield return new object[]
       {
-        new []
+        new List<string>
         {
-          "test1.txt",
-          "test2.txt",
-          "test3.txt",
-          "test4.txt"
+          @"abc(1).txt",
+          @"abc(2).txt",
+          @"abc(3).txt",
+          @"abc(4).txt"
         }
       };
       yield return new object[]
       {
-        new []
+        new List<string>
         {
           "1. testA",
           "2. testB",
@@ -69,11 +71,11 @@ namespace Common.Data.Tests.Data
           "4. testD",
           "5. testE",
           "6. testF"
-        }
+        }.ToArray()
       };
       yield return new object[]
       {
-        new []
+        new List<string>
         {
           "Azero1go5",
           "Azero1go6",
@@ -93,7 +95,7 @@ namespace Common.Data.Tests.Data
           "Czero2go6",
           "Czero3go5",
           "Czero3go6",
-        }
+        }.ToArray()
       };
     }
   }
