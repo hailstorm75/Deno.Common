@@ -456,7 +456,7 @@ namespace Common.Data
 
           foreach (var @string in strings)
           {
-            var split = @string.Value.Split(rootString, 2);
+            var split = @string.Value.Split(new[] { rootString }, 2, StringSplitOptions.None);
             left.Add(new Literal(split.First()));
             right.Add(new Literal(split.Last()));
           }
