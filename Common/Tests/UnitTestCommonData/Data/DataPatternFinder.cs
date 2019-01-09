@@ -10,6 +10,15 @@ namespace Common.Data.Tests.Data
       {
         new []
         {
+          "1a5",
+          "2a6",
+          "3a7"
+        }
+      };
+      yield return new object[]
+      {
+        new []
+        {
           "234",
           "2301",
           "501",
@@ -62,6 +71,30 @@ namespace Common.Data.Tests.Data
           "6. testF"
         }
       };
+      //yield return new object[]
+      //{
+      //  new []
+      //  {
+      //    "Azero1go5",
+      //    "Azero1go6",
+      //    "Azero2go5",
+      //    "Azero2go6",
+      //    "Azero3go5",
+      //    "Azero3go6",
+      //    "Bzero1go5",
+      //    "Bzero1go6",
+      //    "Bzero2go5",
+      //    "Bzero2go6",
+      //    "Bzero3go5",
+      //    "Bzero3go6",
+      //    "Czero1go5",
+      //    "Czero1go6",
+      //    "Czero2go5",
+      //    "Czero2go6",
+      //    "Czero3go5",
+      //    "Czero3go6",
+      //  }
+      //};
     }
   }
 }
