@@ -9,4 +9,5 @@ add_executable(
   UnitTestCommonMath
   main.cpp
   UtNumberInRange.cpp
+  UtMatrix.cpp
 )

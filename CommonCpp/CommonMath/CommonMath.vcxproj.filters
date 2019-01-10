@@ -21,9 +21,6 @@
     <ClInclude Include="NumberInRange.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BaseMatrix.hpp">
-      <Filter>Header Files\Matricices</Filter>
-    </ClInclude>
     <ClInclude Include="Matrix.hpp">
       <Filter>Header Files\Matricices</Filter>
     </ClInclude>
