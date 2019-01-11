@@ -3,7 +3,7 @@
 
 namespace Common::Math::Tests
 {
-  template <typename T, std::enable_if_t<std::is_arithmetic<T>::value && std::is_integral<T>::value>* = nullptr>
+  template <typename T, typename = std::enable_if_t<std::is_arithmetic<T>::value && (std::is_floating_point<T>::value || std::is_integral<T>::value)>>
   class DataMatrix
   {
   public:

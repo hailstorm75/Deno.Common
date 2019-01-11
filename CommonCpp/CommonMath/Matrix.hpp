@@ -27,37 +27,33 @@ namespace Common
       Identity = 4
     };
 
-    constexpr enum class Type operator | (const enum class Type selfValue, const enum class Type inValue)
+    constexpr Type operator | (const Type & selfValue, const Type & inValue)
     {
-      return static_cast<enum class Type>(unsigned(selfValue) | unsigned(inValue));
+      return static_cast<Type>(unsigned(selfValue) | unsigned(inValue));
     }
 
-    constexpr bool operator && (const enum class Type selfValue, const enum class Type inValue)
+    constexpr bool operator && (const Type & selfValue, const Type & inValue)
     {
       return (unsigned(selfValue) & unsigned(inValue)) != 0;
     }
 
-    class InvertableMatrixOperationException : public std::exception
+    class InvertableMatrixOperationException : public std::runtime_error
     {
     public:
-      InvertableMatrixOperationException() = default;
-      explicit InvertableMatrixOperationException(char const * const msg) noexcept : std::exception(msg) {  }
-      InvertableMatrixOperationException(char const * const msg, const int id) noexcept : std::exception(msg, id) {  }
+      explicit InvertableMatrixOperationException(const std::string & msg) noexcept : std::runtime_error(msg) {  }
     };
 
-    class MatrixDimensionException : public std::exception
+    class MatrixDimensionException : public std::runtime_error
     {
     public:
-      MatrixDimensionException() = default;
-      explicit MatrixDimensionException(char const * const msg) noexcept : std::exception(msg) {  }
-      MatrixDimensionException(char const * const msg, const int id) noexcept : std::exception(msg, id) {  }
+      explicit MatrixDimensionException(const std::string & msg) noexcept : std::runtime_error(msg) {  }
     };
 
     /**
      * \brief Class representing a mathematical matrix
      * \tparam T Type of matrix values. Type can only be numeric
      */
-    template <class T, std::enable_if_t<std::is_arithmetic<T>::value && std::is_integral<T>::value>* = nullptr>
+    template <typename T, typename = std::enable_if_t<std::is_arithmetic<T>::value && (std::is_floating_point<T>::value || std::is_integral<T>::value)>>
     class Matrix
     {
     protected:

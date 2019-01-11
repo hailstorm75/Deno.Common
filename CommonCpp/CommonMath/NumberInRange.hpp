@@ -11,7 +11,7 @@ namespace Common::Math
    * \brief Keeps an integer value in a given range
    * \tparam T Type of value. Anything but integer types are prohibited.
    */
-  template <typename T, std::enable_if_t<std::is_arithmetic<T>::value && std::is_integral<T>::value>* = nullptr>
+  template <typename T, typename = std::enable_if_t<std::is_arithmetic<T>::value && std::numeric_limits<T>::is_integer>>
   class NumberInRange
   {
     /**
