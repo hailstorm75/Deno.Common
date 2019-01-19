@@ -498,3 +498,4 @@ ASALocalRun/
 /CommonCpp/Tests/*/cmake_install.cmake
 /CommonCpp/Tests/*/CMakeCache.txt
 /CommonCpp/Tests/*/Makefile
+/CommonCpp/Tests/UnitTestCommonMath/UnitTestCommonMath

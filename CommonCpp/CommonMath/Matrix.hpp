@@ -80,48 +80,6 @@ namespace Common
         m_inverse = CalculateInverse();
       }
 
-    public:
-      /**
-       * \brief Getter method for the Rows property
-       * \return Rows count
-       */
-      unsigned GetRows() const noexcept { return m_matrixValues.size(); }
-      /**
-       * \brief Getter method for the Columns property
-       * \return Columns count
-       */
-      unsigned GetColumns() const noexcept { return m_matrixValues[0].size(); }
-      /**
-       * \brief Getter method for the MatrixValues property
-       * \return Collection of matrix values
-       */
-      const std::vector<std::vector<T>> & GetMatrixValues() const noexcept { return m_matrixValues; }
-      /**
-       * \brief Setter method for the MatrixValues property
-       * \param values Collection of values to set
-       */
-      void SetMatrixValues(const std::vector<std::vector<T>> & values)
-      {
-        m_matrixValues = ValidateArray(values);
-        Recalculate();
-      }
-      /**
-       * \brie Getter method for the Type property
-       * \return Type of matrix
-       */
-      const Type & GetMatrixType() const noexcept { return m_matrixType; }
-      /**
-       * \brief Getter method for the Inverse property
-       * \return Inverse of the matrix
-       */
-      const Matrix<T> & GetInverse() const noexcept { return m_inverse; }
-      /**
-       * \brief Getter method for the Determinant property
-       * \return Determinant of the matrix
-       */
-      double GetDeterminant() const noexcept { return m_determinant; }
-
-    protected:
       /**
        * \brief Validates collection
        * \param values Collection of values to validate
@@ -156,11 +114,12 @@ namespace Common
 
         std::vector<std::vector<T>> arr;
         arr.resize(rows);
-        for (std::vector<T> item : arr)
-          item.resize(cols);
+        for (auto i = 0; i < rows; ++i)
+          arr[i].resize(cols);
 
         return arr;
       }
+
       Matrix<T> CalculateMatrixOfCofactors() const noexcept
       {
         auto sign = 1;
@@ -289,6 +248,7 @@ namespace Common
 
         return std::make_shared<Matrix<T>>(cofactorMatrix);
       }
+
       static bool IsIdentity(const std::vector<std::vector<T>> & matrix)
       {
         unsigned index = 0;
@@ -307,7 +267,6 @@ namespace Common
       explicit Matrix(const std::vector<std::vector<T>> & values)
         : m_matrixType(CalculateMatrixType(values)),
         m_matrixValues(ValidateArray(values)) { }
-
       Matrix(const int size, const bool identity)
         : m_matrixType(identity ? Type::Identity | Type::Invertable : Type::Invertable),
         m_matrixValues(InitVector(size, size))
@@ -316,11 +275,68 @@ namespace Common
           for (auto i = 0; i < size; ++i)
             m_matrixValues[i][i] = 1;
       }
-
       Matrix(const int length, const int height)
         : m_matrixType(length == height ? Type::Invertable : Type::NonInvertable),
         m_matrixValues(InitVector(length, height)) { }
+      /**
+       * \brief Copy constructor
+       * \param matrix Matrix instance to copy from
+       */
+      explicit Matrix(const Matrix<T> & matrix)
+        : m_matrixType(matrix.m_matrixType), m_determinant(matrix.m_determinant), m_matrixValues(matrix.m_matrixValues)
+      { }
+      /**
+       * \brief Move constructor
+       * \param other Matrix instance to move from
+       */
+      explicit Matrix(Matrix<T> && other)
+        : m_matrixType(std::move(other.m_matrixType)),
+        m_determinant(std::move(other.m_determinant)),
+        m_inverse(std::move(other.m_inverse)),
+        m_matrixValues(std::move(other.m_matrixValues))
+      { }
 
+      ~Matrix() = default;
+
+      /**
+       * \brief Getter method for the Rows property
+       * \return Rows count
+       */
+      unsigned GetRows() const noexcept { return m_matrixValues.size(); }
+      /**
+       * \brief Getter method for the Columns property
+       * \return Columns count
+       */
+      unsigned GetColumns() const noexcept { return m_matrixValues[0].size(); }
+      /**
+       * \brief Getter method for the MatrixValues property
+       * \return Collection of matrix values
+       */
+      const std::vector<std::vector<T>> & GetMatrixValues() const noexcept { return m_matrixValues; }
+      /**
+       * \brief Setter method for the MatrixValues property
+       * \param values Collection of values to set
+       */
+      void SetMatrixValues(const std::vector<std::vector<T>> & values)
+      {
+        m_matrixValues = ValidateArray(values);
+        Recalculate();
+      }
+      /**
+       * \brie Getter method for the Type property
+       * \return Type of matrix
+       */
+      const Type & GetMatrixType() const noexcept { return m_matrixType; }
+      /**
+       * \brief Getter method for the Inverse property
+       * \return Inverse of the matrix
+       */
+      const Matrix<T> & GetInverse() const noexcept { return m_inverse; }
+      /**
+       * \brief Getter method for the Determinant property
+       * \return Determinant of the matrix
+       */
+      double GetDeterminant() const noexcept { return m_determinant; }
       Matrix<T> Transpose() const noexcept
       {
         auto transposedValues = InitVector(GetRows(), GetColumns());
@@ -329,6 +345,136 @@ namespace Common
             transposedValues[i][j] = m_matrixValues[j][i];
 
         return Matrix<T>(transposedValues);
+      }
+
+      Matrix<T> & operator = (const Matrix<T> & other)
+      {
+        m_matrixValues = other.m_matrixValues;
+        m_matrixType = other.m_matrixType;
+        m_determinant = other.m_determinant;
+        m_inverse = other.m_inverse;
+
+        return *this;
+      }
+      Matrix<T> & operator = (const Matrix<T> && other)
+      {
+        m_matrixValues = std::move(other.m_matrixValues);
+        m_matrixType = std::move(other.m_matrixType);
+        m_determinant = std::move(other.m_determinant);
+        m_inverse = std::move(other.m_inverse);
+
+        return *this;
+      }
+
+      Matrix<T> operator + (const Matrix<T> & other) const
+      {
+        if (GetRows() != other.GetRows() || GetColumns() != other.GetColumns())
+          throw MatrixDimensionException("Matricies of different dimensions cannot be summed.");
+
+        auto outputValues = InitVector(GetRows(), GetColumns());
+
+        for (unsigned i = 0; i < GetRows(); ++i)
+          for (unsigned j = 0; j < GetColumns(); ++j)
+            outputValues[i][j] = m_matrixValues[i][j] + other.m_matrixValues[i][j];
+
+        return Matrix<T>(outputValues);
+      }
+      Matrix<T> & operator +=(const Matrix<T> & other)
+      {
+        if (GetRows() != other.GetRows() || GetColumns() != other.GetColumns())
+          throw MatrixDimensionException("Matricies of different dimensions cannot be summed.");
+
+        for (auto i = 0; i < GetRows(); ++i)
+          for (auto j = 0; j < GetColumns(); ++j)
+            m_matrixValues[i][j] += other.m_matrixValues[i][j];
+
+        return *this;
+      }
+
+      Matrix<T> operator - (const Matrix<T> & other) const
+      {
+        if (GetRows() != other.GetRows() || GetColumns() != other.GetColumns())
+          throw MatrixDimensionException("Matricies of different dimensions cannot be summed.");
+
+        auto outputValues = InitVector(GetRows(), GetColumns());
+
+        for (auto i = 0; i < GetRows(); ++i)
+          for (auto j = 0; j < GetColumns(); ++j)
+            outputValues[i][j] = m_matrixValues[i][j] - other.m_matrixValues[i][j];
+
+        return Matrix<T>(outputValues);
+      }
+      Matrix<T> & operator -=(const Matrix<T> & other)
+      {
+        if (GetRows() != other.GetRows() || GetColumns() != other.GetColumns())
+          throw MatrixDimensionException("Matricies of different dimensions cannot be summed.");
+
+        for (auto i = 0; i < GetRows(); ++i)
+          for (auto j = 0; j < GetColumns(); ++j)
+            m_matrixValues[i][j] -= other.m_matrixValues[i][j];
+
+        return *this;
+      }
+
+      Matrix<T> operator * (const Matrix<T> & other) const
+      {
+        if (GetRows() != other.GetColumns())
+          throw MatrixDimensionException("");
+
+        auto outputValues = InitVector(GetRows(), other.GetColumns());
+
+        for (auto i = 0; i < other.GetColumns(); i++)
+          for (auto j = 0; j < GetRows(); j++)
+            for (auto k = 0; k < GetRows(); k++)
+              outputValues[i][j] = outputValues[i][j] + m_matrixValues[i][k] * other.m_matrixValues[k][j];
+
+        return Matrix<T>(outputValues);
+      }
+
+      template <typename TOther, typename = std::enable_if_t<std::is_arithmetic<TOther>::value && (std::is_floating_point<TOther>::value || std::is_integral<TOther>::value)>>
+      Matrix<T> operator * (const TOther & other) const
+      {
+        auto outputValues = InitVector(GetRows(), GetColumns());
+
+        for (auto i = 0; i < GetRows(); ++i)
+          for (auto j = 0; j < GetColumns(); ++j)
+            outputValues[i][j] = m_matrixValues[i][j] * other;
+
+        return Matrix<T>(outputValues);
+      }
+      template <typename TOther, typename = std::enable_if_t<std::is_arithmetic<TOther>::value && (std::is_floating_point<TOther>::value || std::is_integral<TOther>::value)>>
+      Matrix<T> & operator *=(const TOther & other) const
+      {
+        auto outputValues = InitVector(GetRows(), GetColumns());
+
+        for (auto i = 0; i < GetRows(); ++i)
+          for (auto j = 0; j < GetColumns(); ++j)
+            m_matrixValues[i][j] *= other;
+
+        return *this;
+      }
+
+      template <typename TOther, typename = std::enable_if_t<std::is_arithmetic<TOther>::value && (std::is_floating_point<TOther>::value || std::is_integral<TOther>::value)>>
+      Matrix<T> operator / (const TOther & other) const
+      {
+        auto outputValues = InitVector(GetRows(), GetColumns());
+
+        for (auto i = 0; i < GetRows(); ++i)
+          for (auto j = 0; j < GetColumns(); ++j)
+            outputValues[i][j] = m_matrixValues[i][j] / other;
+
+        return Matrix<T>(outputValues);
+      }
+      template <typename TOther, typename = std::enable_if_t<std::is_arithmetic<TOther>::value && (std::is_floating_point<TOther>::value || std::is_integral<TOther>::value)>>
+      Matrix<T> & operator /=(const TOther & other) const
+      {
+        auto outputValues = InitVector(GetRows(), GetColumns());
+
+        for (auto i = 0; i < GetRows(); ++i)
+          for (auto j = 0; j < GetColumns(); ++j)
+            m_matrixValues[i][j] /= other;
+
+        return *this;
       }
 
       std::string ToString() const
