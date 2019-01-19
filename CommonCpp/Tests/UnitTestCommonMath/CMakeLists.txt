@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.0)
 
 set(CMAKE_BUILD_TYPE Test)
-set(CMAKE_CXX_FLAGS "-std=gnu++1z")
+set(CMAKE_CXX_FLAGS "-std=gnu++2a")
 
 project(UnitTestCommonMath)
 
