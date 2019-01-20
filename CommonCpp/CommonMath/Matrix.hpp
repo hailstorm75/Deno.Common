@@ -282,7 +282,7 @@ namespace Common
        * \brief Copy constructor
        * \param matrix Matrix instance to copy from
        */
-      explicit Matrix(const Matrix<T> & matrix)
+      Matrix(const Matrix<T> & matrix)
         : m_matrixType(matrix.m_matrixType),
         m_determinant(matrix.m_determinant),
         m_inverse(matrix.m_inverse),
