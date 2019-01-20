@@ -285,7 +285,7 @@ namespace Common
       explicit Matrix(const Matrix<T> & matrix)
         : m_matrixType(matrix.m_matrixType),
         m_determinant(matrix.m_determinant),
-        m_inverse(other.m_inverse),
+        m_inverse(matrix.m_inverse),
         m_matrixValues(matrix.m_matrixValues)
       { }
       /**
