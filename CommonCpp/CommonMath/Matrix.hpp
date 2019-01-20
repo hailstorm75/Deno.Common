@@ -283,18 +283,21 @@ namespace Common
        * \param matrix Matrix instance to copy from
        */
       explicit Matrix(const Matrix<T> & matrix)
-        : m_matrixType(matrix.m_matrixType), m_determinant(matrix.m_determinant), m_matrixValues(matrix.m_matrixValues)
+        : m_matrixType(matrix.m_matrixType),
+        m_determinant(matrix.m_determinant),
+        m_inverse(other.m_inverse),
+        m_matrixValues(matrix.m_matrixValues)
       { }
       /**
        * \brief Move constructor
        * \param other Matrix instance to move from
        */
-      explicit Matrix(Matrix<T> && other)
-        : m_matrixType(std::move(other.m_matrixType)),
-        m_determinant(std::move(other.m_determinant)),
-        m_inverse(std::move(other.m_inverse)),
-        m_matrixValues(std::move(other.m_matrixValues))
-      { }
+      // explicit Matrix(Matrix<T> && other)
+      //   : m_matrixType(std::move(other.m_matrixType)),
+      //   m_determinant(std::move(other.m_determinant)),
+      //   m_inverse(std::move(other.m_inverse)),
+      //   m_matrixValues(std::move(other.m_matrixValues))
+      // { }
 
       ~Matrix() = default;
 
@@ -356,22 +359,22 @@ namespace Common
 
         return *this;
       }
-      Matrix<T> & operator = (const Matrix<T> && other)
-      {
-        m_matrixValues = std::move(other.m_matrixValues);
-        m_matrixType = std::move(other.m_matrixType);
-        m_determinant = std::move(other.m_determinant);
-        m_inverse = std::move(other.m_inverse);
+      // Matrix<T> & operator = (const Matrix<T> && other)
+      // {
+      //   m_matrixValues = std::move(other.m_matrixValues);
+      //   m_matrixType = std::move(other.m_matrixType);
+      //   m_determinant = std::move(other.m_determinant);
+      //   m_inverse = std::move(other.m_inverse);
 
-        return *this;
-      }
+      //   return *this;
+      // }
 
       Matrix<T> operator + (const Matrix<T> & other) const
       {
         if (GetRows() != other.GetRows() || GetColumns() != other.GetColumns())
           throw MatrixDimensionException("Matricies of different dimensions cannot be summed.");
 
-        auto outputValues = InitVector(GetRows(), GetColumns());
+        std::vector<std::vector<T>> outputValues = InitVector(GetRows(), GetColumns());
 
         for (unsigned i = 0; i < GetRows(); ++i)
           for (unsigned j = 0; j < GetColumns(); ++j)
@@ -384,8 +387,8 @@ namespace Common
         if (GetRows() != other.GetRows() || GetColumns() != other.GetColumns())
           throw MatrixDimensionException("Matricies of different dimensions cannot be summed.");
 
-        for (auto i = 0; i < GetRows(); ++i)
-          for (auto j = 0; j < GetColumns(); ++j)
+        for (unsigned i = 0; i < GetRows(); ++i)
+          for (unsigned j = 0; j < GetColumns(); ++j)
             m_matrixValues[i][j] += other.m_matrixValues[i][j];
 
         return *this;
@@ -396,10 +399,10 @@ namespace Common
         if (GetRows() != other.GetRows() || GetColumns() != other.GetColumns())
           throw MatrixDimensionException("Matricies of different dimensions cannot be summed.");
 
-        auto outputValues = InitVector(GetRows(), GetColumns());
+        std::vector<std::vector<T>> outputValues = InitVector(GetRows(), GetColumns());
 
-        for (auto i = 0; i < GetRows(); ++i)
-          for (auto j = 0; j < GetColumns(); ++j)
+        for (unsigned i = 0; i < GetRows(); ++i)
+          for (unsigned j = 0; j < GetColumns(); ++j)
             outputValues[i][j] = m_matrixValues[i][j] - other.m_matrixValues[i][j];
 
         return Matrix<T>(outputValues);
@@ -409,8 +412,8 @@ namespace Common
         if (GetRows() != other.GetRows() || GetColumns() != other.GetColumns())
           throw MatrixDimensionException("Matricies of different dimensions cannot be summed.");
 
-        for (auto i = 0; i < GetRows(); ++i)
-          for (auto j = 0; j < GetColumns(); ++j)
+        for (unsigned i = 0; i < GetRows(); ++i)
+          for (unsigned j = 0; j < GetColumns(); ++j)
             m_matrixValues[i][j] -= other.m_matrixValues[i][j];
 
         return *this;
@@ -421,11 +424,11 @@ namespace Common
         if (GetRows() != other.GetColumns())
           throw MatrixDimensionException("");
 
-        auto outputValues = InitVector(GetRows(), other.GetColumns());
+        std::vector<std::vector<T>> outputValues = InitVector(GetRows(), other.GetColumns());
 
-        for (auto i = 0; i < other.GetColumns(); i++)
-          for (auto j = 0; j < GetRows(); j++)
-            for (auto k = 0; k < GetRows(); k++)
+        for (unsigned i = 0; i < other.GetColumns(); i++)
+          for (unsigned j = 0; j < GetRows(); j++)
+            for (unsigned k = 0; k < GetRows(); k++)
               outputValues[i][j] = outputValues[i][j] + m_matrixValues[i][k] * other.m_matrixValues[k][j];
 
         return Matrix<T>(outputValues);
@@ -434,10 +437,10 @@ namespace Common
       template <typename TOther, typename = std::enable_if_t<std::is_arithmetic<TOther>::value && (std::is_floating_point<TOther>::value || std::is_integral<TOther>::value)>>
       Matrix<T> operator * (const TOther & other) const
       {
-        auto outputValues = InitVector(GetRows(), GetColumns());
+        std::vector<std::vector<T>> outputValues = InitVector(GetRows(), GetColumns());
 
-        for (auto i = 0; i < GetRows(); ++i)
-          for (auto j = 0; j < GetColumns(); ++j)
+        for (unsigned i = 0; i < GetRows(); ++i)
+          for (unsigned j = 0; j < GetColumns(); ++j)
             outputValues[i][j] = m_matrixValues[i][j] * other;
 
         return Matrix<T>(outputValues);
@@ -445,10 +448,10 @@ namespace Common
       template <typename TOther, typename = std::enable_if_t<std::is_arithmetic<TOther>::value && (std::is_floating_point<TOther>::value || std::is_integral<TOther>::value)>>
       Matrix<T> & operator *=(const TOther & other) const
       {
-        auto outputValues = InitVector(GetRows(), GetColumns());
+        std::vector<std::vector<T>> outputValues = InitVector(GetRows(), GetColumns());
 
-        for (auto i = 0; i < GetRows(); ++i)
-          for (auto j = 0; j < GetColumns(); ++j)
+        for (unsigned i = 0; i < GetRows(); ++i)
+          for (unsigned j = 0; j < GetColumns(); ++j)
             m_matrixValues[i][j] *= other;
 
         return *this;
@@ -457,10 +460,10 @@ namespace Common
       template <typename TOther, typename = std::enable_if_t<std::is_arithmetic<TOther>::value && (std::is_floating_point<TOther>::value || std::is_integral<TOther>::value)>>
       Matrix<T> operator / (const TOther & other) const
       {
-        auto outputValues = InitVector(GetRows(), GetColumns());
+        std::vector<std::vector<T>> outputValues = InitVector(GetRows(), GetColumns());
 
-        for (auto i = 0; i < GetRows(); ++i)
-          for (auto j = 0; j < GetColumns(); ++j)
+        for (unsigned i = 0; i < GetRows(); ++i)
+          for (unsigned j = 0; j < GetColumns(); ++j)
             outputValues[i][j] = m_matrixValues[i][j] / other;
 
         return Matrix<T>(outputValues);
@@ -468,10 +471,10 @@ namespace Common
       template <typename TOther, typename = std::enable_if_t<std::is_arithmetic<TOther>::value && (std::is_floating_point<TOther>::value || std::is_integral<TOther>::value)>>
       Matrix<T> & operator /=(const TOther & other) const
       {
-        auto outputValues = InitVector(GetRows(), GetColumns());
+        std::vector<std::vector<T>> outputValues = InitVector(GetRows(), GetColumns());
 
-        for (auto i = 0; i < GetRows(); ++i)
-          for (auto j = 0; j < GetColumns(); ++j)
+        for (unsigned i = 0; i < GetRows(); ++i)
+          for (unsigned j = 0; j < GetColumns(); ++j)
             m_matrixValues[i][j] /= other;
 
         return *this;
@@ -480,11 +483,12 @@ namespace Common
       std::string ToString() const
       {
         std::ostringstream result;
-        for (auto row = 0; row < GetRows(); row++)
+        for (unsigned row = 0; row < GetRows(); row++)
         {
-          for (auto column = 0; column < GetColumns() - 1; column++)
+          for (unsigned column = 0; column < GetColumns() - 1; column++)
             result << m_matrixValues[row][column];
           result << m_matrixValues[row][GetColumns() - 1];
+
           if (row != GetRows() - 1) result << '\n';
         }
 
