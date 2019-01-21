@@ -292,12 +292,12 @@ namespace Common
        * \brief Move constructor
        * \param other Matrix instance to move from
        */
-      // explicit Matrix(Matrix<T> && other)
-      //   : m_matrixType(std::move(other.m_matrixType)),
-      //   m_determinant(std::move(other.m_determinant)),
-      //   m_inverse(std::move(other.m_inverse)),
-      //   m_matrixValues(std::move(other.m_matrixValues))
-      // { }
+      Matrix(Matrix<T> && other)
+        : m_matrixType(std::move(other.m_matrixType)),
+        m_determinant(std::move(other.m_determinant)),
+        m_inverse(std::move(other.m_inverse)),
+        m_matrixValues(std::move(other.m_matrixValues))
+      { }
 
       ~Matrix() = default;
 
@@ -359,15 +359,15 @@ namespace Common
 
         return *this;
       }
-      // Matrix<T> & operator = (const Matrix<T> && other)
-      // {
-      //   m_matrixValues = std::move(other.m_matrixValues);
-      //   m_matrixType = std::move(other.m_matrixType);
-      //   m_determinant = std::move(other.m_determinant);
-      //   m_inverse = std::move(other.m_inverse);
+      Matrix<T> & operator = (const Matrix<T> && other)
+      {
+        m_matrixValues = std::move(other.m_matrixValues);
+        m_matrixType = std::move(other.m_matrixType);
+        m_determinant = std::move(other.m_determinant);
+        m_inverse = std::move(other.m_inverse);
 
-      //   return *this;
-      // }
+        return *this;
+      }
 
       Matrix<T> operator + (const Matrix<T> & other) const
       {

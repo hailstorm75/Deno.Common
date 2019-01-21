@@ -65,6 +65,7 @@
     <Compile Include="Serialization\Extensions\BinarySerializationExt.cs" />
     <Compile Include="Serialization\Extensions\XMLSerializationExt.cs" />
     <Compile Include="Serialization\XMLSerialization.cs" />
+    <Compile Include="Singleton.cs" />
     <Compile Include="Transition.cs" />
     <Compile Include="Trie.cs" />
   </ItemGroup>

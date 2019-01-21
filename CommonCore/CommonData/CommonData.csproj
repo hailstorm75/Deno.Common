@@ -32,6 +32,7 @@
     <Compile Include="..\..\Common\CommonData\Serialization\Extensions\BinarySerializationExt.cs" Link="Serialization\Extensions\BinarySerializationExt.cs" />
     <Compile Include="..\..\Common\CommonData\Serialization\Extensions\XMLSerializationExt.cs" Link="Serialization\Extensions\XMLSerializationExt.cs" />
     <Compile Include="..\..\Common\CommonData\Serialization\XMLSerialization.cs" Link="Serialization\XMLSerialization.cs" />
+    <Compile Include="..\..\Common\CommonData\Singleton.cs" Link="Singleton.cs" />
     <Compile Include="..\..\Common\CommonData\Transition.cs" Link="Transition.cs" />
     <Compile Include="..\..\Common\CommonData\Trie.cs" Link="Trie.cs" />
   </ItemGroup>
