@@ -9,6 +9,8 @@ namespace Common.Data
   /// <typeparam name="T">Any type inherited from Singleton</typeparam>
   public abstract class Singleton<T> where T : Singleton<T>
   {
+    public T Instance => INSTANCE.Value;
+
     /// <summary>
     /// Lazily created instance variable.
     /// </summary>
