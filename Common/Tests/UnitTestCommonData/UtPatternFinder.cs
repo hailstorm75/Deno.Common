@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -17,10 +18,10 @@ namespace Common.Data.Tests
     public void FindPattern(IReadOnlyCollection<string> data)
     {
       // Arrange
-      var finder = new PatternGenerator(data);
+      var finder = new PatternGenerator();
 
       // Act
-      var result = finder.FindPattern();
+      var result = finder.LoadStrings(data).FindPattern().ToString();
 
       // Assert
       var count = data.Count(x => Regex.IsMatch(x, result));

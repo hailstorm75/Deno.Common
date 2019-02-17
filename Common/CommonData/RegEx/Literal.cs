@@ -7,7 +7,8 @@ namespace Common.Data.RegEx
   /// <summary>
   /// Represents a literal
   /// </summary>
-  internal class Literal : RegularExpression, IReduceable, IEquatable<RegularExpression>
+  public class Literal
+    : RegularExpression, IReduceable, IEquatable<RegularExpression>
   {
     #region Properties
 
@@ -17,7 +18,8 @@ namespace Common.Data.RegEx
     public string Value { get; private set; }
 
     /// <inheritdoc />
-    public override int Length => Value.Length;
+    public override int Length
+      => Value.Length;
 
     /// <summary>
     /// Variable to solve
@@ -30,12 +32,14 @@ namespace Common.Data.RegEx
     /// Default constructor
     /// </summary>
     /// <param name="value">Literal value</param>
-    public Literal(string value) => Value = value;
+    public Literal(string value)
+      => Value = value;
 
     #region Methods
 
     /// <inheritdoc />
-    public override string ToString() => Regex.Escape(Value);
+    public override string ToString()
+      => Regex.Escape(Value);
 
     /// <inheritdoc />
     public override bool Substitute(int from, RegularExpression substitution)
@@ -88,10 +92,8 @@ namespace Common.Data.RegEx
       return this;
     }
 
-    protected bool Equals(Literal other)
-    {
-      return string.Equals(Value, other.Value) && Solved == other.Solved && (Solved || From == other.From);
-    }
+    private bool Equals(Literal other)
+      => string.Equals(Value, other.Value) && Solved == other.Solved && (Solved || From == other.From);
 
     public override bool Equals(object obj)
     {
@@ -110,8 +112,6 @@ namespace Common.Data.RegEx
     }
 
     public bool Equals(RegularExpression other)
-    {
-      return Equals(other as Literal);
-    }
+      => Equals(other as Literal);
   }
 }

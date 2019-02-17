@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 namespace Common.Data.RegEx
 {
   /// <summary>
   /// Represents an alternation of regular expression parts
   /// </summary>
-  internal class Alternation : RegularExpression, ICanSimplify
+  public class Alternation
+    : RegularExpression, ICanSimplify
   {
     #region Properties
 
@@ -56,7 +58,8 @@ namespace Common.Data.RegEx
     }
 
     /// <inheritdoc />
-    public override string ToString() => string.Join("|", Parts);
+    public override string ToString()
+      => string.Join("|", Parts);
 
     /// <inheritdoc />
     public override bool Substitute(int from, RegularExpression substitution)
@@ -96,7 +99,7 @@ namespace Common.Data.RegEx
       return result;
     }
 
-    public enum Side
+    private enum Side
     {
       Left,
       Right,
@@ -265,11 +268,15 @@ namespace Common.Data.RegEx
       return new Conjunction(new Alternation(leftSplit).Simplify(), new Conjunction(new Literal(root), new Alternation(rightSplit).Simplify()));
     }
 
-    public RegularExpression Simplify()
+    public RegularExpression Simplify(CancellationToken ct = default)
     {
       for (var i = 0; i < Parts.Count; i++)
+      {
+        ct.ThrowIfCancellationRequested();
         if (Parts[i] is ICanSimplify alt)
-          Parts[i] = alt.Simplify();
+          Parts[i] = alt.Simplify(ct);
+      }
+
       return ReduceLeft(this);
     }
 

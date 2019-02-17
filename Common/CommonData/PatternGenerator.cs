@@ -1,5 +1,7 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Collections.Generic;
+using System.Threading;
 using Common.Data.RegEx;
 
 namespace Common.Data
@@ -84,7 +86,7 @@ namespace Common.Data
     /// <summary>
     /// Set of strings
     /// </summary>
-    private Trie Strings { get; }
+    private Trie Strings { get; set; }
 
     private IEnumerable<PatternPart> FoundPatterns { get; set; }
 
@@ -92,25 +94,43 @@ namespace Common.Data
     /// Default constructor
     /// </summary>
     /// <param name="strings">Set of strings to analyze</param>
-    public PatternGenerator(IEnumerable<string> strings)
+    public PatternGenerator() { }
+
+    public PatternGenerator LoadStrings(IEnumerable<string> strings)
     {
+      OnOperationChanged(OperationArgs.OperationTypes.Loading);
       Strings = new Trie();
       Strings.AddRange(strings);
+
+      return this;
     }
 
     /// <summary>
     /// Finds pattern based on <see cref="Strings"/>
     /// </summary>
     /// <returns>RegEx</returns>
-    public string FindPattern()
+    public RegularExpression FindPattern(CancellationToken ct = default)
     {
-      var minimized = DfaMinimizer<char>.Minimize(Strings);
-      var transitions = minimized.GetTransitions().ToList();
-      var info = minimized.GetAutomataInfo();
+      try
+      {
+        OnOperationChanged(OperationArgs.OperationTypes.Minimizing);
+        var minimized = DfaMinimizer<char>.Minimize(Strings, ct);
 
-      var result = GenerateRegex(transitions, info.Item3, info.Item1);
+        OnOperationChanged(OperationArgs.OperationTypes.ExtractingData);
+        var transitions = minimized.GetTransitions(ct).ToList();
+        var info = minimized.GetAutomataInfo(ct);
 
-      return result.ToString();
+        OnOperationChanged(OperationArgs.OperationTypes.Generating);
+        var result = GenerateRegex(transitions, info.Item3, info.Item1, ct);
+
+        OnOperationChanged(OperationArgs.OperationTypes.Finished);
+        return result;
+      }
+      catch (OperationCanceledException)
+      {
+        OnOperationChanged(OperationArgs.OperationTypes.Cancelled);
+        return null;
+      }
     }
 
     #region Static Methods
@@ -118,7 +138,9 @@ namespace Common.Data
     private static RegularExpression NewRegEx(IEnumerable<RegularExpression> regex)
     {
       var items = regex.ToList();
-      return items.Count == 1 ? items.First() : new Alternation(items);
+      return items.Count == 1
+        ? items.First()
+        : new Alternation(items);
     }
 
     /// <summary>
@@ -131,15 +153,24 @@ namespace Common.Data
     /// The algorithm is based on the Brzozowski Algebraic method described here: https://qntm.org/algo/
     /// </remarks>
     /// <returns>RegEx</returns>
-    private static RegularExpression GenerateRegex(IEnumerable<Transition<char>> transitions, int initialState, int stateCount)
+    private static RegularExpression GenerateRegex(IEnumerable<Transition<char>> transitions, int initialState, int stateCount, CancellationToken ct = default)
     {
       // Latest substitutions eqautions
       // Initialization note:
       //    The initial state accepts Epsilon characters - string.Empty.
       //    It is the initial state - no need to set the 'From' property
-      var substitutions = new Dictionary<int, RegularExpression> { { initialState, new Literal(string.Empty) { Solved = true } } };
+      var substitutions = new Dictionary<int, RegularExpression>
+      {
+        {
+          initialState,
+          new Literal(string.Empty) { Solved = true }
+        }
+      };
+      ct.ThrowIfCancellationRequested();
+
       // Total number of substituted equations, 1 because of initial state
       var substitutionsCount = 1;
+
       // Remaining equations to eliminate
       var toEliminate = transitions
         .GroupBy(t => t.To)
@@ -161,11 +192,17 @@ namespace Common.Data
       // Eliminate all equations
       while (substitutionsCount != stateCount)
       {
-        var substituted = new Dictionary<int, RegularExpression>();                                 // Stores newly substituted equations
-        foreach (var solution in substitutions)                                                   // Tries to eliminate equations using substituted equations
+        ct.ThrowIfCancellationRequested();
+
+        var substituted = new Dictionary<int, RegularExpression>();      // Stores newly substituted equations
+        foreach (var solution in substitutions)                          // Tries to eliminate equations using substituted equations
         {
+          ct.ThrowIfCancellationRequested();
+
           foreach (var x in toEliminate)
           {
+            ct.ThrowIfCancellationRequested();
+
             if (x.Value is Literal literal)
             {
               if (literal.From != solution.Key)
@@ -174,32 +211,64 @@ namespace Common.Data
               substituted.Add(x.Key, literal.Join(solution.Value));
             }
             else if (x.Value.Substitute(solution.Key, solution.Value))
-              substituted.Add(x.Key, x.Value);
+            {
+              if (substituted.ContainsKey(x.Key))
+                substituted[x.Key] = x.Value;
+              else
+                substituted.Add(x.Key, x.Value);
+            }
           }
         }
 
-        if (substituted.Count > 0) substitutions.Clear();                  // Clears substitutions if they are obsolete
-        foreach (var solution in substituted)                              // Updates dictionaries
+        if (substituted.Count > 0) substitutions.Clear();               // Clears substitutions if they are obsolete
+        foreach (var solution in substituted)                           // Updates dictionaries
         {
-          substitutions.Add(solution.Key, solution.Value);                  // Updates list of substitutions
-          toEliminate.Remove(solution.Key);                                // Eliminating equations
+          ct.ThrowIfCancellationRequested();
+          substitutions.Add(solution.Key, solution.Value);              // Updates list of substitutions
+          toEliminate.Remove(solution.Key);                             // Eliminating equations
         }
 
-        substitutionsCount += substituted.Count;                           // Increases number of solved equations
+        substitutionsCount += substituted.Count;                        // Increases number of solved equations
       }
+
+      ct.ThrowIfCancellationRequested();
 
       // The remaining equation holds the solution
       switch (substitutions.FirstOrDefault().Value)
       {
         case Alternation alternation:
-          return alternation.Simplify();
+          return alternation.Simplify(ct);
         case Conjunction conjunction:
-          return conjunction.Simplify();
+          return conjunction.Simplify(ct);
         default:
           return substitutions.FirstOrDefault().Value;
       }
     }
 
     #endregion
+
+    public class OperationArgs
+      : EventArgs
+    {
+      public OperationTypes OperationType { get; }
+
+      public enum OperationTypes
+      {
+        Loading,
+        Minimizing,
+        ExtractingData,
+        Generating,
+        Finished,
+        Cancelled
+      }
+
+      public OperationArgs(OperationTypes operationType)
+        => OperationType = operationType;
+    }
+
+    public event EventHandler<OperationArgs> OperationChanged;
+
+    protected virtual void OnOperationChanged(OperationArgs.OperationTypes type)
+      => OperationChanged?.Invoke(this, new OperationArgs(type));
   }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 
 namespace Common.Data.RegEx
 {
@@ -11,6 +12,6 @@ namespace Common.Data.RegEx
 
   interface ICanSimplify
   {
-    RegularExpression Simplify();
+    RegularExpression Simplify(CancellationToken ct);
   }
 }

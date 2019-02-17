@@ -3,7 +3,7 @@
   /// <summary>
   /// Base class for regular expression parts
   /// </summary>
-  internal abstract class RegularExpression
+  public abstract class RegularExpression
   {
     #region Properties
 

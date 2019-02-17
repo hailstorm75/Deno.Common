@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 
 namespace Common.Data
 {
@@ -209,30 +210,39 @@ namespace Common.Data
 
     #region Methods
 
-    private DfaMinimizer<T> LoadTransitions(IEnumerable<Transition<T>> transitions)
+    private DfaMinimizer<T> LoadTransitions(IEnumerable<Transition<T>> transitions, CancellationToken ct = default)
     {
+      ct.ThrowIfCancellationRequested();
       m_transitions = new Transitions(transitions);
 
+      ct.ThrowIfCancellationRequested();
       Reach(m_initialState);
+
+      ct.ThrowIfCancellationRequested();
       RemoveUnreachable(m_transitions.From, m_transitions.To);
 
       return this;
     }
 
-    private DfaMinimizer<T> SetFinalState(IEnumerable<int> states)
+    private DfaMinimizer<T> SetFinalState(IEnumerable<int> states, CancellationToken ct = default)
     {
       foreach (var state in states)
+      {
+        ct.ThrowIfCancellationRequested();
         if (m_blocks.Location[state] < m_blocks.Past[0])
           Reach(state);
+      }
 
       return this;
     }
 
-    private DfaMinimizer<T> PartitionTransions()
+    private DfaMinimizer<T> PartitionTransions(CancellationToken ct = default)
     {
       m_finalStatesCount = m_reachableCount;
 
       RemoveUnreachable(m_transitions.To, m_transitions.From);
+
+      ct.ThrowIfCancellationRequested();
 
       m_touched = new List<int>(m_transitions.Count + 1);
       m_marked = new int[m_transitions.Count + 1];
@@ -252,12 +262,16 @@ namespace Common.Data
       var sortKeys = m_cords.Elements.Select(x => m_transitions.OnInput.Get(x)).ToArray();
       Array.Sort(sortKeys, m_cords.Elements);
 
+      ct.ThrowIfCancellationRequested();
+
       m_cords.SetCount = m_marked[0] = 0;
 
       var currentLabel = m_transitions.OnInput.Get(m_cords.Elements[0]);
 
       for (var i = 0; i < m_transitions.Count; ++i)
       {
+        ct.ThrowIfCancellationRequested();
+
         var t = m_cords.Elements[i];
 
         if (!m_transitions.OnInput.Get(t).Equals(currentLabel))
@@ -277,13 +291,16 @@ namespace Common.Data
       return this;
     }
 
-    private DfaMinimizer<T> SplitBlocksAndCoords()
+    private DfaMinimizer<T> SplitBlocksAndCoords(CancellationToken ct = default)
     {
       MakeAdjacent(m_transitions.To);
+
+      ct.ThrowIfCancellationRequested();
 
       int b = 1, c = 0;
       while (c < m_cords.SetCount)
       {
+        ct.ThrowIfCancellationRequested();
         for (var i = m_cords.First[c]; i < m_cords.Past[c]; ++i)
           m_blocks.Mark(m_transitions.From.Get(m_cords.Elements[i]), ref m_marked, ref m_touched, ref m_touchedCount);
 
@@ -291,6 +308,7 @@ namespace Common.Data
 
         while (b < m_blocks.SetCount)
         {
+          ct.ThrowIfCancellationRequested();
           for (var i = m_blocks.First[b]; i < m_blocks.Past[b]; ++i)
             for (var j = m_offset[m_blocks.Elements[i]]; j < m_offset[m_blocks.Elements[i] + 1]; ++j)
               m_cords.Mark(m_adjacent[j], ref m_marked, ref m_touched, ref m_touchedCount);
@@ -302,13 +320,13 @@ namespace Common.Data
       return this;
     }
 
-    private DfaMinimizer<T> Process() => PartitionTransions().SplitBlocksAndCoords();
+    private DfaMinimizer<T> Process(CancellationToken ct = default) => PartitionTransions(ct).SplitBlocksAndCoords(ct);
 
     /// <summary>
     /// Retrieve minimized transitions
     /// </summary>
     /// <returns>Transitions</returns>
-    public IEnumerable<Transition<T>> GetTransitions()
+    public IEnumerable<Transition<T>> GetTransitions(CancellationToken ct = default)
     {
       for (var i = 0; i < m_transitions.Count; ++i)
         if (m_blocks.Location[m_transitions.From.Get(i)] == m_blocks.First[m_blocks.SetOf[m_transitions.From.Get(i)]])
@@ -352,7 +370,7 @@ namespace Common.Data
     /// </list>
     /// </remarks>
     /// <returns>Information</returns>
-    public Tuple<int, int, int, int> GetAutomataInfo()
+    public Tuple<int, int, int, int> GetAutomataInfo(CancellationToken ct = default)
     {
       var transitionCount = 0;
       var finalStateCount = 0;
@@ -444,13 +462,15 @@ namespace Common.Data
     /// Minimizes given <paramref name="trie"/>
     /// </summary>
     /// <param name="trie">Trie to minimize</param>
+    /// <param name="ct">Cancellation token</param>
+    /// <exception cref="OperationCanceledException"></exception>
     /// <returns></returns>
-    public static DfaMinimizer<char> Minimize(Trie trie)
+    public static DfaMinimizer<char> Minimize(Trie trie, CancellationToken ct = default)
     {
       var dfaMinimizer = new DfaMinimizer<char>(trie.StateCount, trie.TransitionCount, 0, trie.WordCount);
-      return dfaMinimizer.LoadTransitions(trie.GetTransitions())
-        .SetFinalState(trie.FiniteStates)
-        .Process();
+      return dfaMinimizer.LoadTransitions(trie.GetTransitions(), ct)
+        .SetFinalState(trie.FiniteStates, ct)
+        .Process(ct);
     }
 
     #endregion

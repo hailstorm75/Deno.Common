@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Linq;
 using System.Text;
+using System.Threading;
 
 namespace Common.Data.RegEx
 {
-  internal class Conjunction : RegularExpression, IReduceable, ICanSimplify
+  public class Conjunction : RegularExpression, IReduceable, ICanSimplify
   {
     #region Properties
 
@@ -39,15 +40,15 @@ namespace Common.Data.RegEx
 
     #region Methods
 
-    public RegularExpression Simplify()
+    public RegularExpression Simplify(CancellationToken ct = default)
     {
       if (Parts.First() == Parts.Last() && Parts.First() is Alternation alt)
-        return alt.Simplify();
+        return alt.Simplify(ct);
       if (Parts.First() is ICanSimplify conjL)
-        Parts[0] = conjL.Simplify();
+        Parts[0] = conjL.Simplify(ct);
 
       if (Parts.Last() is ICanSimplify conjR)
-        Parts[1] = conjR.Simplify();
+        Parts[1] = conjR.Simplify(ct);
 
       if (Parts[0] == null || Parts[0] is Literal litL && litL.Length == 0)
         return Parts[1];
