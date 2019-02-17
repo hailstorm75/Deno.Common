@@ -6,7 +6,7 @@ using System.Collections.Generic;
 namespace Common.Math
 {
   [Serializable]
-  public class LongestLong
+  internal class LongestLong
   {
     #region Properties
 
