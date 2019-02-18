@@ -178,7 +178,7 @@ namespace Common.Data.RegEx
           sb.Append(Parts.First());
           break;
         case Conjunction conjunction:
-          sb.Append($"{Parts.First()}");
+          sb.Append($"({Parts.First()})");
           break;
         case Alternation alternation:
           sb.Append(alternation.Length > 1 ? $"({Parts.First()})" : $"{Parts.First()}");
@@ -190,7 +190,7 @@ namespace Common.Data.RegEx
           sb.Append(Parts.Last());
           break;
         case Conjunction conjunction:
-          sb.Append($"{Parts.Last()}");
+          sb.Append($"({Parts.Last()})");
           break;
         case Alternation alternation:
           sb.Append(alternation.Length > 1 ? $"({Parts.Last()})" : $"{Parts.Last()}");

@@ -79,6 +79,58 @@ namespace Common.Data
       return prefix.ToString();
     }
 
+    public static string FindLongestCommonPrefix(IReadOnlyList<string> strings, List<string> selected = default)
+    {
+      string CommonPrefixUtil(string str1, string str2)
+      {
+        var result = "";
+        var n1 = str1.Length;
+        var n2 = str2.Length;
+
+        for (int i = 0, j = 0;
+                 i <= n1 - 1 && j <= n2 - 1;
+                 i++, j++)
+        {
+          if (str1[i] != str2[j])
+            break;
+
+          result += str1[i];
+        }
+
+        return result;
+      }
+
+      var hash = new HashSet<string>();
+
+      if (strings.Count <= 1)
+        return string.Empty;
+      if (strings.Count == 2)
+      {
+        selected?.Add(strings[0]);
+        selected?.Add(strings[1]);
+
+        return CommonPrefixUtil(strings[0], strings[1]);
+      }
+
+      var prefix = strings[0];
+      var index = -1;
+
+      for (var i = 0; i < strings.Count - 1; i++)
+      {
+        var result = CommonPrefixUtil(strings[i], strings[i + 1]);
+        if (result.Length < index) break;
+
+        prefix = result;
+        index = prefix.Length;
+        hash.Add(strings[i]);
+        hash.Add(strings[i + 1]);
+      }
+
+      selected?.AddRange(hash);
+
+      return prefix;
+    }
+
     /// <summary>
     /// Determines whether the <see cref="Trie"/> contains a specific <paramref name="word"/>
     /// </summary>

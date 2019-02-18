@@ -6,9 +6,9 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("CommonData")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("A .NET Framework library with data processing logic")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Denis Akopyan")]
 [assembly: AssemblyProduct("CommonData")]
 [assembly: AssemblyCopyright("Copyright ©  2018")]
 [assembly: AssemblyTrademark("")]

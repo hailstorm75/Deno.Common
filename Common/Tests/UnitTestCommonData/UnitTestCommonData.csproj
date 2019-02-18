@@ -60,6 +60,7 @@
     <Compile Include="UtDfaMinimizer.cs" />
     <Compile Include="UtPatternFinder.cs" />
     <Compile Include="UtSerialization.cs" />
+    <Compile Include="UtTrie.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

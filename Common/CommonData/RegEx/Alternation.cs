@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading;
 
 namespace Common.Data.RegEx
@@ -11,6 +12,21 @@ namespace Common.Data.RegEx
   public class Alternation
     : RegularExpression, ICanSimplify
   {
+    private struct Pair<T1, T2>
+    {
+      public T1 Item1 { get; set; }
+      public T2 Item2 { get; set; }
+
+      public Pair(T1 item1, T2 item2)
+      {
+        Item1 = item1;
+        Item2 = item2;
+      }
+
+      public override string ToString()
+        => $"{Item1}:{Item2}";
+    }
+
     #region Properties
 
     /// <inheritdoc />
@@ -160,50 +176,81 @@ namespace Common.Data.RegEx
     private static RegularExpression ReduceLeft(Alternation part)
     {
       var regExp = part.Parts.GroupBy(x => HasLiteral(x, Side.Left)).ToList();
-      var withLiterals = regExp.Where(x => x.Key).SelectMany(x => x).ToList();
-      if (withLiterals.Count <= 1) return ReduceMiddle(part);
-      var prefix = Trie.FindCommonPrefix(withLiterals.Select(x => GetLiteral(x, Side.Left).Value).ToList());
+      var withLiterals = regExp.Where(x => x.Key)
+                               .SelectMany(x => x)
+                               .Select(x => new Pair<RegularExpression, string>(x, GetLiteral(x, Side.Left).Value))
+                               .OrderBy(x => x.Item2)
+                               .ToList();
+      if (withLiterals.Count <= 1)
+        return ReduceMiddle(part);
 
-      if (prefix == string.Empty) return ReduceMiddle(part);
+      var selected = new List<string>();
+      var prefix = Trie.FindLongestCommonPrefix(withLiterals.Where(x => x.Item2 != string.Empty).Select(x => x.Item2).ToList(), selected);
 
-      for (var i = 0; i < withLiterals.Count; ++i)
+      if (prefix == string.Empty)
+        return ReduceMiddle(part);
+
+      var filtered = withLiterals.Where(x => selected.Contains(x.Item2))
+                                 .ToList();
+
+      for (var i = 0; i < filtered.Count; i++)
       {
-        if (withLiterals[i] is IReduceable reduceable)
-          withLiterals[i] = reduceable.ReduceLeft(prefix);
+        var item = filtered[i];
+        withLiterals.Remove(item);
+        if (item.Item1 is IReduceable reduceable)
+          item.Item1 = reduceable.ReduceLeft(prefix);
         else
           throw new Exception("Invalid type.");
       }
 
-      var reduction = new List<RegularExpression> { new Conjunction(new Literal(prefix), new Alternation(withLiterals).Simplify()) };
-      reduction.AddRange(regExp.Where(x => !x.Key).SelectMany(x => x));
+      var reduction = new List<RegularExpression>
+      {
+        new Conjunction(new Literal(prefix), new Alternation(filtered.Select(x => x.Item1)).Simplify())
+      };
+      reduction.AddRange(regExp.Where(x => !x.Key).SelectMany(x => x).Union(withLiterals.Select(x => x.Item1)));
 
       return new Alternation(reduction).Simplify();
     }
 
     private static string ReverseString(string s)
     {
-      return new string(s.Reverse().ToArray());
+      return s == string.Empty
+        ? string.Empty
+        : new string(s.Reverse().ToArray());
     }
 
     private static RegularExpression ReduceRight(Alternation part)
     {
       var regExp = part.Parts.GroupBy(x => HasLiteral(x, Side.Right)).ToList();
-      var withLiterals = regExp.Where(x => x.Key).SelectMany(x => x).ToList();
+      var withLiterals = regExp.Where(x => x.Key)
+                               .SelectMany(x => x)
+                               .Select(x => new Pair<RegularExpression, string>(x, GetLiteral(x, Side.Right).Value))
+                               .OrderBy(x => x.Item2)
+                               .ToList();
       if (withLiterals.Count <= 1) return part;
-      var suffix = ReverseString(Trie.FindCommonPrefix(withLiterals.Select(x => ReverseString(GetLiteral(x, Side.Right).Value)).ToList()));
+
+      var selected = new List<string>();
+      var suffix = ReverseString(Trie.FindLongestCommonPrefix(withLiterals.Where(x => x.Item2 != string.Empty).Select(x => ReverseString(x.Item2)).ToList(), selected));
 
       if (suffix == string.Empty) return part;
 
-      for (var i = 0; i < withLiterals.Count; ++i)
+      var filtered = withLiterals.Where(x => selected.Contains(ReverseString(x.Item2)))
+                                 .ToList();
+      for (var i = 0; i < filtered.Count; i++)
       {
-        if (withLiterals[i] is IReduceable reduceable)
-          withLiterals[i] = reduceable.ReduceRight(suffix);
+        var item = filtered[i];
+        withLiterals.Remove(item);
+        if (item.Item1 is IReduceable reduceable)
+          item.Item1 = reduceable.ReduceLeft(suffix);
         else
           throw new Exception("Invalid type.");
       }
 
-      var reduction = new List<RegularExpression> { new Conjunction(new Alternation(withLiterals).Simplify(), new Literal(suffix)) };
-      reduction.AddRange(regExp.Where(x => !x.Key).SelectMany(x => x));
+      var reduction = new List<RegularExpression>
+      {
+        new Conjunction(new Literal(suffix), new Alternation(filtered.Select(x => x.Item1)).Simplify())
+      };
+      reduction.AddRange(regExp.Where(x => !x.Key).SelectMany(x => x).Union(withLiterals.Select(x => x.Item1)));
 
       return new Alternation(reduction).Simplify();
     }

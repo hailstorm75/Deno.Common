@@ -18,6 +18,7 @@
     <Compile Include="..\..\..\Common\Tests\UnitTestCommonData\UtDfaMinimizer.cs" Link="UtDfaMinimizer.cs" />
     <Compile Include="..\..\..\Common\Tests\UnitTestCommonData\UtPatternFinder.cs" Link="UtPatternFinder.cs" />
     <Compile Include="..\..\..\Common\Tests\UnitTestCommonData\UtSerialization.cs" Link="UtSerialization.cs" />
+    <Compile Include="..\..\..\Common\Tests\UnitTestCommonData\UtTrie.cs" Link="UtTrie.cs" />
   </ItemGroup>
 
   <ItemGroup>

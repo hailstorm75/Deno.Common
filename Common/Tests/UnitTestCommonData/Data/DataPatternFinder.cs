@@ -97,6 +97,17 @@ namespace Common.Data.Tests.Data
           "Czero3go6",
         }.ToArray()
       };
+      yield return new object[]
+      {
+        new List<string>
+        {
+          "CommonData",
+          "CommonLinq",
+          "CommonMath",
+          "CommonServiceLocator",
+          "ControlzEx"
+        }
+      };
     }
   }
 }
