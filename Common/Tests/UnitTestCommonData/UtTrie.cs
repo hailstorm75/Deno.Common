@@ -1,12 +1,12 @@
-﻿using System.Collections.Generic;
-using NUnit.Framework;
+﻿using NUnit.Framework;
+using UnitTestConstants;
 
 namespace Common.Data.Tests
 {
-  [TestFixture]
+	[TestFixture]
   public class UtTrie
   {
-    [Test]
+    [Test, Category(Constants.METHOD)]
     public void LongestCommonPrefix()
     {
       // Arrange
@@ -18,5 +18,19 @@ namespace Common.Data.Tests
       // Assert
       Assert.AreEqual("Common", result);
     }
+
+		[Test, Category(Constants.METHOD)]
+		public void ValidateAdded()
+		{
+      // Arrange
+      var data = new[] { "CommonData", "CommonLinq", "Controlz" };
+			var trie = new Trie().AddRange(data);
+
+			// Act
+			var result = trie.Contains(data[0]);
+
+			// Assert
+			Assert.IsTrue(result);
+		}
   }
 }

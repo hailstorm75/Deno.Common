@@ -1,16 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using System.Threading;
 using Common.Data.Tests.Data;
 using NUnit.Framework;
 using UnitTestConstants;
 
 namespace Common.Data.Tests
 {
-  [TestFixture]
+	[TestFixture]
   public class UtPatternFinder
   {
     [Test, TestCaseSource(typeof(DataPatternFinder), nameof(DataPatternFinder.GetDataToSearchPatternFor))]
