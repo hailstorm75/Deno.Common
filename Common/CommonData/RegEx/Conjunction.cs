@@ -5,7 +5,8 @@ using System.Threading;
 
 namespace Common.Data.RegEx
 {
-  public class Conjunction : RegularExpression, IReduceable, ICanSimplify
+  public class Conjunction
+		: RegularExpression, IReduceable, ICanSimplify
   {
     #region Properties
 
@@ -42,24 +43,24 @@ namespace Common.Data.RegEx
 
     public RegularExpression Simplify(CancellationToken ct = default)
     {
-      if (Parts.First() == Parts.Last() && Parts.First() is Alternation alt)
+      if (Parts[0] == Parts[1] && Parts[0] is Alternation alt)
         return alt.Simplify(ct);
-      if (Parts.First() is ICanSimplify conjL)
+      if (Parts[0] is ICanSimplify conjL)
         Parts[0] = conjL.Simplify(ct);
 
-      if (Parts.Last() is ICanSimplify conjR)
+      if (Parts[1] is ICanSimplify conjR)
         Parts[1] = conjR.Simplify(ct);
 
-      if (Parts[0] == null || Parts[0] is Literal litL && litL.Length == 0)
+      if (Parts[0] == null || (Parts[0] is Literal litL && litL.Length == 0))
         return Parts[1];
-      if (Parts[1] == null || Parts[1] is Literal litR && litR.Length == 0)
+      if (Parts[1] == null || (Parts[1] is Literal litR && litR.Length == 0))
         return Parts[0];
       return this;
     }
 
     public RegularExpression ReduceLeft(string prefix)
     {
-      switch (Parts.First())
+      switch (Parts[0])
       {
         case Conjunction conj:
           {
@@ -71,8 +72,8 @@ namespace Common.Data.RegEx
         case Literal literal:
           {
             literal.ReduceLeft(prefix);
-            if (literal.Length == 0)
-              return Parts.Last();
+						if (literal.Length == 0)
+							return Parts[1];
             return this;
           }
         default:
@@ -80,12 +81,10 @@ namespace Common.Data.RegEx
       }
     }
 
-    public Tuple<RegularExpression, RegularExpression> ReduceMiddle(string root)
-    {
-      return ReduceMiddle(root, 1);
-    }
+		public Tuple<RegularExpression, RegularExpression> ReduceMiddle(string root)
+			=> ReduceMiddle(root, 1);
 
-    private Tuple<RegularExpression, RegularExpression> ReduceMiddle(string root, int index)
+		private Tuple<RegularExpression, RegularExpression> ReduceMiddle(string root, int index)
     {
       switch (Parts[index])
       {
@@ -122,7 +121,7 @@ namespace Common.Data.RegEx
 
     public RegularExpression ReduceRight(string suffix)
     {
-      switch (Parts.Last())
+      switch (Parts[1])
       {
         case Conjunction conj:
           {
@@ -134,13 +133,11 @@ namespace Common.Data.RegEx
         case Literal literal:
           {
             literal.ReduceLeft(suffix);
-            if (literal.Length == 0)
-            {
-              return Parts.First();
-            }
-            return this;
-          }
-        default:
+						return literal.Length == 0
+							? Parts[0]
+							: this;
+					}
+				default:
           return this;
       }
     }
@@ -165,6 +162,7 @@ namespace Common.Data.RegEx
       var result = true;
       foreach (var option in Parts)
         result &= option.Substitute(from, substitution);
+
       return result;
     }
 
@@ -172,30 +170,33 @@ namespace Common.Data.RegEx
     {
       var sb = new StringBuilder();
 
-      switch (Parts.First())
+      switch (Parts[0])
       {
         case Literal _:
-          sb.Append(Parts.First());
+          sb.Append(Parts[0]);
           break;
         case Conjunction conjunction:
-          sb.Append($"({Parts.First()})");
+					sb.Append("(").Append(Parts[0]).Append(")");
           break;
         case Alternation alternation:
-          sb.Append(alternation.Length > 1 ? $"({Parts.First()})" : $"{Parts.First()}");
+          sb.Append(alternation.Length > 1
+						? $"({Parts[0]})"
+						: $"{Parts[0]}");
           break;
       }
       switch (Parts.Last())
       {
         case Literal _:
-          sb.Append(Parts.Last());
+          sb.Append(Parts[1]);
           break;
         case Conjunction conjunction:
-          sb.Append($"({Parts.Last()})");
+					sb.Append("(").Append(Parts[1]).Append(")");
           break;
         case Alternation alternation:
-          sb.Append(alternation.Length > 1 ? $"({Parts.Last()})" : $"{Parts.Last()}");
+          sb.Append(alternation.Length > 1
+						? $"({Parts[1]})"
+						: $"{Parts[1]}");
           break;
-
       }
 
       return sb.ToString();

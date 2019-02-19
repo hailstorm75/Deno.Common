@@ -61,5 +61,16 @@ namespace Common.Linq
 				.Select((x, i) => new { Index = i, Value = x })
 				.GroupBy(x => x.Index / chunkSize)
 				.Select(x => x.Select(v => v.Value));
+
+		/// <summary>
+		/// Creates an IEnumerable instance from a single <paramref name="item"/> of type <typeparamref name="T"/>.
+		/// </summary>
+		/// <typeparam name="T">Item type</typeparam>
+		/// <param name="item">Item to enumerate</param>
+		/// <returns>Enumerable instance</returns>
+		public static IEnumerable<T> FromSingleItem<T>(this T item)
+		{
+			yield return item;
+		}
 	}
 }
