@@ -11,7 +11,8 @@ namespace Common.Data
   /// Digital tree
   /// </summary>
   [Serializable]
-  public class Trie : BaseDfa<char>
+  public class Trie
+		: BaseDfa<char>
   {
     #region Fields
 
@@ -35,19 +36,21 @@ namespace Common.Data
     /// </summary>
     public int WordCount => m_finateStates.Count;
 
-    #endregion
+		#endregion
 
-    /// <summary>
-    /// Default constructor
-    /// </summary>
-    public Trie()
-    {
-      m_stateCount = 1;
-    }
+		/// <summary>
+		/// Default constructor
+		/// </summary>
+		public Trie()
+			=> m_stateCount = 1;
 
-    #region Methods
+		#region Methods
 
-    public string FindCommonPrefix()
+		/// <summary>
+		/// Finds common prefix between all strings in <see cref="Trie"/> instance
+		/// </summary>
+		/// <returns>Common prefix</returns>
+		public string FindCommonPrefix()
     {
       string GetNext(State state)
       {
@@ -60,6 +63,11 @@ namespace Common.Data
       return GetNext(m_root);
     }
 
+		/// <summary>
+		/// Finds common prefix between all given <paramref name="strings"/>
+		/// </summary>
+		/// <param name="strings">List of strings</param>
+		/// <returns>Common prefix</returns>
     public static string FindCommonPrefix(IReadOnlyList<string> strings)
     {
       var minLength = strings.Min(x => x.Length);
@@ -79,6 +87,12 @@ namespace Common.Data
       return prefix.ToString();
     }
 
+		/// <summary>
+		/// Finds the longest common prefix between at least two <paramref name="strings"/> and marks them as <paramref name="selected"/>
+		/// </summary>
+		/// <param name="strings">List of strings</param>
+		/// <param name="selected">Strings with longest common prefix</param>
+		/// <returns>Common prefix</returns>
     public static string FindLongestCommonPrefix(IReadOnlyList<string> strings, List<string> selected = default)
     {
       string CommonPrefixUtil(string str1, string str2)
@@ -136,7 +150,7 @@ namespace Common.Data
     /// </summary>
     /// <param name="word">Word to search for</param>
     /// <returns>True if contains</returns>
-    public bool Constains(string word)
+    public bool Contains(string word)
     {
       var root = m_root;
 
@@ -192,7 +206,8 @@ namespace Common.Data
     /// Retrieves collection of transitions between all nodes
     /// </summary>
     /// <returns>Transitions between nodes</returns>
-    public IEnumerable<Transition<char>> GetTransitions() => GetTransitions(m_root);
+    public IEnumerable<Transition<char>> GetTransitions()
+			=> GetTransitions(m_root);
 
     #endregion
   }

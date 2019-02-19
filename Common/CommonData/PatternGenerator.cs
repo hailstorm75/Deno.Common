@@ -88,14 +88,15 @@ namespace Common.Data
     /// </summary>
     private Trie Strings { get; set; }
 
-    private IEnumerable<PatternPart> FoundPatterns { get; set; }
-
     /// <summary>
     /// Default constructor
     /// </summary>
-    /// <param name="strings">Set of strings to analyze</param>
     public PatternGenerator() { }
 
+    /// <summary>
+    /// Load <paramref name="strings"/> to generate from
+    /// </summary>
+    /// <param name="strings">Set of strings to analyze</param>
     public PatternGenerator LoadStrings(IEnumerable<string> strings)
     {
       OnOperationChanged(OperationArgs.OperationTypes.Loading);
@@ -108,9 +109,16 @@ namespace Common.Data
     /// <summary>
     /// Finds pattern based on <see cref="Strings"/>
     /// </summary>
+		/// <exception cref="ArgumentNullException"/>
+		/// <exception cref="ArgumentException"/>
     /// <returns>RegEx</returns>
     public RegularExpression FindPattern(CancellationToken ct = default)
     {
+			if (Strings == null)
+				throw new ArgumentNullException($"Provided strings cannot be null. Use {nameof(LoadStrings)} to load strings to process.");
+			if (Strings.WordCount == 0)
+				throw new ArgumentException($"Provided strings cannot be empty. Use {nameof(LoadStrings)} to load strings to process.");
+
       try
       {
         OnOperationChanged(OperationArgs.OperationTypes.Minimizing);
@@ -118,6 +126,8 @@ namespace Common.Data
 
         OnOperationChanged(OperationArgs.OperationTypes.ExtractingData);
         var transitions = minimized.GetTransitions(ct).ToList();
+				ct.ThrowIfCancellationRequested();
+
         var info = minimized.GetAutomataInfo(ct);
 
         OnOperationChanged(OperationArgs.OperationTypes.Generating);
@@ -250,19 +260,40 @@ namespace Common.Data
     public class OperationArgs
       : EventArgs
     {
+			/// <summary>
+			/// Currently running operation type
+			/// </summary>
       public OperationTypes OperationType { get; }
 
       public enum OperationTypes
       {
+				/// <summary>
+				/// Loading strings
+				/// </summary>
         Loading,
+				/// <summary>
+				/// Minimizing strings
+				/// </summary>
         Minimizing,
+				/// <summary>
+				/// Extracting minimized strings
+				/// </summary>
         ExtractingData,
+				/// <summary>
+				/// Generating pattern
+				/// </summary>
         Generating,
+				/// <summary>
+				/// Operation finished
+				/// </summary>
         Finished,
-        Cancelled
-      }
+				/// <summary>
+				/// Operation cancelled
+				/// </summary>
+        Cancelled,
+			}
 
-      public OperationArgs(OperationTypes operationType)
+      internal OperationArgs(OperationTypes operationType)
         => OperationType = operationType;
     }
 

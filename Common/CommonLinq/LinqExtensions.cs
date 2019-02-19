@@ -7,6 +7,14 @@ namespace Common.Linq
 {
   public static class LinqExtensions
   {
+		/// <summary>
+		/// Returns distinct elements from a sequence by using the default equality comparer to compare values by a given key.
+		/// </summary>
+		/// <typeparam name="TSource">The type of the elements of <paramref name="source"/>.</typeparam>
+		/// <typeparam name="TKey">The type of keys by which the elements from <paramref name="source"/> will be compared by.</typeparam>
+		/// <param name="source">A sequence of values to order.</param>
+		/// <param name="keySelector">A retrieve function to select each sequence items given key.</param>
+		/// <returns>An System.Collections.Generic.IEnumerable`1 that contains distinct elements from the source sequence.</returns>
     public static IEnumerable<TSource> DistinctBy<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector)
     {
       var seenKeys = new HashSet<TKey>();
@@ -18,6 +26,12 @@ namespace Common.Linq
     public static IEnumerable<TOut> ForEachDo<TSource, TOut>(this IEnumerable<TSource> source, Func<TSource, TOut> func)
       => source.Select(func);
 
+		/// <summary>
+		/// Sorts the elements of an ObservableCollection in ascending order according to a key.
+		/// </summary>
+		/// <typeparam name="T">The type of the elements of source.</typeparam>
+		/// <param name="observable">A sequence of values to order.</param>
+		/// <exception cref="ArgumentNullException"/>
     public static void Sort<T>(this ObservableCollection<T> observable) where T : IComparable<T>, IEquatable<T>
     {
       var sorted = observable.OrderBy(x => x).ToList();
@@ -35,12 +49,17 @@ namespace Common.Linq
       }
     }
 
-    public static IEnumerable<IEnumerable<T>> ChunkBy<T>(this IEnumerable<T> source, int chunkSize)
-    {
-      return source
-        .Select((x, i) => new { Index = i, Value = x })
-        .GroupBy(x => x.Index / chunkSize)
-        .Select(x => x.Select(v => v.Value));
-    }
-  }
+		/// <summary>
+		/// Splits elements of a sequence into smaller sequences of given size.
+		/// </summary>
+		/// <typeparam name="T">The type of the elements of <paramref name="source"/>.</typeparam>
+		/// <param name="source">A sequence of values to order.</param>
+		/// <param name="chunkSize">Size to split into.</param>
+		/// <returns>An IEnumerable of IEnumerables each of which contain a range of sequential values of type <typeparamref name="T"/>.</returns>
+		public static IEnumerable<IEnumerable<T>> ChunkBy<T>(this IEnumerable<T> source, int chunkSize)
+			=> source
+				.Select((x, i) => new { Index = i, Value = x })
+				.GroupBy(x => x.Index / chunkSize)
+				.Select(x => x.Select(v => v.Value));
+	}
 }

@@ -214,7 +214,8 @@ namespace Common.Math.Matricies
     #region Exceptions
 
     [Serializable]
-    internal sealed class InvertableMatrixOperationException : Exception
+    internal sealed class InvertableMatrixOperationException
+			: Exception
     {
       public InvertableMatrixOperationException() { }
 
@@ -226,7 +227,8 @@ namespace Common.Math.Matricies
     }
 
     [Serializable]
-    internal sealed class MatrixDimensionException : Exception
+    internal sealed class MatrixDimensionException
+			: Exception
     {
       public MatrixDimensionException() { }
 

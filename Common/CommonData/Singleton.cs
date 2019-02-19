@@ -7,8 +7,12 @@ namespace Common.Data
   /// Class that can be derived from to create a singleton. The only issue is that the type must have a non-public parameterless constructor.
   /// </summary>
   /// <typeparam name="T">Any type inherited from Singleton</typeparam>
-  public abstract class Singleton<T> where T : Singleton<T>
+  public abstract class Singleton<T> where T
+		: Singleton<T>
   {
+		/// <summary>
+		/// Singlegon instance of <typeparamref name="T"/>
+		/// </summary>
     public static T Instance => INSTANCE.Value;
 
     /// <summary>
@@ -24,7 +28,6 @@ namespace Common.Data
     /// <summary>
     /// Calls a non-public empty constructor on derived type to create instance. If no such constructor exists a TypeAccessException is thrown.
     /// </summary>
-    /// <returns></returns>
     private static T InstanceFactory()
     {
       var type = typeof(T);

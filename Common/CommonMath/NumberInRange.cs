@@ -9,13 +9,18 @@ namespace Common.Math
   /// </summary>
   /// <typeparam name="T">Type of value.<para/>Anything but integer types are prohibited.</typeparam>
   [Serializable]
-  public class NumberInRange<T> : INumberInRange<T> where T : struct, IComparable, IFormattable, IConvertible, IComparable<T>, IEquatable<T>
+  public class NumberInRange<T>
+		: INumberInRange<T> where T
+			: struct, IComparable, IFormattable, IConvertible, IComparable<T>, IEquatable<T>
   {
     #region Properties
 
     /// <inheritdoc />
-    public T Value { get => m_value; protected set => this.m_value = AdjustValue(value); }
-    private T m_value;
+    public T Value
+		{
+			get => m_value;
+			protected set => m_value = AdjustValue(value);
+		}
 
     /// <inheritdoc />
     public T Max { get; }
@@ -31,6 +36,7 @@ namespace Common.Math
     /// Distance between <see cref="Min"/> and <see cref="Max"/>
     /// </summary>
     private readonly T m_rangeLen;
+    private T m_value;
 
     #endregion
 
@@ -111,7 +117,8 @@ namespace Common.Math
     public static T AdjustValue(T val, T min, T max) => new NumberInRange<T>(val, min, max).Value;
 
     /// <inheritdoc cref="INumberInRange{T}" />
-    public override string ToString() => m_value.ToString(CultureInfo.InvariantCulture);
+    public override string ToString()
+			=> m_value.ToString(CultureInfo.InvariantCulture);
 
     #endregion
 
@@ -191,62 +198,78 @@ namespace Common.Math
     /// <returns>Result</returns>
     public static T operator /(NumberInRange<T> a, NumberInRange<T> b) => a.AdjustValue(a.Value.Divide(a.AdjustValue(b.Value)));
 
-    #endregion
+		#endregion
 
-    #endregion
+		#endregion
 
-    #region Interfaces
+		#region Interfaces
 
-    #region IFormattable implementation
+		#region IFormattable implementation
 
-    public string ToString(string format, IFormatProvider formatProvider)
-    {
-      return Value.ToString(format, formatProvider);
-    }
+		public string ToString(string format, IFormatProvider formatProvider)
+			=> Value.ToString(format, formatProvider);
 
-    #endregion
+		#endregion
 
-    #region IConvertible implementation
+		#region IConvertible implementation
 
-    public TypeCode GetTypeCode() => m_value.GetTypeCode();
+		public TypeCode GetTypeCode()
+			=> m_value.GetTypeCode();
 
-    public bool ToBoolean(IFormatProvider provider = null) => ((IConvertible)m_value).ToBoolean(provider);
+    public bool ToBoolean(IFormatProvider provider = null)
+			=> ((IConvertible)m_value).ToBoolean(provider);
 
-    public char ToChar(IFormatProvider provider = null) => ((IConvertible)m_value).ToChar(provider);
+    public char ToChar(IFormatProvider provider = null)
+			=> ((IConvertible)m_value).ToChar(provider);
 
-    public sbyte ToSByte(IFormatProvider provider = null) => ((IConvertible)m_value).ToSByte(provider);
+    public sbyte ToSByte(IFormatProvider provider = null)
+			=> ((IConvertible)m_value).ToSByte(provider);
 
-    public byte ToByte(IFormatProvider provider = null) => ((IConvertible)m_value).ToByte(provider);
+    public byte ToByte(IFormatProvider provider = null)
+			=> ((IConvertible)m_value).ToByte(provider);
 
-    public short ToInt16(IFormatProvider provider = null) => ((IConvertible)m_value).ToInt16(provider);
+    public short ToInt16(IFormatProvider provider = null)
+			=> ((IConvertible)m_value).ToInt16(provider);
 
-    public ushort ToUInt16(IFormatProvider provider = null) => ((IConvertible)m_value).ToUInt16(provider);
+    public ushort ToUInt16(IFormatProvider provider = null)
+			=> ((IConvertible)m_value).ToUInt16(provider);
 
-    public int ToInt32(IFormatProvider provider = null) => ((IConvertible)m_value).ToInt32(provider);
+    public int ToInt32(IFormatProvider provider = null)
+			=> ((IConvertible)m_value).ToInt32(provider);
 
-    public uint ToUInt32(IFormatProvider provider = null) => ((IConvertible)m_value).ToUInt32(provider);
+    public uint ToUInt32(IFormatProvider provider = null)
+			=> ((IConvertible)m_value).ToUInt32(provider);
 
-    public long ToInt64(IFormatProvider provider = null) => ((IConvertible)m_value).ToInt64(provider);
+    public long ToInt64(IFormatProvider provider = null)
+			=> ((IConvertible)m_value).ToInt64(provider);
 
-    public ulong ToUInt64(IFormatProvider provider = null) => ((IConvertible)m_value).ToUInt64(provider);
+    public ulong ToUInt64(IFormatProvider provider = null)
+			=> ((IConvertible)m_value).ToUInt64(provider);
 
-    public float ToSingle(IFormatProvider provider = null) => ((IConvertible)m_value).ToSingle(provider);
+    public float ToSingle(IFormatProvider provider = null)
+			=> ((IConvertible)m_value).ToSingle(provider);
 
-    public double ToDouble(IFormatProvider provider = null) => ((IConvertible)m_value).ToDouble(provider);
+    public double ToDouble(IFormatProvider provider = null)
+			=> ((IConvertible)m_value).ToDouble(provider);
 
-    public decimal ToDecimal(IFormatProvider provider = null) => ((IConvertible)m_value).ToDecimal(provider);
+    public decimal ToDecimal(IFormatProvider provider = null)
+			=> ((IConvertible)m_value).ToDecimal(provider);
 
-    public DateTime ToDateTime(IFormatProvider provider = null) => ((IConvertible)m_value).ToDateTime(provider);
+    public DateTime ToDateTime(IFormatProvider provider = null)
+			=> ((IConvertible)m_value).ToDateTime(provider);
 
-    public string ToString(IFormatProvider provider) => m_value.ToString(provider);
+    public string ToString(IFormatProvider provider)
+			=> m_value.ToString(provider);
 
-    public object ToType(Type conversionType, IFormatProvider provider) => ((IConvertible)m_value).ToType(conversionType, provider);
+    public object ToType(Type conversionType, IFormatProvider provider)
+			=> ((IConvertible)m_value).ToType(conversionType, provider);
 
     #endregion
 
     #region IClonable implementation
 
-    public object Clone() => new NumberInRange<T>(Value, Min, Max);
+    public object Clone()
+			=> new NumberInRange<T>(Value, Min, Max);
 
     #endregion
 
