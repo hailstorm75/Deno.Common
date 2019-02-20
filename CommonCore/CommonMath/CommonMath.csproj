@@ -6,6 +6,17 @@
     <RootNamespace>Common.Math</RootNamespace>
     <SignAssembly>false</SignAssembly>
     <LangVersion>7.1</LangVersion>
+    <Authors>Denis Akopyan</Authors>
+    <PackageIconUrl>https://assets.gitlab-static.net/uploads/-/system/project/avatar/7845145/CommonLogo.png?width=64</PackageIconUrl>
+    <PackageProjectUrl>https://gitlab.com/hailstorm75/Common</PackageProjectUrl>
+    <RepositoryUrl>https://gitlab.com/hailstorm75/Common</RepositoryUrl>
+    <PackageLicenseUrl>https://gitlab.com/hailstorm75/Common/blob/master/LICENSE</PackageLicenseUrl>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageTags>Common Math Matrix Modulo Number Numbers NumberInRange Matricies Core</PackageTags>
+    <Copyright>© 2019 Denis Akopyan</Copyright>
+    <NeutralLanguage>en</NeutralLanguage>
+    <PackageId>CommonMathCore</PackageId>
+    <Product>CommonMath.Core</Product>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -16,7 +27,7 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DefineConstants>CORE</DefineConstants>
-    <OutputPath>..\..\Libraries\Release</OutputPath>
+    <OutputPath>..\..\binCore\Libraries\Release</OutputPath>
   </PropertyGroup>
 
   <ItemGroup>

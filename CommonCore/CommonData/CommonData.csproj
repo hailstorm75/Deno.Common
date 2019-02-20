@@ -5,6 +5,14 @@
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <RootNamespace>Common.Data</RootNamespace>
     <LangVersion>7.1</LangVersion>
+    <Copyright>© 2019 Denis Akopyan</Copyright>
+    <PackageLicenseUrl>https://gitlab.com/hailstorm75/Common/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://gitlab.com/hailstorm75/Common</PackageProjectUrl>
+    <PackageIconUrl>https://assets.gitlab-static.net/uploads/-/system/project/avatar/7845145/CommonLogo.png?width=64</PackageIconUrl>
+    <RepositoryUrl>https://gitlab.com/hailstorm75/Common</RepositoryUrl>
+    <Product>CommonData.Core</Product>
+    <Authors>Denis Akopyan</Authors>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -43,7 +51,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CommonLinq\CommonLinq.csproj" />
+    <PackageReference Include="CommonLinq" Version="1.0.0" />
   </ItemGroup>
 
 </Project>

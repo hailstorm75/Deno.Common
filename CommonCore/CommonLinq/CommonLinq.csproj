@@ -5,6 +5,17 @@
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <RootNamespace>Common.Linq</RootNamespace>
     <LangVersion>7.1</LangVersion>
+    <Copyright>© 2019 Denis Akopyan</Copyright>
+    <Authors>Denis Akopyan</Authors>
+    <PackageLicenseUrl>https://gitlab.com/hailstorm75/Common/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://gitlab.com/hailstorm75/Common</PackageProjectUrl>
+    <PackageIconUrl>https://assets.gitlab-static.net/uploads/-/system/project/avatar/7845145/CommonLogo.png?width=64</PackageIconUrl>
+    <RepositoryUrl>https://gitlab.com/hailstorm75/Common</RepositoryUrl>
+    <PackageTags>Common Linq Foreach Distinct Sort Chunk Batch</PackageTags>
+    <Description>Additional Linq extensions</Description>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageId>CommonLinqCore</PackageId>
+    <Product>CommonLinq.Core</Product>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
