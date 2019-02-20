@@ -13,6 +13,7 @@
     <Product>CommonData.Core</Product>
     <Authors>Denis Akopyan</Authors>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageId>CommonDataCore</PackageId>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -51,7 +52,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="CommonLinq" Version="1.0.0" />
+    <PackageReference Include="CommonLinqCore" Version="1.0.0" />
   </ItemGroup>
 
 </Project>

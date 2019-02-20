@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>Denis Akopyan</authors>
+    <owners>Denis Akopyan</owners>
+    <licenseUrl>https://gitlab.com/hailstorm75/Common/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://gitlab.com/hailstorm75/Common</projectUrl>
+    <iconUrl>https://assets.gitlab-static.net/uploads/-/system/project/avatar/7845145/CommonLogo.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>.NET Framework library</description>
+    <releaseNotes>Initial commit.</releaseNotes>
+    <copyright>Copyright 2019</copyright>
+  </metadata>
+</package>

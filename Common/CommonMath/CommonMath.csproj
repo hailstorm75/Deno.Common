@@ -65,6 +65,7 @@
     <Compile Include="UniversalNumericOperation.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="CommonMath.nuspec" />
     <None Include="signature.snk" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
