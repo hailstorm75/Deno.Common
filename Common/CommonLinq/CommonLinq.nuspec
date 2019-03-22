@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>CommonLinq</id>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
     <title>CommonLinq</title>
     <authors>Denis Akopyan</authors>
     <owners>Denis Akopyan</owners>
@@ -11,7 +11,7 @@
     <iconUrl>https://assets.gitlab-static.net/uploads/-/system/project/avatar/7845145/CommonLogo.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>.NET Framework library</description>
-    <releaseNotes>Initial commit.</releaseNotes>
+    <releaseNotes>Extended ObservableCollection Sort extetions</releaseNotes>
     <copyright>Copyright 2019</copyright>
   </metadata>
 </package>

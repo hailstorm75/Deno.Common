@@ -16,6 +16,8 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageId>CommonLinqCore</PackageId>
     <Product>CommonLinq.Core</Product>
+    <Version>1.0.1</Version>
+    <PackageReleaseNotes>Extended ObservableCollection Sort extetions</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
