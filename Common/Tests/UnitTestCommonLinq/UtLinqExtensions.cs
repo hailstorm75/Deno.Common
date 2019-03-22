@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using NUnit.Framework;
 using UnitTestConstants;
@@ -54,6 +55,40 @@ namespace Common.Linq.Tests
 
       if (result.Last().Count() > chunkSize)
         Assert.Fail();
+    }
+
+    [Test, Category(Constants.EXTENSION)]
+    public void SortObservableCollection1()
+    {
+      var toSort = new ObservableCollection<int>
+      {
+        5,
+        7,
+        8,
+        9
+      };
+      var sorted = toSort.OrderBy(x => x).ToList();
+
+      toSort.Sort();
+
+      CollectionAssert.AreEqual(sorted, toSort);
+    }
+
+    [Test, Category(Constants.EXTENSION)]
+    public void SortObservableCollection2()
+    {
+      var toSort = new ObservableCollection<int>
+      {
+        5,
+        7,
+        8,
+        9
+      };
+      var sorted = toSort.OrderBy(x => x).ToList();
+
+      toSort.Sort((x, y) => x.CompareTo(y));
+
+      CollectionAssert.AreEqual(sorted, toSort);
     }
   }
 }
