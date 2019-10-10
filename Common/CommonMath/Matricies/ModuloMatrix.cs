@@ -44,7 +44,7 @@ namespace Common.Math.Matricies
     {
       if (!default(T).IsUnsignedInteger()) throw new NotSupportedException($"T cannot be of type {typeof(T).Name}");
       if (values == null) throw new ArgumentException($"Argument {nameof(values)} cannot be null.");
-      if (values.GetLength(0) == 0 || values.GetLength(1) == 0) throw new ArgumentException($"Argument {nameof(values)} cannot have a dimension of size 0.");
+      if (values.Length == 0 || values[0].Length == 0) throw new ArgumentException($"Argument {nameof(values)} cannot have a dimension of size 0.");
 
       ModuloValue = modulo;
       MatrixType = GetMatrixType(values);
@@ -110,6 +110,11 @@ namespace Common.Math.Matricies
 
     public static ModuloMatrix<T> operator +(ModuloMatrix<T> m, ModuloMatrix<T> n)
     {
+      if (m == null)
+        throw new ArgumentNullException(nameof(m));
+      if (n == null)
+        throw new ArgumentNullException(nameof(n));
+
       if (m.Rows != n.Rows || m.Columns != m.Rows)
         throw new MatrixDimensionException("Matricies of different dimensions cannot be summed.");
 
@@ -124,6 +129,11 @@ namespace Common.Math.Matricies
 
     public static ModuloMatrix<T> operator -(ModuloMatrix<T> m, ModuloMatrix<T> n)
     {
+      if (m == null)
+        throw new ArgumentNullException(nameof(m));
+      if (n == null)
+        throw new ArgumentNullException(nameof(n));
+
       if (m.Rows != n.Rows || m.Columns != m.Rows)
         throw new MatrixDimensionException("Matricies of different dimensions cannot be subtracted.");
 
@@ -138,6 +148,11 @@ namespace Common.Math.Matricies
 
     public static ModuloMatrix<T> operator *(ModuloMatrix<T> m, ModuloMatrix<T> n)
     {
+      if (m == null)
+        throw new ArgumentNullException(nameof(m));
+      if (n == null)
+        throw new ArgumentNullException(nameof(n));
+
       if (m.Rows != n.Columns)
         throw new MatrixDimensionException("");
 
@@ -153,6 +168,9 @@ namespace Common.Math.Matricies
 
     public static ModuloMatrix<T> operator *(double m, ModuloMatrix<T> n)
     {
+      if (n == null)
+        throw new ArgumentNullException(nameof(n));
+
       var outputvalues = InitializeArray(n.Rows, n.Columns);
       for (var i = 0; i < n.Rows; i++)
         for (var j = 0; j < n.Columns; j++)
@@ -163,6 +181,9 @@ namespace Common.Math.Matricies
 
     public static ModuloMatrix<T> operator /(double m, ModuloMatrix<T> n)
     {
+      if (n == null)
+        throw new ArgumentNullException(nameof(n));
+
       var outputvalues = InitializeArray(n.Rows, n.Columns);
       for (var i = 0; i < n.Rows; i++)
         for (var j = 0; j < n.Columns; j++)

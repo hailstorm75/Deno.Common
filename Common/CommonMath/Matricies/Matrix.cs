@@ -168,6 +168,11 @@ namespace Common.Math.Matricies
 
     public static Matrix<T> operator +(Matrix<T> m, Matrix<T> n)
     {
+      if (m == null)
+        throw new ArgumentNullException(nameof(m));
+      if (n == null)
+        throw new ArgumentNullException(nameof(n));
+
       if (m.Rows != n.Rows || m.Columns != n.Columns)
         throw new MatrixDimensionException("Matricies of different dimensions cannot be summed.");
 
@@ -182,6 +187,11 @@ namespace Common.Math.Matricies
 
     public static Matrix<T> operator -(Matrix<T> m, Matrix<T> n)
     {
+      if (m == null)
+        throw new ArgumentNullException(nameof(m));
+      if (n == null)
+        throw new ArgumentNullException(nameof(n));
+
       if (m.Rows != n.Rows || m.Columns != n.Columns)
         throw new MatrixDimensionException("Matricies of different dimensions cannot be subtracted.");
 
@@ -196,6 +206,11 @@ namespace Common.Math.Matricies
 
     public static Matrix<T> operator *(Matrix<T> m, Matrix<T> n)
     {
+      if (m == null)
+        throw new ArgumentNullException(nameof(m));
+      if (n == null)
+        throw new ArgumentNullException(nameof(n));
+
       if (m.Rows != n.Columns)
         throw new MatrixDimensionException("");
 
@@ -211,6 +226,9 @@ namespace Common.Math.Matricies
 
     public static Matrix<T> operator *(double m, Matrix<T> n)
     {
+      if (n == null)
+        throw new ArgumentNullException(nameof(n));
+
       var outputValues = InitializeArray(n.Rows, n.Columns);
       for (var i = 0; i < n.Rows; i++)
         for (var j = 0; j < n.Columns; j++)
@@ -221,6 +239,9 @@ namespace Common.Math.Matricies
 
     public static Matrix<T> operator /(Matrix<T> m, double n)
     {
+      if (m == null)
+        throw new ArgumentNullException(nameof(m));
+
       var outputValues = InitializeArray(m.Rows, m.Columns);
       for (var i = 0; i < m.Rows; i++)
         for (var j = 0; j < m.Columns; j++)
