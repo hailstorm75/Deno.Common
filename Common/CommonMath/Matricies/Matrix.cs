@@ -60,7 +60,7 @@ namespace Common.Math.Matricies
   [Serializable]
   public sealed class Matrix<T>
     : BaseMatrix<T> where T
-      : struct, IComparable, IFormattable, IConvertible, IComparable<T>, IEquatable<T>
+    : struct, IComparable, IFormattable, IConvertible, IComparable<T>, IEquatable<T>
   {
     #region Properties
 
@@ -68,7 +68,7 @@ namespace Common.Math.Matricies
     public override Type MatrixType { get; }
 
     /// <inheritdoc />
-    public override T[,] MatrixValues
+    public override T[][] MatrixValues
     {
       get => m_matrixValues;
       set
@@ -95,11 +95,11 @@ namespace Common.Math.Matricies
     /// var matrix = Matrix&lt;double&gt;(arrayOfValues);
     /// </code>
     /// </example>
-    public Matrix(T[,] values)
+    public Matrix(T[][] values)
     {
       if (!default(T).IsNumber()) throw new NotSupportedException($"T cannot be of type {typeof(T).Name}");
       if (values == null) throw new ArgumentException($"Argument {nameof(values)} cannot be null.");
-      if (values.GetLength(0) == 0 || values.GetLength(1) == 0) throw new ArgumentException($"Argument {nameof(values)} cannot have a dimension of size 0.");
+      if (values.Length == 0 || values[0].Length == 0) throw new ArgumentException($"Argument {nameof(values)} cannot have a dimension of size 0.");
 
       MatrixType = GetMatrixType(values);
       MatrixValues = values;
@@ -124,10 +124,13 @@ namespace Common.Math.Matricies
       if (size < 0) throw new ArgumentException($"Argument {nameof(size)} cannot be negative.");
       if (size == 0) throw new ArgumentException($"Argument {nameof(size)} cannot be equal to 0.");
 
-      var matrix = new T[size, size];
+      var matrix = new T[size][];
       if (identity)
         for (var i = 0; i < size; i++)
-          matrix[i, i] = (dynamic)1;
+        {
+          matrix[i] = new T[size];
+          matrix[i][i] = (dynamic)1;
+        }
 
       MatrixType = Type.Identity | Type.Invertable;
       MatrixValues = matrix;
@@ -154,7 +157,7 @@ namespace Common.Math.Matricies
       if (height < 0) throw new ArgumentException($"Argument {nameof(height)} cannot be negative.");
       if (length == 0 || height == 0) throw new ArgumentException($"Arguments {nameof(length)} and {nameof(height)} cannot be equal to 0.");
 
-      MatrixValues = new T[length, height];
+      MatrixValues = InitializeArray(length, height);
 
       if (Columns == Rows) MatrixType = Type.Invertable;
     }
@@ -168,13 +171,13 @@ namespace Common.Math.Matricies
       if (m.Rows != n.Rows || m.Columns != n.Columns)
         throw new MatrixDimensionException("Matricies of different dimensions cannot be summed.");
 
-      var outputvalues = new T[m.Rows, m.Columns];
+      var outputValues = InitializeArray(m.Rows, m.Columns);
 
       for (var i = 0; i < m.Rows; i++)
         for (var j = 0; j < m.Columns; j++)
-          outputvalues[i, j] = UniversalNumericOperation.Add<T, T>(m.MatrixValues[i, j], n.MatrixValues[i, j]);
+          outputValues[i][j] = m.MatrixValues[i][j].Add(n.MatrixValues[i][j]);
 
-      return new Matrix<T>(outputvalues);
+      return new Matrix<T>(outputValues);
     }
 
     public static Matrix<T> operator -(Matrix<T> m, Matrix<T> n)
@@ -182,11 +185,11 @@ namespace Common.Math.Matricies
       if (m.Rows != n.Rows || m.Columns != n.Columns)
         throw new MatrixDimensionException("Matricies of different dimensions cannot be subtracted.");
 
-      var outputValues = new T[m.Rows, m.Columns];
+      var outputValues = InitializeArray(m.Rows, m.Columns);
 
       for (var i = 0; i < m.Rows; i++)
         for (var j = 0; j < m.Columns; j++)
-          outputValues[i, j] = UniversalNumericOperation.Subtract<T, T>(m.MatrixValues[i, j], n.MatrixValues[i, j]);
+          outputValues[i][j] = m.MatrixValues[i][j].Subtract(n.MatrixValues[i][j]);
 
       return new Matrix<T>(outputValues);
     }
@@ -196,34 +199,34 @@ namespace Common.Math.Matricies
       if (m.Rows != n.Columns)
         throw new MatrixDimensionException("");
 
-      var outputValues = new T[m.Rows, n.Columns];
+      var outputValues = InitializeArray(m.Rows, n.Columns);
 
       for (var i = 0; i < n.Columns; i++)
         for (var j = 0; j < m.Rows; j++)
           for (var k = 0; k < m.Rows; k++)
-            outputValues[i, j] = outputValues[i, j].Add(UniversalNumericOperation.Multiply<T, T>(m.MatrixValues[i, k], n.MatrixValues[k, j]));
+            outputValues[i][j] = outputValues[i][j].Add(m.MatrixValues[i][k].Multiply(n.MatrixValues[k][j]));
 
       return new Matrix<T>(outputValues);
     }
 
     public static Matrix<T> operator *(double m, Matrix<T> n)
     {
-      var outputvalues = new T[n.Rows, n.Columns];
+      var outputValues = InitializeArray(n.Rows, n.Columns);
       for (var i = 0; i < n.Rows; i++)
         for (var j = 0; j < n.Columns; j++)
-          outputvalues[i, j] = UniversalNumericOperation.Multiply<T, double, T>(n.MatrixValues[i, j], m);
+          outputValues[i][j] = UniversalNumericOperation.Multiply<T, double, T>(n.MatrixValues[i][j], m);
 
-      return new Matrix<T>(outputvalues);
+      return new Matrix<T>(outputValues);
     }
 
     public static Matrix<T> operator /(Matrix<T> m, double n)
     {
-      var outputvalues = new T[m.Rows, m.Columns];
+      var outputValues = InitializeArray(m.Rows, m.Columns);
       for (var i = 0; i < m.Rows; i++)
         for (var j = 0; j < m.Columns; j++)
-          outputvalues[i, j] = UniversalNumericOperation.Divide<T, double, T>(m.MatrixValues[i, j], n);
+          outputValues[i][j] = UniversalNumericOperation.Divide<T, double, T>(m.MatrixValues[i][j], n);
 
-      return new Matrix<T>(outputvalues);
+      return new Matrix<T>(outputValues);
     }
 
     #endregion
@@ -231,18 +234,20 @@ namespace Common.Math.Matricies
     #region Methods
 
     /// <inheritdoc />
-    public override double GetDeterminant() => m_determinant.Value;
+    public override double GetDeterminant()
+      => m_determinant.Value;
 
     /// <inheritdoc />
-    public override IMatrix<T> GetInverse() => m_inverse.Value;
+    public override IMatrix<T> GetInverse()
+      => m_inverse.Value;
 
     /// <inheritdoc />
     public override IMatrix<T> Transpose()
     {
-      var transposedValues = new T[Rows, Columns];
+      var transposedValues = InitializeArray(Rows, Columns);
       for (var i = 0; i < Columns; i++)
         for (var j = 0; j < Columns; j++)
-          transposedValues[i, j] = MatrixValues[j, i];
+          transposedValues[i][j] = MatrixValues[j][i];
 
       return new Matrix<T>(transposedValues);
     }
@@ -251,12 +256,12 @@ namespace Common.Math.Matricies
     public override IMatrix<T> MatrixOfCofactors()
     {
       var sign = 1;
-      var cofactorvalues = new T[Rows, Columns];
+      var cofactorvalues = InitializeArray(Rows, Columns);
       for (var i = 0; i < Columns; i++)
       {
         for (var j = 0; j < Columns; j++)
         {
-          cofactorvalues[i, j] = UniversalNumericOperation.Multiply<T, int, T>(MatrixValues[i, j], sign);
+          cofactorvalues[i][j] = UniversalNumericOperation.Multiply<T, int, T>(MatrixValues[i][j], sign);
           sign = -sign;
         }
 
@@ -269,33 +274,33 @@ namespace Common.Math.Matricies
     /// <inheritdoc />
     protected override IMatrix<T> CalculateInverse()
     {
-      if (MatrixValues.GetLength(0) != MatrixValues.GetLength(1))
+      if (Rows != Columns)
         throw new InvertableMatrixOperationException("Determinant can be calculated only for NxN matricies.");
 
       if (Rows == 2)
       {
-        var inverseArray = new T[2, 2];
-        inverseArray[0, 0] = UniversalNumericOperation.Multiply<T, double, T>(MatrixValues[1, 1], 1 / GetDeterminant());
-        inverseArray[0, 1] = UniversalNumericOperation.Multiply<T, double, T>(MatrixValues[0, 1], 1 / -GetDeterminant());
-        inverseArray[1, 0] = UniversalNumericOperation.Multiply<T, double, T>(MatrixValues[1, 0], 1 / -GetDeterminant());
-        inverseArray[1, 1] = UniversalNumericOperation.Multiply<T, double, T>(MatrixValues[0, 0], 1 / GetDeterminant());
+        var inverseArray = InitializeArray(2, 2);
+        inverseArray[0][0] = UniversalNumericOperation.Multiply<T, double, T>(MatrixValues[1][1], 1 / GetDeterminant());
+        inverseArray[0][1] = UniversalNumericOperation.Multiply<T, double, T>(MatrixValues[0][1], 1 / -GetDeterminant());
+        inverseArray[1][0] = UniversalNumericOperation.Multiply<T, double, T>(MatrixValues[1][0], 1 / -GetDeterminant());
+        inverseArray[1][1] = UniversalNumericOperation.Multiply<T, double, T>(MatrixValues[0][0], 1 / GetDeterminant());
 
         return new Matrix<T>(inverseArray);
       }
 
-      var matrixofminors = new T[Columns, Rows];
+      var matrixofminors = InitializeArray(Columns, Rows);
       for (var i = 0; i < Columns; i++)
       {
         for (var j = 0; j < Columns; j++)
         {
           var coords = new[] { 0, 0 };
-          var submatrix = new T[Columns - 1, Rows - 1];
+          var submatrix = InitializeArray(Columns - 1, Rows - 1);
           for (var k = 0; k < Columns; k++)
           {
             for (var l = 0; l < Columns; l++)
             {
               if (k == i || l == j) continue;
-              submatrix[coords[0], coords[1]++] = MatrixValues[k, l];
+              submatrix[coords[0]][coords[1]++] = MatrixValues[k][l];
             }
 
             if (coords[1] == Columns - 1) coords[0]++;
@@ -303,7 +308,7 @@ namespace Common.Math.Matricies
             coords[1] = 0;
           }
 
-          matrixofminors[i, j] = (dynamic)CalculateDeterminant(submatrix);
+          matrixofminors[i][j] = (dynamic)CalculateDeterminant(submatrix);
         }
       }
 
@@ -312,7 +317,7 @@ namespace Common.Math.Matricies
 
       for (var i = 0; i < Columns; i++)
         for (var j = 0; j < Columns; j++)
-          cofactorMatrix.MatrixValues[i, j] = UniversalNumericOperation.Multiply<T, double, T>(cofactorMatrix.MatrixValues[i, j], (1 / GetDeterminant()));
+          cofactorMatrix.MatrixValues[i][j] = UniversalNumericOperation.Multiply<T, double, T>(cofactorMatrix.MatrixValues[i][j], (1 / GetDeterminant()));
 
       return cofactorMatrix;
     }

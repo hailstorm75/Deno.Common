@@ -57,13 +57,13 @@ namespace Common.Math
     public NumberInRange(T value, T min, T max)
     {
       if (!default(T).IsSignedInteger()) throw new NotSupportedException($"T cannot be of type {typeof(T).Name}");
-      if (IsEqual(min, GetMinValue(value))) throw new ArgumentException($"Argumnet {nameof(min)} cannot be equal to {GetMinValue(value)}");
-      if (IsEqual(min, max)) throw new ArgumentException($"Argument {nameof(min)} cannot be equal to argument {nameof(max)}.");
-      if (IsGreater(min, max)) throw new ArgumentException($"Argument {nameof(min)} cannot be greater than argument {nameof(max)}.");
+      if (min.IsEqual(GetMinValue(value))) throw new ArgumentException($"Argumnet {nameof(min)} cannot be equal to {GetMinValue(value)}");
+      if (min.IsEqual(max)) throw new ArgumentException($"Argument {nameof(min)} cannot be equal to argument {nameof(max)}.");
+      if (min.IsGreater(max)) throw new ArgumentException($"Argument {nameof(min)} cannot be greater than argument {nameof(max)}.");
 
       var a = Abs(min);
       var b = Abs(max);
-      m_rangeLen = Add<T, int, T>(IsGreater(a ,b) ? Subtract<T, T>(a, b) : Subtract<T, T>(b, a), 1);
+      m_rangeLen = Add<T, int, T>(a.IsGreater(b) ? Subtract<T, T>(a, b) : Subtract<T, T>(b, a), 1);
 
       Max = max;
       Min = min;
@@ -81,20 +81,20 @@ namespace Common.Math
     /// <returns>Value in range</returns>
     private T AdjustValue(T val)
     {
-      if (IsGreaterEqual(val, Min) && IsLessEqual(val, Max)) return val;
+      if (val.IsGreaterEqual(Min) && val.IsLessEqual(Max)) return val;
 
-      if (IsGreater(val, Min))
+      if (val.IsGreater(Min))
       {
-        if (IsLess(Min, 0)) return Abs(val.Subtract(Min)).Modulo(m_rangeLen).Add(Min);
+        if (Min.IsLess(0)) return Abs(val.Subtract(Min)).Modulo(m_rangeLen).Add(Min);
 
         var remainder = val.Modulo(m_rangeLen);
-        return IsEqual(remainder, 0) ? Min : remainder.Add(Min);
+        return remainder.IsEqual(0) ? Min : remainder.Add(Min);
       }
 
       //if (IsLess(val, Min))
       {
         var remainder = Abs(val.Subtract(Min)).Modulo(m_rangeLen);
-        return IsEqual(remainder, 0) ? Min : m_rangeLen.Subtract(remainder).Add(Min);
+        return remainder.IsEqual(0) ? Min : m_rangeLen.Subtract(remainder).Add(Min);
       }
 
       //return Min.Subtract(Max);

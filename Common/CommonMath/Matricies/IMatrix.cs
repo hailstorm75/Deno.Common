@@ -17,7 +17,7 @@
     /// <summary>
     /// Matrix data
     /// </summary>
-    T[,] MatrixValues { get; set; }
+    T[][] MatrixValues { get; set; }
 
     /// <summary>
     /// Getter for the determinant property
@@ -39,6 +39,8 @@
     /// </summary>
     /// <returns>Instance of matrix of cofactors</returns>
     IMatrix<T> MatrixOfCofactors();
+
+    /// <inheritdoc />
     string ToString();
   }
 }

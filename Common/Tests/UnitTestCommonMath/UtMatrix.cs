@@ -25,10 +25,10 @@ namespace Common.Math.Tests
     public void InitializeArray()
     {
       // Act
-      var unused = new Matrix<double>(new double[,]
+      var _ = new Matrix<double>(new double[][]
       {
-        { 1, 2, 5 },
-        { 3, 5, 8 }
+        new double[]{ 1, 2, 5 },
+        new double[]{ 3, 5, 8 }
       });
     }
 
@@ -41,7 +41,7 @@ namespace Common.Math.Tests
       // Assert
       Assert.Throws<ArgumentException>(() =>
       {
-        var unused = new Matrix<double>(size, false);
+        var _ = new Matrix<double>(size, false);
       });
     }
 
@@ -52,7 +52,7 @@ namespace Common.Math.Tests
       // Assert
       Assert.Throws<NotSupportedException>(() =>
       {
-        var unused = new Matrix<DateTime>(5, 5);
+        var _ = new Matrix<DateTime>(5, 5);
       });
     }
 
@@ -63,7 +63,7 @@ namespace Common.Math.Tests
       // Assert
       Assert.Throws<NotSupportedException>(() =>
       {
-        var unused = new Matrix<DateTime>(5, true);
+        var _ = new Matrix<DateTime>(5, true);
       });
     }
 
@@ -74,7 +74,7 @@ namespace Common.Math.Tests
       // Assert
       Assert.Throws<NotSupportedException>(() =>
       {
-        var unused = new Matrix<DateTime>(new[,] { { new DateTime(), } });
+        var _ = new Matrix<DateTime>(new DateTime[][] { new DateTime[]{ new DateTime() } });
       });
     }
 
@@ -85,7 +85,7 @@ namespace Common.Math.Tests
       // Assert
       Assert.Throws<ArgumentException>(() =>
       {
-        var unused = new Matrix<double>(length, height);
+        var _ = new Matrix<double>(length, height);
       });
     }
 
@@ -96,7 +96,7 @@ namespace Common.Math.Tests
       // Assert
       Assert.Throws<ArgumentException>(() =>
       {
-        var unused = new Matrix<double>(null);
+        var _ = new Matrix<double>(null);
       });
     }
 
@@ -107,7 +107,7 @@ namespace Common.Math.Tests
       // Assert
       Assert.Throws<ArgumentException>(() =>
       {
-        var unused = new Matrix<double>(new double[,] { });
+        var _ = new Matrix<double>(new double[][] { });
       });
     }
 
@@ -138,7 +138,11 @@ namespace Common.Math.Tests
     public void InitializeNonIdentity()
     {
       // Arrange
-      var matrix = new Matrix<double>(new double[,] { { 1, 2, 3 }, { 1, 2, 3 } });
+      var matrix = new Matrix<double>(new double[][]
+      {
+        new double[]{ 1, 2, 3 },
+        new double[]{ 1, 2, 3 }
+      });
 
       // Assert
       Assert.AreNotEqual(Matrix<double>.Type.Invertable | Matrix<double>.Type.Identity, matrix.MatrixType);
@@ -161,7 +165,7 @@ namespace Common.Math.Tests
 
     [Test, TestCaseSource(typeof(DataMatrix), nameof(DataMatrix.GetInvertData))]
     [Category(Constants.METHOD)]
-    public void Invert(Tuple<double[,], double[,]> data)
+    public void Invert(Tuple<double[][], double[][]> data)
     {
       // Arrange
       var matrix = new Matrix<double>(data.Item1);
@@ -183,13 +187,13 @@ namespace Common.Math.Tests
       // Act
       Assert.Throws<Matrix<double>.InvertableMatrixOperationException>(() =>
       {
-        var unused = matrix.GetInverse();
+        var _ = matrix.GetInverse();
       });
     }
 
     [Test, TestCaseSource(typeof(DataMatrix), nameof(DataMatrix.GetNonIdentityMatrixData))]
     [Category(Constants.METHOD)]
-    public void DeterminantException(Tuple<double[,]> data)
+    public void DeterminantException(Tuple<double[][]> data)
     {
       // Arrange
       var matrix = new Matrix<double>(data.Item1);
@@ -197,7 +201,7 @@ namespace Common.Math.Tests
       // Act
       Assert.Throws<Matrix<double>.InvertableMatrixOperationException>(() =>
       {
-        var unused = matrix.GetDeterminant();
+        var _ = matrix.GetDeterminant();
       });
     }
 
@@ -223,7 +227,7 @@ namespace Common.Math.Tests
 
     [Test, TestCaseSource(typeof(DataMatrix), nameof(DataMatrix.GetAdditionInvalidClassClassData))]
     [Category(Constants.OPERATOR)]
-    public void AdditionInvalidClassClass(Tuple<double[,], double[,]> data)
+    public void AdditionInvalidClassClass(Tuple<double[][], double[][]> data)
     {
       // Arrange
       var matrixA = new Matrix<double>(data.Item1);
@@ -232,13 +236,13 @@ namespace Common.Math.Tests
       // Act
       Assert.Throws<Matrix<double>.MatrixDimensionException>(() =>
       {
-        var unused = matrixA + matrixB;
+        var _ = matrixA + matrixB;
       });
     }
 
     [Test, TestCaseSource(typeof(DataMatrix), nameof(DataMatrix.GetAdditionClassClassData))]
     [Category(Constants.OPERATOR)]
-    public void AdditionClassClass(Tuple<double[,], double[,], double[,]> data)
+    public void AdditionClassClass(Tuple<double[][], double[][], double[][]> data)
     {
       // Arrange
       var matrixA = new Matrix<double>(data.Item1);
@@ -257,7 +261,7 @@ namespace Common.Math.Tests
 
     [Test, TestCaseSource(typeof(DataMatrix), nameof(DataMatrix.GetSubtractionInvalidClassClassData))]
     [Category(Constants.OPERATOR)]
-    public void SubtractionInvalidClassClass(Tuple<double[,], double[,]> data)
+    public void SubtractionInvalidClassClass(Tuple<double[][], double[][]> data)
     {
       // Arrange
       var matrixA = new Matrix<double>(data.Item1);
@@ -266,13 +270,13 @@ namespace Common.Math.Tests
       // Act
       Assert.Throws<Matrix<double>.MatrixDimensionException>(() =>
       {
-        var unused = matrixA - matrixB;
+        var _ = matrixA - matrixB;
       });
     }
 
     [Test, TestCaseSource(typeof(DataMatrix), nameof(DataMatrix.GetSubtractionClassClassData))]
     [Category(Constants.OPERATOR)]
-    public void SubtractionClassClass(Tuple<double[,], double[,], double[,]> data)
+    public void SubtractionClassClass(Tuple<double[][], double[][], double[][]> data)
     {
       // Arrange
       var matrixA = new Matrix<double>(data.Item1);
@@ -291,7 +295,7 @@ namespace Common.Math.Tests
 
     [Test, TestCaseSource(typeof(DataMatrix), nameof(DataMatrix.GetMultiplicationValueClassData))]
     [Category(Constants.OPERATOR)]
-    public void MultiplicationValueClass(Tuple<double, double[,], double[,]> data)
+    public void MultiplicationValueClass(Tuple<double, double[][], double[][]> data)
     {
       // Arrange
       var matrix = new Matrix<double>(data.Item2);
@@ -305,7 +309,7 @@ namespace Common.Math.Tests
 
     [Test, TestCaseSource(typeof(DataMatrix), nameof(DataMatrix.GetMultiplicationClassClassData))]
     [Category(Constants.OPERATOR)]
-    public void MultiplicationClassClass(Tuple<double[,], double[,], double[,]> data)
+    public void MultiplicationClassClass(Tuple<double[][], double[][], double[][]> data)
     {
       // Arrange
       var matrixA = new Matrix<double>(data.Item1);
@@ -320,7 +324,7 @@ namespace Common.Math.Tests
 
     [Test, TestCaseSource(typeof(DataMatrix), nameof(DataMatrix.GetMultiplicationInvalidClassClassData))]
     [Category(Constants.OPERATOR)]
-    public void MultiplicationInvalidClassClass(Tuple<double[,], double[,]> data)
+    public void MultiplicationInvalidClassClass(Tuple<double[][], double[][]> data)
     {
       // Arrange
       var matrixA = new Matrix<double>(data.Item1);
@@ -329,7 +333,7 @@ namespace Common.Math.Tests
       // Act
       Assert.Throws<Matrix<double>.MatrixDimensionException>(() =>
       {
-        var unused = matrixA * matrixB;
+        var _ = matrixA * matrixB;
       });
     }
 
@@ -339,7 +343,7 @@ namespace Common.Math.Tests
 
     [Test, TestCaseSource(typeof(DataMatrix), nameof(DataMatrix.GetDivisionClassValueData))]
     [Category(Constants.OPERATOR)]
-    public void DivisionClassValue(Tuple<double[,], double, double[,]> data)
+    public void DivisionClassValue(Tuple<double[][], double, double[][]> data)
     {
       // Arrange
       var matrix = new Matrix<double>(data.Item1);

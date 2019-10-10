@@ -5,11 +5,11 @@ namespace Common.Math.Tests.Data
 {
   internal static class DataMatrix
   {
-    public static readonly double[,] InvertableMatrix =
+    public static readonly double[][] InvertableMatrix =
     {
-      {1, 0, 0},
-      {0, 1, 0},
-      {0, 0, 1}
+      new double[]{1, 0, 0},
+      new double[]{0, 1, 0},
+      new double[]{0, 0, 1}
     };
 
     public static IEnumerable<object[]> GetCtorExceptionData()
@@ -34,52 +34,52 @@ namespace Common.Math.Tests.Data
     {
       yield return new object[]
       {
-        new Tuple<double[,], double[,]>(
-          new double[,]
+        new Tuple<double[][], double[][]>(
+          new double[][]
           {
-            { 4, 7 },
-            { 2, 6 },
+            new double[]{ 4, 7 },
+            new double[]{ 2, 6 },
           },
-          new double[,]
+          new double[][]
           {
-            { 0.6, -0.7 },
-            { -0.2, 0.4 },
+            new double[]{ 0.6, -0.7 },
+            new double[]{ -0.2, 0.4 },
           }
         )
       };
       yield return new object[]
       {
-        new Tuple<double[,], double[,]>(
-          new double[,]
+        new Tuple<double[][], double[][]>(
+          new double[][]
           {
-            { 1, 2, 3 },
-            { 0, 1, 4 },
-            { 5, 6, 0 },
+            new double[]{ 1, 2, 3 },
+            new double[]{ 0, 1, 4 },
+            new double[]{ 5, 6, 0 },
           },
-          new double[,]
+          new double[][]
           {
-            { -24, 18, 5 },
-            { 20, -15, -4 },
-            { -5, 4, 1 }
+            new double[]{ -24, 18, 5 },
+            new double[]{ 20, -15, -4 },
+            new double[]{ -5, 4, 1 }
           }
         )
       };
       yield return new object[]
       {
-        new Tuple<double[,], double[,]>(
-          new double[,]
+        new Tuple<double[][], double[][]>(
+          new double[][]
           {
-            {1, 1, 1, 0},
-            {0, 3, 1, 2},
-            {2, 3, 1, 0},
-            {1, 0, 2, 1},
+            new double[]{1, 1, 1, 0},
+            new double[]{0, 3, 1, 2},
+            new double[]{2, 3, 1, 0},
+            new double[]{1, 0, 2, 1},
           },
-          new double[,]
+          new double[][]
           {
-            {-3, -0.5, 1.5, 1},
-            {1, 0.25, -0.25, -0.5},
-            {3, 0.25, -1.25, -0.5},
-            {-3, 0, 1, 1},
+            new double[]{-3, -0.5, 1.5, 1},
+            new double[]{1, 0.25, -0.25, -0.5},
+            new double[]{3, 0.25, -1.25, -0.5},
+            new double[]{-3, 0, 1, 1},
           }
         )
       };
@@ -89,41 +89,41 @@ namespace Common.Math.Tests.Data
     {
       yield return new object[]
       {
-        new Tuple<double[,]>(
-          new double[,]
+        new Tuple<double[][]>(
+          new double[][]
           {
-            { 1, 1 }
+            new double[]{ 1, 1 }
           }
         )
       };
       yield return new object[]
       {
-        new Tuple<double[,]>(
-          new double[,]
+        new Tuple<double[][]>(
+          new double[][]
           {
-            { 1 },
-            { 1 }
+            new double[]{ 1 },
+            new double[]{ 1 }
           }
         )
       };
       yield return new object[]
       {
-        new Tuple<double[,]>(
-          new double[,]
+        new Tuple<double[][]>(
+          new double[][]
           {
-            { 4, 2, 7 },
-            { 8, 7, 0 }
+            new double[]{ 4, 2, 7 },
+            new double[]{ 8, 7, 0 }
           }
         )
       };
       yield return new object[]
       {
-        new Tuple<double[,]>(
-          new double[,]
+        new Tuple<double[][]>(
+          new double[][]
           {
-            { 4, 8 },
-            { 2, 7 },
-            { 7, 0 }
+            new double[]{ 4, 8 },
+            new double[]{ 2, 7 },
+            new double[]{ 7, 0 }
           }
         )
       };
@@ -133,30 +133,30 @@ namespace Common.Math.Tests.Data
     {
       yield return new object[]
       {
-        new Tuple<double[,], double[,]>(
-          new double[,]
+        new Tuple<double[][], double[][]>(
+          new double[][]
           {
-            { 1, 2, 3 },
-            { 4, 5, 7 },
-            { 8, 9, 10 },
+            new double[]{ 1, 2, 3 },
+            new double[]{ 4, 5, 7 },
+            new double[]{ 8, 9, 10 },
           },
-          new double[,]
+          new double[][]
           {
-            { 1, 2 },
-            { 3, 4 }
+            new double[]{ 1, 2 },
+            new double[]{ 3, 4 }
           }
         )
       };
       yield return new object[]
       {
-        new Tuple<double[,], double[,]>(
-          new double[,]
+        new Tuple<double[][], double[][]>(
+          new double[][]
           {
-            {1, 2, 3, 4}
+            new double[]{1, 2, 3, 4}
           },
-          new double[,]
+          new double[][]
           {
-            {1, 2, 3}
+            new double[]{1, 2, 3}
           }
         )
       };
@@ -191,24 +191,24 @@ namespace Common.Math.Tests.Data
       //};
       yield return new object[]
       {
-        new Tuple<double[,], double[,], double[,]>(
-          new double[,]
+        new Tuple<double[][], double[][], double[][]>(
+          new double[][]
           {
-            { 4, -4, 5 },
-            { 2, -2, 3 },
-            { -3, -1, 0 }
+            new double[]{ 4, -4, 5 },
+            new double[]{ 2, -2, 3 },
+            new double[]{ -3, -1, 0 }
           },
-          new double[,]
+          new double[][]
           {
-            { 4, 6, 1 },
-            { 2, -2, 3 },
-            { 5, 7, 8 }
+            new double[]{ 4, 6, 1 },
+            new double[]{ 2, -2, 3 },
+            new double[]{ 5, 7, 8 }
           },
-          new double[,]
+          new double[][]
           {
-            { 33, 67, 32 },
-            { 19, 37, 20 },
-            { -14, -16, -6 }
+            new double[]{ 33, 67, 32 },
+            new double[]{ 19, 37, 20 },
+            new double[]{ -14, -16, -6 }
           }
         )
       };
@@ -218,17 +218,17 @@ namespace Common.Math.Tests.Data
     {
       yield return new object[]
       {
-        new Tuple<double, double[,], double[,]>(
+        new Tuple<double, double[][], double[][]>(
           2,
-          new double[,]
+          new double[][]
           {
-            {1, 2, 3},
-            {4, 5, 6}
+            new double[]{1, 2, 3},
+            new double[]{4, 5, 6}
           },
-          new double[,]
+          new double[][]
           {
-            {2, 4, 6},
-            {8, 10, 12}
+            new double[]{2, 4, 6},
+            new double[]{8, 10, 12}
           }
         )
       };
@@ -238,17 +238,17 @@ namespace Common.Math.Tests.Data
     {
       yield return new object[]
       {
-        new Tuple<double[,], double[,]>(
-          new double[,]
+        new Tuple<double[][], double[][]>(
+          new double[][]
           {
-            { 1, 1, 1},
-            {1, 1, 1}
+            new double[]{ 1, 1, 1},
+            new double[]{1, 1, 1}
           },
-          new double[,]
+          new double[][]
           {
-            {1, 1},
-            {1, 1},
-            {1, 1}
+            new double[]{1, 1},
+            new double[]{1, 1},
+            new double[]{1, 1}
           }
         )
       };
@@ -258,44 +258,44 @@ namespace Common.Math.Tests.Data
     {
       yield return new object[]
       {
-        new Tuple<double[,], double[,], double[,]>(
-          new double[,]
+        new Tuple<double[][], double[][], double[][]>(
+          new double[][]
           {
-            {0, 1, 2},
-            {9, 8, 7}
+            new double[]{0, 1, 2},
+            new double[]{9, 8, 7}
           },
-          new double[,]
+          new double[][]
           {
-            {6, 5, 4},
-            {3, 4, 5}
+            new double[]{6, 5, 4},
+            new double[]{3, 4, 5}
           },
-          new double[,]
+          new double[][]
           {
-            {6, 6, 6},
-            {12, 12, 12}
+            new double[]{6, 6, 6},
+            new double[]{12, 12, 12}
           }
         )
       };
       yield return new object[]
       {
-        new Tuple<double[,], double[,], double[,]>(
-          new double[,]
+        new Tuple<double[][], double[][], double[][]>(
+          new double[][]
           {
-            {5, 2},
-            {4, 9},
-            {10, -3}
+            new double[]{5, 2},
+            new double[]{4, 9},
+            new double[]{10, -3}
           },
-          new double[,]
+          new double[][]
           {
-            {-11, 0},
-            {7, 1},
-            {-6, -8}
+            new double[]{-11, 0},
+            new double[]{7, 1},
+            new double[]{-6, -8}
           },
-          new double[,]
+          new double[][]
           {
-            {-6, 2},
-            {11, 10},
-            {4, -11}
+            new double[]{-6, 2},
+            new double[]{11, 10},
+            new double[]{4, -11}
           }
         )
       };
@@ -305,17 +305,17 @@ namespace Common.Math.Tests.Data
     {
       yield return new object[]
       {
-        new Tuple<double[,], double[,]>(
-          new double[,]
+        new Tuple<double[][], double[][]>(
+          new double[][]
           {
-            {7, 9},
-            {2, 7},
-            {5, 0}
+            new double[]{7, 9},
+            new double[]{2, 7},
+            new double[]{5, 0}
           },
-          new double[,]
+          new double[][]
           {
-            {2, 3, 8},
-            {9, 0, 3}
+            new double[]{2, 3, 8},
+            new double[]{9, 0, 3}
           }
         )
       };
@@ -325,24 +325,24 @@ namespace Common.Math.Tests.Data
     {
       yield return new object[]
       {
-        new Tuple<double[,], double[,], double[,]>(
-          new double[,]
+        new Tuple<double[][], double[][], double[][]>(
+          new double[][]
           {
-            {7, 3},
-            {5, 9},
-            {11, -2}
+            new double[]{7, 3},
+            new double[]{5, 9},
+            new double[]{11, -2}
           },
-          new double[,]
+          new double[][]
           {
-            {-3, 0},
-            {8, 1},
-            {-3, -4}
+            new double[]{-3, 0},
+            new double[]{8, 1},
+            new double[]{-3, -4}
           },
-          new double[,]
+          new double[][]
           {
-            {10, 3},
-            {-3, 8},
-            {14, 2}
+            new double[]{10, 3},
+            new double[]{-3, 8},
+            new double[]{14, 2}
           }
         )
       };
@@ -352,17 +352,17 @@ namespace Common.Math.Tests.Data
     {
       yield return new object[]
       {
-        new Tuple<double[,], double, double[,]>(
-          new double[,]
+        new Tuple<double[][], double, double[][]>(
+          new double[][]
           {
-            {2, 4, 6},
-            {8, 10, 12}
+            new double[]{2, 4, 6},
+            new double[]{8, 10, 12}
           },
           2,
-          new double[,]
+          new double[][]
           {
-            {1, 2, 3},
-            {4, 5, 6}
+            new double[]{1, 2, 3},
+            new double[]{4, 5, 6}
           }
         )
       };

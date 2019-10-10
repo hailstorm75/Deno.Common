@@ -68,15 +68,15 @@ namespace Common.Math
     #region Operators
 
     public static T Add<T>(this T x, T y)
-			=> Add<T, T>(x, y);
+      => Add<T, T>(x, y);
     public static T Subtract<T>(this T x, T y)
-			=> Subtract<T, T>(x, y);
+      => Subtract<T, T>(x, y);
     public static T Multiply<T>(this T x, T y)
-			=> Multiply<T, T>(x, y);
+      => Multiply<T, T>(x, y);
     public static T Divide<T>(this T x, T y)
-			=> Divide<T, T>(x, y);
+      => Divide<T, T>(x, y);
     public static T Modulo<T>(this T x, T y)
-			=> Modulo<T, T, T>(x, y);
+      => Modulo<T, T, T>(x, y);
 
     #endregion
 
@@ -144,35 +144,37 @@ namespace Common.Math
       return (TResult)res;
     }
 
-    public static TResult Modulo<T1, T2, TResult>(T1 x, T2 y)
-			=> (TResult)((dynamic)x % (dynamic)y);
-    public static bool IsEqual<T1, T2>(T1 x, T2 y)
-			=> (dynamic)x == (dynamic)y;
-    public static bool IsLess<T1, T2>(T1 x, T2 y)
-			=> (dynamic)x < (dynamic)y;
-    public static bool IsLessEqual<T1, T2>(T1 x, T2 y)
-			=> (dynamic)x <= (dynamic)y;
-    public static bool IsGreater<T1, T2>(T1 x, T2 y)
-			=> (dynamic)x > (dynamic)y;
-    public static bool IsGreaterEqual<T1, T2>(T1 x, T2 y)
-			=> (dynamic)x >= (dynamic)y;
+    public static TResult Modulo<T1, T2, TResult>(this T1 x, T2 y)
+      => (TResult)((dynamic)x % (dynamic)y);
+    public static bool IsNotEqual<T1, T2>(this T1 x, T2 y)
+     => (dynamic)x == (dynamic)y;
+    public static bool IsEqual<T1, T2>(this T1 x, T2 y)
+       => (dynamic)x == (dynamic)y;
+    public static bool IsLess<T1, T2>(this T1 x, T2 y)
+      => (dynamic)x < (dynamic)y;
+    public static bool IsLessEqual<T1, T2>(this T1 x, T2 y)
+      => (dynamic)x <= (dynamic)y;
+    public static bool IsGreater<T1, T2>(this T1 x, T2 y)
+      => (dynamic)x > (dynamic)y;
+    public static bool IsGreaterEqual<T1, T2>(this T1 x, T2 y)
+      => (dynamic)x >= (dynamic)y;
 
     #endregion
 
     #region Methods
 
     public static T Abs<T>(T value)
-			=> System.Math.Abs((dynamic)value);
+      => System.Math.Abs((dynamic)value);
 
     public static T GetMaxValue<T>(T value)
     {
       switch (typeof(T).Name)
       {
-        case "Int16": return (T)(dynamic) short.MaxValue;
-        case "Int32": return (T)(dynamic) int.MaxValue;
-        case "Int64": return (T)(dynamic) long.MaxValue;
-        case "Single": return (T)(dynamic) float.MaxValue;
-        case "Double": return (T)(dynamic) double.MaxValue;
+        case "Int16": return (T)(dynamic)short.MaxValue;
+        case "Int32": return (T)(dynamic)int.MaxValue;
+        case "Int64": return (T)(dynamic)long.MaxValue;
+        case "Single": return (T)(dynamic)float.MaxValue;
+        case "Double": return (T)(dynamic)double.MaxValue;
         default: return default;
       }
     }
@@ -181,11 +183,11 @@ namespace Common.Math
     {
       switch (typeof(T).Name)
       {
-        case "Int16": return (T)(dynamic) short.MinValue;
-        case "Int32": return (T)(dynamic) int.MinValue;
-        case "Int64": return (T)(dynamic) long.MinValue;
-        case "Single": return (T)(dynamic) float.MinValue;
-        case "Double": return (T)(dynamic) double.MinValue;
+        case "Int16": return (T)(dynamic)short.MinValue;
+        case "Int32": return (T)(dynamic)int.MinValue;
+        case "Int64": return (T)(dynamic)long.MinValue;
+        case "Single": return (T)(dynamic)float.MinValue;
+        case "Double": return (T)(dynamic)double.MinValue;
         default: return default;
       }
     }
