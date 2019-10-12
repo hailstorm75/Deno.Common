@@ -9,7 +9,7 @@ variables:
   TEST_REPORT: 'TestResults.txt'
   TEST_RUNNER: 'NUnit.ConsoleRunner'
 
-  TEST_RUNNER_W_VER: '${TEST_RUNNER}.3.9.0'
+  TEST_RUNNER_W_VER: '${TEST_RUNNER}.3.10.0'
 
   # Common
   PATH_TO_SOLUTION: '${PROJ_NAME}/${PROJ_NAME}.sln'
